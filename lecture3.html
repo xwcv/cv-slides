@@ -1021,29 +1021,15 @@ score(f(x), f(x<sup>+</sup>)) = f(x)<sup>T</sup> f(x<sup>+</sup>)</div>
 </section>
 
 <!-- ========== 研究案例：EVA ========== -->
-<section class="slide" data-layout="two-col">
+<section class="slide" data-layout="image-full">
   <div class="slide-meta"><span>第 3 讲 · 掩码建模</span><span class="meta-page">65</span></div>
   <div class="kicker">Research Case · HUST-VL</div>
-  <h2 class="slide-title">案例：遮住图像后，不一定要重建原始像素</h2>
-  <div class="cols">
-    <div class="col">
-      <div class="col-title">MAE 的目标</div>
-      <ul class="bullets">
-        <li>输入可见图像块，重建被遮挡区域的像素</li>
-        <li>监督信号来自图像本身，不需要人工类别</li>
-        <li>但像素误差会关心纹理、颜色等低层细节</li>
-      </ul>
-    </div>
-    <div class="col">
-      <div class="col-title">EVA 改了什么？</div>
-      <ul class="bullets">
-        <li>仍然遮住图像块，但预测图文对齐视觉编码器产生的<strong>语义特征</strong></li>
-        <li>使用标准 ViT，把该目标扩展到 10 亿参数</li>
-        <li>预训练表征迁移到分类、动作识别、检测和分割，也可初始化 CLIP 的视觉塔</li>
-      </ul>
-    </div>
+  <h2 class="slide-title">EVA：遮住图像块，但预测的是语义特征</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/research/eva_pipeline.png" alt="EVA 掩码视觉表征学习流程">
   </div>
-  <div class="keypoint warm"><div>自监督学习不仅要决定“遮什么”，还要决定“预测什么”。像素目标保留更多外观细节，语义特征目标更直接地强调可迁移含义。</div></div>
+  <div class="caption">训练目标来自冻结的图文对齐视觉编码器：EVA 只看未遮挡 patch，预测被遮挡位置对应的语义视觉特征，而不是 RGB 像素。</div>
+  <div class="keypoint warm"><div>与 MAE 对比着讲：输入遮挡方式相似，关键差别在监督目标。像素重建重视外观细节；语义特征预测更直接强调跨任务可迁移的信息。</div></div>
   <div class="src-note" style="right:170px">Fang et al., EVA, CVPR 2023 Highlight · arxiv.org/abs/2211.07636</div>
 </section>
 
@@ -1163,30 +1149,28 @@ score(f(x), f(x<sup>+</sup>)) = f(x)<sup>T</sup> f(x<sup>+</sup>)</div>
 </section>
 
 <!-- ========== 研究案例：4D Gaussian Splatting ========== -->
-<section class="slide" data-layout="two-col">
+<section class="slide" data-layout="image-full">
   <div class="slide-meta"><span>第 3 讲 · 三维表征</span><span class="meta-page">74</span></div>
   <div class="kicker">Research Case · HUST-VL</div>
-  <h2 class="slide-title">案例：静态 3D 高斯怎样表示随时间变化的场景？</h2>
-  <div class="cols">
-    <div class="col">
-      <div class="col-title">新增的困难</div>
-      <ul class="bullets">
-        <li>静态 3DGS 假设场景几何和外观不随时间变化</li>
-        <li>人物、车辆或物体运动后，同一个高斯在不同帧应有不同位置与形状</li>
-        <li>逐帧保存一套高斯会重复存储，也难以保持时间连续</li>
-      </ul>
-    </div>
-    <div class="col">
-      <div class="col-title">4D Gaussian Splatting 的表示</div>
-      <ul class="bullets">
-        <li>保留一套 3D 高斯，并用 4D 神经体素编码空间与时间信息</li>
-        <li>轻量 MLP 根据时间预测高斯的位置、旋转和尺度变化</li>
-        <li>论文在 800×800 分辨率、RTX 3090 上报告 82 FPS</li>
-      </ul>
-    </div>
+  <h2 class="slide-title">4D Gaussian Splatting：共享一套高斯，只预测随时间发生的形变</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/research/4dgs_pipeline.png" alt="4D Gaussian Splatting 动态场景表示与形变网络">
   </div>
-  <div class="keypoint"><div>这里的关键不是“再加一个时间坐标”，而是怎样共享静态内容、只建模必要的形变。表示方式直接决定存储、训练和渲染速度。</div></div>
+  <div class="caption">一套 canonical 3D Gaussians 表示场景基准状态；4D 神经体素编码空间与时间，轻量 MLP 预测位置、旋转和尺度的变化，再用高斯光栅化渲染。</div>
+  <div class="keypoint"><div>沿图回答：哪些参数跨时间共享？哪些量随时间变化？如果每一帧都独立保存一套高斯，会失去什么？</div></div>
   <div class="src-note" style="right:170px">Wu et al., 4D Gaussian Splatting, CVPR 2024 · github.com/hustvl/4DGaussians</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲 · 三维表征</span><span class="meta-page">75</span></div>
+  <div class="kicker">Research Case · 4D Gaussian Splatting</div>
+  <h2 class="slide-title">方法是否有用，要同时看画质和渲染速度</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/research/4dgs_teaser.jpg" alt="4D Gaussian Splatting 动态场景新视角合成效果">
+  </div>
+  <div class="caption">动态场景中的人物和物体会随时间变化，模型需要在新视角下同时恢复空间结构与运动。论文在 800×800、RTX 3090 上报告 82 FPS。</div>
+  <div class="keypoint warm"><div>课堂追问：PSNR 更高但只能离线渲染，和画质略低但达到实时，哪一个更好？答案取决于自由视点视频、编辑、机器人感知等具体使用场景。</div></div>
+  <div class="src-note" style="right:170px">官方项目结果图：Wu et al., CVPR 2024</div>
 </section>
 
 <section class="slide" data-layout="bullets">

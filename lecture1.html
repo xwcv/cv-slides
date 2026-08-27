@@ -972,30 +972,43 @@
 </section>
 
 <!-- ========== 研究案例：GenDSA-V2 ========== -->
-<section class="slide" data-layout="two-col">
+<section class="slide" data-layout="gallery">
   <div class="slide-meta"><span>第 1 讲 · 从实验到真实世界</span><span class="meta-page">43</span></div>
   <div class="kicker">Research Case · HUST-VL</div>
-  <h2 class="slide-title">案例：医学模型的价值，最后要由患者结果回答</h2>
+  <h2 class="slide-title">GenDSA-V2：少拍一些帧，再生成缺失的中间帧</h2>
+  <div class="gallery-grid" data-cols="3">
+    <figure><img src="assets/lecture1/research/gendsa_frame1.png" alt="DSA 序列前一采集帧"><figcaption>保留帧 t</figcaption></figure>
+    <figure><img src="assets/lecture1/research/gendsa_frame2.png" alt="DSA 序列中间帧"><figcaption>待恢复的中间时刻</figcaption></figure>
+    <figure><img src="assets/lecture1/research/gendsa_frame3.png" alt="DSA 序列后一采集帧"><figcaption>保留帧 t+1</figcaption></figure>
+  </div>
+  <div class="keypoint"><div>DSA 是时间序列，不是互不相关的单张图像。模型利用相邻采集帧中的血管结构和造影剂运动，生成未采集时刻的画面；采集帧率降低，辐射剂量随之下降。</div></div>
+  <div class="src-note" style="right:170px">官方示例序列：github.com/ZrH42/GenDSA-V2</div>
+</section>
+
+<section class="slide" data-layout="two-col">
+  <div class="slide-meta"><span>第 1 讲 · 从实验到真实世界</span><span class="meta-page">44</span></div>
+  <div class="kicker">Research Case · GenDSA-V2</div>
+  <h2 class="slide-title">生成图像“看起来不错”，为什么还不够？</h2>
   <div class="cols">
     <div class="col">
-      <div class="col-title">研究先解决什么问题？</div>
+      <div class="col-title">模型开发阶段</div>
       <ul class="bullets">
-        <li>数字减影血管造影（DSA）能显示血管，但检查会带来电离辐射</li>
-        <li>GenDSA-V2 用生成式多帧模型改善低剂量采集得到的 DSA 序列</li>
-        <li>模型开发使用来自 70 家中心、46,829 名患者的超过 500 万幅图像</li>
+        <li>70 家中心、46,829 名患者、超过 500 万幅 DSA 图像</li>
+        <li>检查生成序列的图像质量、病灶可见性和推理速度</li>
+        <li>这些结果回答“模型能否工作”，还没有回答“患者是否获益”</li>
       </ul>
     </div>
     <div class="col">
-      <div class="col-title">怎样证明它真的有用？</div>
+      <div class="col-title">随机对照试验：1,068 名患者</div>
       <ul class="bullets">
-        <li>前瞻性随机对照试验纳入 <strong>1,068</strong> 名患者</li>
-        <li>主要结局不是图像相似度，而是患者接受的<strong>辐射剂量</strong></li>
-        <li>空气比释动能由 457.4±407.4 mGy 降至 151.3±125.1 mGy；手术时间达到非劣效，组间并发症发生率相近</li>
+        <li>空气比释动能：<strong>457.4±407.4 → 151.3±125.1 mGy</strong></li>
+        <li>手术时间达到预设的非劣效标准</li>
+        <li>两组并发症发生率相近</li>
       </ul>
     </div>
   </div>
-  <div class="keypoint warm"><div>离线图像质量只是中间证据。进入医疗场景后，还需要前瞻性试验，同时检查临床效率与安全性，才能回答“患者是否真正获益”。</div></div>
-  <div class="src-note" style="right:170px">Xu et al., Nature Medicine, 2026 · nature.com/articles/s41591-025-04042-6</div>
+  <div class="keypoint warm"><div>串讲重点：主要终点选的是辐射剂量，而不是 PSNR。手术时间和并发症是不能因降低剂量而恶化的安全边界。</div></div>
+  <div class="src-note" style="right:170px">Zhao et al., Nature Medicine, 2026 · nature.com/articles/s41591-025-04042-6</div>
 </section>
 
 <!-- ========== 课堂练习：定义一个视觉问题 ========== -->
@@ -1384,7 +1397,7 @@
     <li><span class="ref-title">π0: A Vision-Language-Action Flow Model for General Robot Control</span>. <span class="ref-venue">Black et al., Physical Intelligence. arXiv:2410.24164, 2024.</span></li>
     <li><span class="ref-title">GR00T N1: An Open Foundation Model for Generalist Humanoid Robots</span>. <span class="ref-venue">Bjorck et al., NVIDIA. arXiv:2503.14734, 2025.</span></li>
     <li><span class="ref-title">Gemini Robotics: Bringing AI into the Physical World</span>. <span class="ref-venue">Gemini Robotics Team, Google DeepMind. arXiv:2503.20020, 2025.</span></li>
-    <li><span class="ref-title">Artificial intelligence–enabled low-dose digital subtraction angiography: a randomized controlled trial</span>. <span class="ref-venue">Xu et al. Nature Medicine, 2026.</span></li>
+    <li><span class="ref-title">Generative AI-based low-dose digital subtraction angiography for intra-operative radiation dose reduction: a randomized controlled trial</span>. <span class="ref-venue">Zhao et al. Nature Medicine, 2026.</span></li>
     <li><span class="ref-title">The Nobel Prize in Physics 2024（Hopfield &amp; Hinton）</span>. <span class="ref-venue">The Royal Swedish Academy of Sciences, 2024.</span></li>
     <li><span class="ref-title">The Nobel Prize in Chemistry 2024（Baker, Hassabis &amp; Jumper）</span>. <span class="ref-venue">The Royal Swedish Academy of Sciences, 2024.</span></li>
     <li><span class="ref-title">2024 ACM A.M. Turing Award（Barto &amp; Sutton，强化学习）</span>. <span class="ref-venue">ACM, 2025.</span></li>

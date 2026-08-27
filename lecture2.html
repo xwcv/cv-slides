@@ -859,30 +859,37 @@
 </section>
 
 <!-- ========== 研究案例：Mask Scoring R-CNN ========== -->
-<section class="slide" data-layout="two-col">
+<section class="slide flip" data-layout="split">
   <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-page">38</span></div>
   <div class="kicker">Research Case · HUST-VL</div>
-  <h2 class="slide-title">案例：分类置信度高，不代表掩码画得准</h2>
-  <div class="cols">
-    <div class="col">
-      <div class="col-title">原来的评分哪里不对？</div>
+  <h2 class="slide-title">Mask Scoring R-CNN：给掩码增加质量预测</h2>
+  <div class="split-body">
+    <div class="split-text">
       <ul class="bullets">
-        <li>实例分割既要判断“是什么”，又要给出精确掩码</li>
-        <li>常见做法直接用分类置信度给掩码排序</li>
-        <li>但分类正确的实例，掩码 IoU 仍可能很低；分数与输出质量不匹配</li>
+        <li>Mask R-CNN 的分类分数回答：实例属于该类别的可能性有多大</li>
+        <li>它没有直接回答：预测掩码与真实掩码重叠得有多好</li>
+        <li>新增 MaskIoU head，把实例特征与预测掩码一起输入，回归掩码 IoU</li>
+        <li>最终 mask score 由分类置信度与预测质量共同决定</li>
       </ul>
     </div>
-    <div class="col">
-      <div class="col-title">Mask Scoring R-CNN 怎样改？</div>
-      <ul class="bullets">
-        <li>增加 MaskIoU head，输入实例特征与预测掩码</li>
-        <li>直接估计预测掩码和真实掩码之间的 IoU</li>
-        <li>用估计质量校准最终掩码分数，使排序更接近实际分割质量</li>
-      </ul>
+    <div class="split-media">
+      <img src="assets/lecture2/research/maskscoring_network.png" alt="Mask Scoring R-CNN 网络结构，新增 MaskIoU head">
+      <div class="caption">蓝色部分是原 Mask R-CNN；红色 MaskIoU head 是新增模块</div>
     </div>
   </div>
-  <div class="keypoint"><div>评价一个复杂输出时，置信度应对应我们真正关心的质量。请想一想：检测框、深度图和生成图像分别需要怎样的“质量分数”？</div></div>
   <div class="src-note" style="right:170px">Huang et al., Mask Scoring R-CNN, CVPR 2019 · github.com/zjhuang22/maskscoring_rcnn</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-page">39</span></div>
+  <div class="kicker">Research Case · Mask Scoring R-CNN</div>
+  <h2 class="slide-title">为什么要校准分数？先看这些失败样例</h2>
+  <div class="full-media">
+    <img src="assets/lecture2/research/maskscoring_examples.png" alt="分类分数与掩码质量不匹配的实例分割样例">
+  </div>
+  <div class="caption">左侧四例：分类分数很高，但掩码边界明显不准；最右侧：分类分数高且掩码质量也高。原分数难以区分这两种情况。</div>
+  <div class="keypoint warm"><div>课堂追问：COCO AP 会按分数给预测排序。如果低质量掩码排在高质量掩码之前，即使类别判断正确，最终 AP 为什么仍会下降？</div></div>
+  <div class="src-note" style="right:170px">官方项目可视化：Huang et al., CVPR 2019</div>
 </section>
 
 <!-- ========== 35 FCN ========== -->
@@ -906,30 +913,28 @@
 </section>
 
 <!-- ========== 研究案例：CCNet ========== -->
-<section class="slide" data-layout="two-col">
+<section class="slide" data-layout="image-full">
   <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-page">40</span></div>
   <div class="kicker">Research Case · HUST-VL</div>
-  <h2 class="slide-title">案例：全局上下文很重要，但每个像素都看全图太贵</h2>
-  <div class="cols">
-    <div class="col">
-      <div class="col-title">为什么分割需要远处信息？</div>
-      <ul class="bullets">
-        <li>单个局部纹理常有歧义，像素类别要结合物体整体与场景判断</li>
-        <li>全局非局部注意力让每个位置读取所有位置，但显存和计算量随像素数快速增长</li>
-        <li>研究问题因此变成：能否少看一些位置，仍得到全局信息？</li>
-      </ul>
-    </div>
-    <div class="col">
-      <div class="col-title">CCNet 的具体做法</div>
-      <ul class="bullets">
-        <li>一次 criss-cross attention 只读取当前位置所在的<strong>一行和一列</strong></li>
-        <li>重复两次后，任意两个位置都能通过中间位置交换信息</li>
-        <li>论文报告：相较非局部模块，GPU 显存约降至 1/11，计算量减少约 85%</li>
-      </ul>
-    </div>
+  <h2 class="slide-title">CCNet：两次十字交叉注意力怎样覆盖全图？</h2>
+  <div class="full-media">
+    <img src="assets/lecture2/research/ccnet_overview.png" alt="CCNet 循环十字交叉注意力结构">
   </div>
-  <div class="keypoint warm"><div>在 5×5 网格上任选两个不同行、不同列的位置：你能画出它们经过两次 criss-cross attention 交换信息的路径吗？</div></div>
+  <div class="caption">第一次只汇聚同行、同列位置；第二次经由这些中间位置，把信息传到全图。每个位置无需直接与所有像素计算注意力。</div>
+  <div class="keypoint"><div>请沿图追踪左上角与右下角：它们第一次不能直接通信，为什么第二次一定能找到一个共享行列的中间位置？</div></div>
   <div class="src-note" style="right:170px">Huang et al., CCNet, ICCV 2019 / TPAMI 2023 · github.com/speedinghzl/CCNet</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-page">41</span></div>
+  <div class="kicker">Research Case · CCNet</div>
+  <h2 class="slide-title">注意力图显示：第二次汇聚得到更完整的语义区域</h2>
+  <div class="full-media">
+    <img src="assets/lecture2/research/ccnet_attention.png" alt="CCNet 一次与两次循环注意力可视化">
+  </div>
+  <div class="caption">每组从左到右：输入图像与查询点、R=1 的十字路径注意力、R=2 的全局上下文。高响应位置往往具有相近语义。</div>
+  <div class="keypoint warm"><div>论文相较非局部模块报告约 1/11 的 GPU 显存和约 85% 的计算量减少。效率来自稀疏连接，而全局性来自重复汇聚。</div></div>
+  <div class="src-note" style="right:170px">官方项目注意力可视化：Huang et al., ICCV 2019</div>
 </section>
 
 <!-- ========== 36 应用画廊 ========== -->
@@ -1210,29 +1215,15 @@ softmax  → 把相关性变成权重
 </section>
 
 <!-- ========== 研究案例：YOLO-World ========== -->
-<section class="slide" data-layout="two-col">
+<section class="slide" data-layout="image-full">
   <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-page">51</span></div>
   <div class="kicker">Research Case · HUST-VL</div>
-  <h2 class="slide-title">案例：检测器为什么只能找训练时规定的类别？</h2>
-  <div class="cols">
-    <div class="col">
-      <div class="col-title">封闭词表检测器</div>
-      <ul class="bullets">
-        <li>普通 YOLO 的类别集合在训练时固定，例如 COCO 的 80 类</li>
-        <li>换成新的类别名称，分类头没有对应输出</li>
-        <li>重新收集边界框标注并训练，成本高、响应慢</li>
-      </ul>
-    </div>
-    <div class="col">
-      <div class="col-title">YOLO-World 的改法</div>
-      <ul class="bullets">
-        <li>把类别文本作为输入，用图文预训练学习区域与词语的对应关系</li>
-        <li>推理时给出文本提示，检测提示中指定的对象类别</li>
-        <li>论文在 LVIS 报告 35.4 AP、V100 上 52 FPS，兼顾开放词汇能力与实时性</li>
-      </ul>
-    </div>
+  <h2 class="slide-title">YOLO-World：把类别名称从固定输出变成文本输入</h2>
+  <div class="full-media">
+    <img src="assets/lecture2/research/yoloworld_arch.png" alt="YOLO-World 图像与文本双编码器、RepVL-PAN 和检测头结构">
   </div>
-  <div class="keypoint"><div>“开放词汇”不是模型自动发现所有未知物体；它仍需要文本提示。真正改变的是类别不再被固定分类头锁死。</div></div>
+  <div class="caption">图像进入 YOLO 检测骨干；类别文本进入文本编码器；RepVL-PAN 融合区域与文本特征，通过区域—文本对比学习建立对应关系。论文在 LVIS 报告 35.4 AP、V100 上 52 FPS。</div>
+  <div class="keypoint"><div>推理时先给出“person, bus, backpack”等词，再执行检测。开放词汇不是自动发现所有未知物体，而是允许用户更换要寻找的类别。</div></div>
   <div class="src-note" style="right:170px">Cheng et al., YOLO-World, CVPR 2024 · github.com/AILab-CVC/YOLO-World</div>
 </section>
 
