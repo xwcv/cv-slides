@@ -716,9 +716,52 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   </div>
 </section>
 
+<!-- ========== Mask R-CNN（Mask Scoring R-CNN 的前置） ========== -->
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">33</span></span></div>
+  <h2 class="slide-title">实例分割：Mask R-CNN（2017）</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>在 Faster R-CNN 上增加一条<strong>掩码分支</strong>：每个候选区域同时输出类别、边界框和逐像素二值掩码</li>
+        <li>掩码分支是一个小 FCN，与分类、回归分支并行预测，互不依赖</li>
+        <li>RoIPool 的取整量化对分类影响不大，却会让掩码错位——改用 <strong>RoIAlign</strong> 双线性插值做亚像素级对齐</li>
+        <li>注意：分类分数只回答「是不是这个类别」，并不衡量掩码本身画得好不好——下一页的研究案例正是补上这一环</li>
+      </ul>
+    </div>
+    <div class="split-media">
+      <svg viewBox="0 0 560 300" style="max-width:100%;height:auto" role="img" aria-label="Mask R-CNN：Faster R-CNN 经 RoIAlign 后分支出分类回归头与掩码分支">
+        <g font-family="sans-serif">
+          <defs><marker id="arrm" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#22222a"/></marker></defs>
+          <rect x="16" y="116" width="86" height="68" rx="8" fill="#f6f4ee" stroke="#9a9aa4" stroke-width="1.5"/>
+          <text x="59" y="145" font-size="13" text-anchor="middle" fill="#4a4a55">输入图像</text>
+          <text x="59" y="163" font-size="13" text-anchor="middle" fill="#4a4a55">+ 候选框</text>
+          <line x1="104" y1="150" x2="134" y2="150" stroke="#22222a" stroke-width="2.5" marker-end="url(#arrm)"/>
+          <rect x="140" y="112" width="104" height="76" rx="10" fill="#e8eefb" stroke="#2456d6" stroke-width="2"/>
+          <text x="192" y="143" font-size="14" text-anchor="middle" fill="#2456d6" font-weight="700">CNN 骨干</text>
+          <text x="192" y="163" font-size="12" text-anchor="middle" fill="#2456d6">整图特征</text>
+          <line x1="246" y1="150" x2="276" y2="150" stroke="#22222a" stroke-width="2.5" marker-end="url(#arrm)"/>
+          <rect x="282" y="112" width="104" height="76" rx="10" fill="#fff" stroke="#22222a" stroke-width="2"/>
+          <text x="334" y="143" font-size="14" text-anchor="middle" fill="#22222a" font-weight="700">RoIAlign</text>
+          <text x="334" y="163" font-size="12" text-anchor="middle" fill="#6b6b76">区域特征对齐</text>
+          <line x1="388" y1="132" x2="424" y2="86" stroke="#22222a" stroke-width="2.5" marker-end="url(#arrm)"/>
+          <line x1="388" y1="168" x2="424" y2="214" stroke="#22222a" stroke-width="2.5" marker-end="url(#arrm)"/>
+          <rect x="430" y="46" width="116" height="66" rx="10" fill="#e8eefb" stroke="#2456d6" stroke-width="2"/>
+          <text x="488" y="72" font-size="13.5" text-anchor="middle" fill="#2456d6" font-weight="700">分类 + 框回归</text>
+          <text x="488" y="92" font-size="12" text-anchor="middle" fill="#6b6b76">是什么、在哪里</text>
+          <rect x="430" y="188" width="116" height="66" rx="10" fill="#fbece4" stroke="#c2521e" stroke-width="2"/>
+          <text x="488" y="214" font-size="13.5" text-anchor="middle" fill="#c2521e" font-weight="700">掩码分支 FCN</text>
+          <text x="488" y="234" font-size="12" text-anchor="middle" fill="#6b6b76">28×28 逐像素掩码</text>
+        </g>
+      </svg>
+      <div class="caption">He et al., Mask R-CNN, ICCV 2017（Marr Prize）</div>
+    </div>
+  </div>
+</section>
+
 <!-- ========== 研究案例：Mask Scoring R-CNN ========== -->
 <section class="slide flip" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">33</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">34</span></span></div>
   <div class="kicker">Research Case · HUST-VL</div>
   <h2 class="slide-title">Mask Scoring R-CNN：给掩码增加质量预测</h2>
   <div class="split-body">
@@ -739,7 +782,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 </section>
 
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">34</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">35</span></span></div>
   <div class="kicker">Research Case · Mask Scoring R-CNN</div>
   <h2 class="slide-title">为什么要校准分数？先看这些失败样例</h2>
   <div class="full-media">
@@ -750,9 +793,22 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="src-note" style="right:170px">官方项目可视化：Huang et al., CVPR 2019</div>
 </section>
 
+<!-- ========== 研究案例：YOLO-World（检测线索的延伸：YOLO 系列 → 开放词汇） ========== -->
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">36</span></span></div>
+  <div class="kicker">Research Case · HUST-VL</div>
+  <h2 class="slide-title">YOLO-World：把类别名称从固定输出变成文本输入</h2>
+  <div class="full-media">
+    <img src="assets/lecture2/yoloworld_arch.png" alt="YOLO-World 图像与文本双编码器、RepVL-PAN 和检测头结构">
+  </div>
+  <div class="caption">承接前面的 YOLO 系列：图像进入 YOLO 检测骨干；类别文本进入文本编码器；RepVL-PAN 融合区域与文本特征，通过区域—文本对比学习建立对应关系。论文在 LVIS 报告 35.4 AP、V100 上 52 FPS。</div>
+  <div class="keypoint"><div>推理时先给出“person, bus, backpack”等词，再执行检测。开放词汇不是自动发现所有未知物体，而是允许用户更换要寻找的类别。</div></div>
+  <div class="src-note" style="right:170px">Cheng et al., YOLO-World, CVPR 2024 · github.com/AILab-CVC/YOLO-World</div>
+</section>
+
 <!-- ========== 35 FCN ========== -->
 <section class="slide flip" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">35</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">37</span></span></div>
   <h2 class="slide-title">语义分割：全卷积网络 FCN（2015）</h2>
   <div class="split-body">
     <div class="split-text">
@@ -768,52 +824,6 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       <div class="caption">Long, Shelhamer &amp; Darrell, CVPR 2015</div>
     </div>
   </div>
-</section>
-
-<!-- ========== 研究案例：CCNet ========== -->
-<section class="slide dense" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">36</span></span></div>
-  <div class="kicker">Research Case · HUST-VL</div>
-  <h2 class="slide-title">CCNet：两次十字交叉注意力怎样覆盖全图？</h2>
-  <div class="split-body ccnet-method">
-    <div class="split-text">
-      <p class="lead">对位置 <em>u</em>，只取与它同一行或同一列的特征集合 Ω<sub>u</sub>，共 <strong>H+W−1</strong> 个位置。</p>
-      <div class="ccnet-equation">
-        <div class="eq-main">d<sub>i,u</sub> = Q<sub>u</sub> Ω<sub>i,u</sub><sup>T</sup></div>
-        <div class="eq-note">Q 与同行、同列的 K 做点积，得到相关性</div>
-      </div>
-      <div class="ccnet-equation">
-        <div class="eq-main">A<sub>:,u</sub> = softmax(d<sub>:,u</sub>)</div>
-        <div class="eq-note">沿十字路径归一化为注意力权重</div>
-      </div>
-      <div class="ccnet-equation">
-        <div class="eq-main">H′<sub>u</sub> = ∑<sub>i∈Ω<sub>u</sub></sub> A<sub>i,u</sub> Φ<sub>i,u</sub> + H<sub>u</sub></div>
-        <div class="eq-note">对 V 加权汇聚，并保留输入的残差连接</div>
-      </div>
-      <ul class="bullets compact">
-        <li>Q、K 用 1×1 卷积降维；V 保留用于传递的内容特征。</li>
-        <li>同一模块<strong>共享参数循环两次</strong>：第一次到达同行、同列，第二次经中间位置覆盖全图。</li>
-      </ul>
-    </div>
-    <div class="split-media ccnet-module-media">
-      <img src="assets/lecture2/ccnet_module.png" alt="Criss-Cross Attention 模块：由 Q、K 计算十字注意力，对 V 聚合并加入残差">
-      <div class="caption">单个 Criss-Cross Attention 模块：相关性计算与内容聚合分开</div>
-    </div>
-  </div>
-  <div class="keypoint"><div>与全局 Non-local 为每个位置计算 HW 个权重不同，十字交叉注意力只计算 H+W−1 个；R=2 获得全局依赖，但两个循环不增加新的模块参数。</div></div>
-  <div class="src-note" style="right:170px">Huang et al., CCNet, ICCV 2019 / TPAMI 2023 · github.com/speedinghzl/CCNet</div>
-</section>
-
-<section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 2 讲 · 视觉应用</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">37</span></span></div>
-  <div class="kicker">Research Case · CCNet</div>
-  <h2 class="slide-title">注意力图显示：第二次汇聚得到更完整的语义区域</h2>
-  <div class="full-media">
-    <img src="assets/lecture2/ccnet_attention.png" alt="CCNet 一次与两次循环注意力可视化">
-  </div>
-  <div class="caption">每组从左到右：输入图像与查询点、R=1 的十字路径注意力、R=2 的全局上下文。高响应位置往往具有相近语义。</div>
-  <div class="keypoint warm"><div>论文相较非局部模块报告约 1/11 的 GPU 显存和约 85% 的计算量减少。效率来自稀疏连接，而全局性来自重复汇聚。</div></div>
-  <div class="src-note" style="right:170px">官方项目注意力可视化：Huang et al., ICCV 2019</div>
 </section>
 
 <!-- ========== 36 应用画廊 ========== -->
@@ -1138,9 +1148,55 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   </div>
 </section>
 
+<!-- ========== 研究案例：CCNet（注意力在视觉中的早期形态，置于 ViT 之前） ========== -->
+<section class="slide dense" data-layout="split">
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">49</span></span></div>
+  <div class="kicker">Research Case · HUST-VL</div>
+  <h2 class="slide-title">CCNet：两次十字交叉注意力怎样覆盖全图？</h2>
+  <div class="split-body ccnet-method">
+    <div class="split-text">
+      <p class="lead">对位置 <em>u</em>，只取与它同一行或同一列的特征集合 Ω<sub>u</sub>，共 <strong>H+W−1</strong> 个位置。</p>
+      <div class="ccnet-equation">
+        <div class="eq-main">d<sub>i,u</sub> = Q<sub>u</sub> Ω<sub>i,u</sub><sup>T</sup></div>
+        <div class="eq-note">Q 与同行、同列的 K 做点积，得到相关性</div>
+      </div>
+      <div class="ccnet-equation">
+        <div class="eq-main">A<sub>:,u</sub> = softmax(d<sub>:,u</sub>)</div>
+        <div class="eq-note">沿十字路径归一化为注意力权重</div>
+      </div>
+      <div class="ccnet-equation">
+        <div class="eq-main">H′<sub>u</sub> = ∑<sub>i∈Ω<sub>u</sub></sub> A<sub>i,u</sub> Φ<sub>i,u</sub> + H<sub>u</sub></div>
+        <div class="eq-note">对 V 加权汇聚，并保留输入的残差连接</div>
+      </div>
+      <ul class="bullets compact">
+        <li>Q、K 用 1×1 卷积降维；V 保留用于传递的内容特征。</li>
+        <li>同一模块<strong>共享参数循环两次</strong>：第一次到达同行、同列，第二次经中间位置覆盖全图。</li>
+      </ul>
+    </div>
+    <div class="split-media ccnet-module-media">
+      <img src="assets/lecture2/ccnet_module.png" alt="Criss-Cross Attention 模块：由 Q、K 计算十字注意力，对 V 聚合并加入残差">
+      <div class="caption">单个 Criss-Cross Attention 模块：相关性计算与内容聚合分开</div>
+    </div>
+  </div>
+  <div class="keypoint"><div>与全局 Non-local 为每个位置计算 HW 个权重不同，十字交叉注意力只计算 H+W−1 个；R=2 获得全局依赖，但两个循环不增加新的模块参数。</div></div>
+  <div class="src-note" style="right:170px">Huang et al., CCNet, ICCV 2019 / TPAMI 2023 · github.com/speedinghzl/CCNet</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">50</span></span></div>
+  <div class="kicker">Research Case · CCNet</div>
+  <h2 class="slide-title">注意力图显示：第二次汇聚得到更完整的语义区域</h2>
+  <div class="full-media">
+    <img src="assets/lecture2/ccnet_attention.png" alt="CCNet 一次与两次循环注意力可视化">
+  </div>
+  <div class="caption">每组从左到右：输入图像与查询点、R=1 的十字路径注意力、R=2 的全局上下文。高响应位置往往具有相近语义。</div>
+  <div class="keypoint warm"><div>论文相较非局部模块报告约 1/11 的 GPU 显存和约 85% 的计算量减少。效率来自稀疏连接，而全局性来自重复汇聚。</div></div>
+  <div class="src-note" style="right:170px">官方项目注意力可视化：Huang et al., ICCV 2019</div>
+</section>
+
 <!-- ========== NEW B Vision Transformer ========== -->
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">49</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">51</span></span></div>
   <h2 class="slide-title">Vision Transformer：把图像当句子读（2020）</h2>
   <div class="split-body">
     <div class="split-text">
@@ -1195,7 +1251,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== NEW C CNN vs ViT ========== -->
 <section class="slide" data-layout="table">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">50</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">52</span></span></div>
   <h2 class="slide-title">CNN vs. ViT：两种视觉范式</h2>
   <div class="table-wrap">
     <table>
@@ -1216,7 +1272,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 40 烹饪比喻 ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">51</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">53</span></span></div>
   <h2 class="slide-title">端到端学习把全部环节放在一起优化</h2>
   <div class="slide-body" style="display:flex;flex-direction:column;gap:26px;justify-content:center">
     <div style="display:flex;align-items:center;gap:18px">
@@ -1259,7 +1315,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 42 涌现 ========== -->
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">53</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">55</span></span></div>
   <h2 class="slide-title">“涌现”描述了什么？为什么仍有争议？</h2>
   <div class="split-body">
     <div class="split-text">
@@ -1287,22 +1343,9 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <span class="track-badge tb-read">课后阅读</span>
 </section>
 
-<!-- ========== 研究案例：YOLO-World ========== -->
-<section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">55</span></span></div>
-  <div class="kicker">Research Case · HUST-VL</div>
-  <h2 class="slide-title">YOLO-World：把类别名称从固定输出变成文本输入</h2>
-  <div class="full-media">
-    <img src="assets/lecture2/yoloworld_arch.png" alt="YOLO-World 图像与文本双编码器、RepVL-PAN 和检测头结构">
-  </div>
-  <div class="caption">图像进入 YOLO 检测骨干；类别文本进入文本编码器；RepVL-PAN 融合区域与文本特征，通过区域—文本对比学习建立对应关系。论文在 LVIS 报告 35.4 AP、V100 上 52 FPS。</div>
-  <div class="keypoint"><div>推理时先给出“person, bus, backpack”等词，再执行检测。开放词汇不是自动发现所有未知物体，而是允许用户更换要寻找的类别。</div></div>
-  <div class="src-note" style="right:170px">Cheng et al., YOLO-World, CVPR 2024 · github.com/AILab-CVC/YOLO-World</div>
-</section>
-
 <!-- ========== 43 SAM ========== -->
 <section class="slide flip" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">56</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">57</span></span></div>
   <h2 class="slide-title">视觉基础模型：Segment Anything（2023）</h2>
   <div class="split-body">
     <div class="split-text">
@@ -1322,7 +1365,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 44 Depth Anything ========== -->
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">57</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">58</span></span></div>
   <h2 class="slide-title">Depth Anything：单目深度估计基础模型</h2>
   <div class="full-media">
     <img src="assets/lecture2/s074_img97.png" alt="Depth Anything 在任意场景上的深度估计结果">
@@ -1333,7 +1376,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== NEW 视觉基础模型新进展（2024） ========== -->
 <section class="slide" data-layout="two-col">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">58</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">59</span></span></div>
   <div class="kicker">2024 · Foundation Models</div>
   <h2 class="slide-title">视觉基础模型的新进展</h2>
   <div class="cols">
@@ -1361,7 +1404,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 45 人工智能三要素 ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">59</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">60</span></span></div>
   <h2 class="slide-title">人工智能三要素与规模法则</h2>
   <div class="slide-body">
     <p class="lead"><span class="tag">数据</span> <span class="tag">算法</span> <span class="tag">算力</span> 共同影响训练结果；增加其中一项并不保证所有任务都同步改善。</p>
@@ -1377,7 +1420,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 46 ChatGPT ========== -->
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">60</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">61</span></span></div>
   <h2 class="slide-title">ChatGPT：规模放大后出现新的对话能力（2022）</h2>
   <div class="split-body">
     <div class="split-text">
@@ -1403,7 +1446,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 47 GPT 系列演进 ========== -->
 <section class="slide" data-layout="table">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">61</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">62</span></span></div>
   <h2 class="slide-title">从 GPT-1 到 ChatGPT：架构延续，配方巨变</h2>
   <div class="table-wrap">
     <table>
@@ -1424,7 +1467,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== ChatGPT 的训练阶段 ========== -->
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">62</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">63</span></span></div>
   <h2 class="slide-title">从语言模型到对话助手，需要哪些训练阶段？</h2>
   <div class="full-media">
     <img src="assets/lecture2/instructgpt_training.png" alt="InstructGPT 的监督微调、奖励模型和强化学习三个训练步骤">
@@ -1436,7 +1479,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== NEW 推理模型（2024–2025） ========== -->
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">63</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">64</span></span></div>
   <div class="kicker">2024–2025 · Reasoning</div>
   <h2 class="slide-title">推理模型：用「慢思考」换智能</h2>
   <div class="split-body">
@@ -1485,7 +1528,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== NEW 国产开源大模型（更新至 2026.08） ========== -->
 <section class="slide dense model-evolution-slide" data-layout="table">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">64</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">65</span></span></div>
   <h2 class="slide-title">国产开源大模型快速迭代（2024–2026）</h2>
   <div class="table-wrap">
     <table style="font-size:13.5px">
@@ -1512,7 +1555,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 扩散模型机制（自绘 SVG + 公式） ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">65</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">66</span></span></div>
   <h2 class="slide-title">扩散模型：前向加噪、反向去噪</h2>
   <div class="slide-body" style="gap:12px">
     <svg viewBox="0 0 1000 246" width="1000" height="246" style="max-width:100%;height:auto" role="img" aria-label="扩散模型前向加噪链与反向去噪链">
@@ -1567,7 +1610,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 扩散模型代表工作 ========== -->
 <section class="slide dense research-evolution-slide" data-layout="table">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">66</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">67</span></span></div>
   <div class="kicker">2020–2024 · Diffusion Models</div>
   <h2 class="slide-title">扩散模型的进步，发生在不同层面</h2>
   <div class="table-wrap">
@@ -1590,7 +1633,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 49 Stable Diffusion ========== -->
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">67</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">68</span></span></div>
   <h2 class="slide-title">AIGC 浪潮：Stable Diffusion 文生图</h2>
   <div class="full-media">
     <img src="assets/lecture2/s083_img122.png" alt="Stable Diffusion 的逐步去噪生成过程">
@@ -1600,7 +1643,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 扩散模型控制与定制 ========== -->
 <section class="slide diffusion-control-slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">68</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">69</span></span></div>
   <h2 class="slide-title">从“随机生成”到可控、可定制</h2>
   <div class="split-body">
     <div class="split-text">
@@ -1622,7 +1665,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 课堂练习：扩散模型伪代码填空 ========== -->
 <section class="slide" data-layout="code">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">69</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">70</span></span></div>
   <div class="kicker">Exercise · 课堂 3 分钟</div>
   <h2 class="slide-title">练习 ③：把扩散训练的一步补全</h2>
   <div class="code-body">
@@ -1642,7 +1685,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 练习 ③ 参考答案 ========== -->
 <section class="slide" data-layout="code">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">70</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">71</span></span></div>
   <div class="kicker">Exercise · 参考答案</div>
   <h2 class="slide-title">练习 ③ 参考答案：扩散训练的一步</h2>
   <div class="code-body">
@@ -1662,7 +1705,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== NEW 视频生成与多模态统一（2024–2025） ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">71</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">72</span></span></div>
   <div class="kicker">2024–2025 · Generation</div>
   <h2 class="slide-title">视频生成与多模态统一</h2>
   <div class="slide-body">
@@ -1679,7 +1722,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 50 智能体：工作原理 ========== -->
 <section class="slide agent-architecture-slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">72</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">73</span></span></div>
   <div class="kicker">Agentic AI · Coding Agents</div>
   <h2 class="slide-title">代码智能体 = 模型 + 工具 + 可验证的执行循环</h2>
   <div class="split-body">
@@ -1712,7 +1755,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 代码智能体产品比较 ========== -->
 <section class="slide dense coding-agent-compare-slide" data-layout="table">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">73</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">74</span></span></div>
   <div class="kicker">2025–2026 · Coding Agents</div>
   <h2 class="slide-title">Claude Code、Codex、OpenCode：相似的循环，不同的运行方式</h2>
   <div class="table-wrap">
@@ -1752,7 +1795,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 代码智能体使用方法 ========== -->
 <section class="slide agent-practice-slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">74</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">75</span></span></div>
   <div class="kicker">How to use · 可直接照做</div>
   <h2 class="slide-title">把任务写成可以验收的工程问题</h2>
   <div class="agent-practice-grid">
@@ -1789,7 +1832,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== Agentic AI 四个核心机制 ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">75</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">76</span></span></div>
   <div class="kicker">Agentic AI · 核心机制</div>
   <h2 class="slide-title">拆开看：代码智能体的四个核心机制</h2>
   <div class="card-grid" data-cols="2">
@@ -1804,7 +1847,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== Agentic AI 评测 ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">76</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">77</span></span></div>
   <div class="kicker">Agentic AI · 如何评测</div>
   <h2 class="slide-title">benchmark 分数之外：怎样评测一个 coding agent？</h2>
   <div class="slide-body">
@@ -1821,7 +1864,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 贯穿示例：一个任务看懂 VLM / VLA / 世界模型 / WAM ========== -->
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">77</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">78</span></span></div>
   <div class="kicker">Running Example · 具身智能四概念</div>
   <h2 class="slide-title">一个任务看懂四个概念：「把杯子放进抽屉」</h2>
   <div class="full-media">
@@ -1898,7 +1941,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 51 VLM / VLA ========== -->
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">78</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">79</span></span></div>
   <h2 class="slide-title">走向具身：VLM → VLA</h2>
   <div class="split-body">
     <div class="split-text">
@@ -1919,7 +1962,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== VLA 代表工作 ========== -->
 <section class="slide dense vla-landscape-slide" data-layout="table">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">79</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">80</span></span></div>
   <div class="kicker">2022–2025 · Vision-Language-Action</div>
   <h2 class="slide-title">VLA 的能力来自数据、预训练和动作表示</h2>
   <div class="table-wrap">
@@ -1942,7 +1985,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== VLA 动作输出设计 ========== -->
 <section class="slide vla-action-slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">80</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">81</span></span></div>
   <h2 class="slide-title">VLA 怎样把理解变成连续动作？</h2>
   <div class="action-head-grid">
     <div class="action-head-item">
@@ -1976,7 +2019,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== VLA 连续控制的实际困难 ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">81</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">82</span></span></div>
   <div class="kicker">VLA · 连续控制的难处</div>
   <h2 class="slide-title">从「会预测动作」到「能控制机器人」，难在哪？</h2>
   <div class="card-grid" data-cols="2">
@@ -1991,7 +2034,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 52 Senna（上）：数据与 VLM ========== -->
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">82</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">83</span></span></div>
   <div class="kicker">Research Case · HUST-VL</div>
   <h2 class="slide-title">Senna（上）：VLM 怎样理解驾驶场景？</h2>
   <div class="split-body">
@@ -2014,7 +2057,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 52b Senna（下）：规划与三阶段训练 ========== -->
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">83</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">84</span></span></div>
   <div class="kicker">Research Case · HUST-VL</div>
   <h2 class="slide-title">Senna（下）：规划知识与三阶段训练</h2>
   <div class="split-body">
@@ -2041,7 +2084,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== WAM 核心概念 ========== -->
 <section class="slide wam-concept-slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">84</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">85</span></span></div>
   <div class="kicker">2025–2026 · World Action Models</div>
   <h2 class="slide-title">WAM 既预测动作，也预测动作之后的世界</h2>
   <div class="split-body">
@@ -2064,7 +2107,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== WAM 代表工作 ========== -->
 <section class="slide dense wam-landscape-slide" data-layout="table">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">85</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">86</span></span></div>
   <h2 class="slide-title">本课归纳：按「动作与世界预测的关系」看 WAM 的两类做法</h2>
   <div class="wam-types">
     <div><strong>级联式</strong>：先生成未来画面或视觉计划，再由逆动力学模型恢复动作；模块清楚，但误差会在两阶段传递。</div>
@@ -2089,7 +2132,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 能力边界与外部工具 ========== -->
 <section class="slide" data-layout="two-col">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">86</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">87</span></span></div>
   <h2 class="slide-title">大模型会生成答案，不等于答案已经被验证</h2>
   <div class="cols">
     <div class="col">
@@ -2117,7 +2160,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 本章小结 05 ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">87</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">88</span></span></div>
   <div class="kicker">Chapter Summary</div>
   <h2 class="slide-title">本章小结：大模型时代</h2>
   <div class="card-grid" data-cols="2">
@@ -2130,7 +2173,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 全讲总结 ========== -->
 <section class="slide dense" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 总结</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">88</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 总结</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">89</span></span></div>
   <div class="kicker">Lecture Summary</div>
   <h2 class="slide-title">关掉课件，你能解释模型为什么有效吗？</h2>
   <div class="slide-body">
@@ -2152,7 +2195,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 参考文献（上） ========== -->
 <section class="slide refs dense" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">89</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">90</span></span></div>
   <div class="kicker">References</div>
   <h2 class="slide-title">参考文献（上）：历史脉络与卷积网络</h2>
   <div class="slide-body">
@@ -2183,7 +2226,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 参考文献（下） ========== -->
 <section class="slide refs dense" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">90</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">91</span></span></div>
   <div class="kicker">References</div>
   <h2 class="slide-title">参考文献（下）：视觉应用与大模型时代</h2>
   <div class="slide-body">
@@ -2218,7 +2261,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 参考文献（续） ========== -->
 <section class="slide refs dense" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">91</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">92</span></span></div>
   <div class="kicker">References</div>
   <h2 class="slide-title">参考文献（续）：视觉 Transformer 与最新进展</h2>
   <div class="slide-body">
