@@ -439,26 +439,26 @@
 <section class="slide" data-layout="two-col">
   <div class="slide-meta"><span>第 1 讲 · 神经网络之路</span><span class="meta-page">14</span></div>
   <div class="kicker">Turning Point 01 · 1958 → 1969</div>
-  <h2 class="slide-title">感知机的高光，与 XOR 困境引发的寒冬</h2>
+  <h2 class="slide-title">感知机的高光，与 XOR 困境后的信心危机</h2>
   <div class="cols">
     <div class="col">
       <div class="col-title">1958 · 感知机：可以学习的机器</div>
       <ul class="bullets">
-        <li>Rosenblatt 的感知机：线性加权求和 + 阈值激活，权重可<strong>从数据自动调整</strong>——第一个“可学习”的模型</li>
+        <li>Rosenblatt 的感知机：线性加权求和 + 阈值激活，权重可<strong>从数据自动调整</strong>——早期最有影响力的可学习神经模型之一</li>
         <li>还造出了硬件 Mark I：用电机驱动电位器调权，一度被媒体热炒</li>
         <li>但它本质上仍是<strong>线性分类器</strong>——这注定了它的能力边界</li>
       </ul>
     </div>
     <div class="col">
-      <div class="col-title">1969 · XOR 困境：第一次寒冬</div>
+      <div class="col-title">1969 · XOR 困境：连接主义受挫</div>
       <ul class="bullets">
         <li>Minsky &amp; Papert《Perceptrons》证明：单层感知机<strong>无法表示 XOR</strong>——不存在一条直线能分开两类</li>
-        <li>失败案例直接转化为对整个神经网络路线的质疑，研究经费枯竭</li>
+        <li>这一局限削弱了学界对连接主义路线的信心；但第一次寒冬还来自早期承诺落空、算力与数据不足、机器翻译等项目失败、资助政策变化等多重原因</li>
         <li>走出困境的驱动力：<strong>多层网络 + 能训练它的算法</strong></li>
       </ul>
     </div>
   </div>
-  <div class="keypoint warm"><div>注意：XOR 否定的是<strong>单层</strong>感知机，而不是神经网络本身——多层网络可以表示 XOR，当时缺的只是训练算法。感知机结构、学习规则与线性可分性的细节详见第 2 讲。</div></div>
+  <div class="keypoint warm"><div>注意：XOR 否定的是<strong>单层</strong>感知机，而不是神经网络本身——多层网络可以表示 XOR，但当时除了训练算法，还缺合适的初始化、激活函数与正则化，以及足够的数据和算力。感知机结构、学习规则与线性可分性的细节详见第 2 讲。</div></div>
 </section>
 
 <!-- ========== 23 转折 02：反向传播 + LeNet（合并页） ========== -->
@@ -471,7 +471,7 @@
       <ul class="bullets">
         <li><strong>1986 反向传播</strong>（Rumelhart、Hinton &amp; Williams）：用链式法则把输出误差逐层“分摊”回每个参数，多层网络从此训得动，XOR 不再是障碍</li>
         <li><strong>1998 LeNet</strong>（Yann LeCun）：把反向传播装进类 Neocognitron 的卷积结构，识别手写数字，部署于银行自动读取支票</li>
-        <li>结构与现代 CNN 几乎一致——只缺<strong>数据与算力的规模</strong></li>
+        <li>卷积—下采样—分类头的<strong>核心骨架已经出现</strong>，但现代 CNN 还依赖 ReLU、BatchNorm、残差连接，以及更成熟的初始化与优化方法</li>
       </ul>
     </div>
     <div class="split-media">
@@ -559,7 +559,7 @@
     <div class="mini-card">
       <div class="mc-no">01</div>
       <div class="mc-title">感知机与 XOR（1958 / 1969）</div>
-      <p>感知机首次实现“从数据学习”；Minsky 证明<strong>单层模型无法表示 XOR</strong>——线性模型的边界引发第一次寒冬。</p>
+      <p>感知机是早期最有影响力的可学习神经模型之一；Minsky 证明<strong>单层模型无法表示 XOR</strong>——连接主义信心受挫，成为第一次寒冬的导火索之一。</p>
     </div>
     <div class="mini-card">
       <div class="mc-no">02</div>
@@ -687,11 +687,11 @@
       <text x="960" y="128" font-size="17" text-anchor="middle" font-weight="700" fill="#22222a">2026.04</text>
       <text x="960" y="152" font-size="15" text-anchor="middle" fill="#c2521e" font-weight="600">Sora 产品关停</text>
       <text x="960" y="172" font-size="14" text-anchor="middle" fill="#6b6b76">竞赛白热化</text>
-      <text x="545" y="352" font-size="16" text-anchor="middle" fill="#6b6b76">两年间：从“演示惊艳”到日常工具，生成模型开始学习物理规律</text>
+      <text x="545" y="352" font-size="16" text-anchor="middle" fill="#6b6b76">两年间：从“演示惊艳”到日常工具，模型学到部分统计规律与常见运动模式</text>
     </svg>
   </div>
   <div class="caption">视频生成大事记：Sora 点燃赛道，可灵、Veo 快速跟进，Genie 3 把“生成视频”变成“生成可交互世界”</div>
-  <div class="keypoint warm"><div>注意：能预测“接下来会发生什么”的生成模型与世界模型<strong>有联系，但不能画等号</strong>——世界模型还需要可查询的物理状态、以动作为条件的预测，并能服务于决策与规划；逼真视频只是必要成分之一（Genie 3 的“可交互”正是在补这一课）。</div></div>
+  <div class="keypoint warm"><div>注意：能预测“接下来会发生什么”的生成模型与世界模型<strong>有联系，但不能画等号</strong>——世界模型还需要可查询的物理状态、以动作为条件的预测，并能服务于决策与规划；模型是否形成了可泛化、可用于预测和控制的物理模型仍是开放问题，画面逼真不能证明理解物理（Genie 3 的“可交互”正是在补这一课）。</div></div>
   <div class="src-note" style="right:170px">出处：OpenAI、快手、Runway、Google DeepMind 官方发布（2024–2026）</div>
 </section>
 
@@ -717,6 +717,7 @@
       <p>GAN 与文生图开启 <strong>AIGC</strong>；2024 年起<strong>视频生成</strong>（Sora / 可灵 / Veo）与<strong>世界模型</strong>（Genie 3）接棒。</p>
     </div>
   </div>
+  <div class="keypoint"><div>分清三件事：<strong>识别模型</strong>判断“这是什么”；<strong>生成模型</strong>学习数据的分布，能生成以假乱真的内容；<strong>世界模型</strong>要求状态变化具有预测与决策价值——可交互、可控、可验证，比画面逼真更重要。</div></div>
 </section>
 
 <!-- ========== 38 section 06 课程地图 ========== -->

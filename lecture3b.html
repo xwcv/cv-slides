@@ -30,7 +30,7 @@
     <p class="lead">承接上讲：迁移与半监督仍依赖人工标注的起点；自监督把标签彻底从数据中构造出来。</p>
     <ul class="bullets">
       <li>自监督学习的范式与评估：代理任务、两阶段、线性探针 <span class="tag">Preface</span></li>
-      <li>对比学习：SimCLR、MoCo、DINO → DINOv3、CLIP 与 SigLIP <span class="tag warm">InfoNCE</span></li>
+      <li>判别式自监督：对比学习（SimCLR、MoCo、CLIP、SigLIP）与非对比自蒸馏（BYOL、DINO → DINOv3） <span class="tag warm">InfoNCE</span></li>
       <li>掩码建模与自回归：BERT、MAE、EVA、JEPA 系列</li>
       <li>实践指南：方法怎么选、坍塌与过拟合怎么查</li>
       <li>拓展（选讲）：隐式神经表示（INR）与 3D 表征——另一种“表征”的含义 <span class="tag neutral">NeRF · 3DGS</span></li>
@@ -223,12 +223,12 @@
 <!-- ========== 08 对比学习 ========== -->
 <section class="slide" data-layout="section">
   <div class="section-num">08</div>
-  <div class="section-title">自监督学习：对比学习</div>
-  <div class="section-sub">怎样构造“相似样本”，又怎样避免所有特征变得一样？</div>
+  <div class="section-title">判别式自监督：对比学习与自蒸馏</div>
+  <div class="section-sub">有负样本的对比学习与无负样本的自蒸馏，分别如何防止坍塌？</div>
 </section>
 
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">15</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">15</span></div>
   <h2 class="slide-title">生成式 vs 对比式</h2>
   <div class="full-media">
     <img src="assets/lecture3/s068_img109.png" alt="生成式与对比式">
@@ -239,20 +239,23 @@
 </section>
 
 <section class="slide" data-layout="code">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">16</span></div>
-  <h2 class="slide-title">对比学习的目标：从直觉到 InfoNCE</h2>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">16</span></div>
+  <h2 class="slide-title">两类判别式目标：InfoNCE（对比）与 EMA 自蒸馏（DINO）</h2>
   <div class="code-body">
     <div class="formula-block">score(f(x), f(x<sup>+</sup>)) &nbsp;&Gt;&nbsp; score(f(x), f(x<sup>−</sup>))</div>
     <div class="code-block"><span class="cm"># 人话：同一图像的两个增广视图在特征空间靠近，不同图像远离；score 常用向量内积</span></div>
     <div class="formula-block">&#8467;<sub>InfoNCE</sub> = &minus;log [ exp(sim(z<sub>i</sub>, z<sub>j</sub>)/&tau;) / &Sigma;<sub>k=1..N</sub> exp(sim(z<sub>i</sub>, z<sub>k</sub>)/&tau;) ]</div>
-    <div class="code-block"><span class="cm"># 人话：把“正样本最近”写成 N 分类问题——在温度 τ 缩放的相似度中挑出正样本；τ 越小难分负样本权重越大</span></div>
+    <div class="code-block"><span class="cm"># 人话：把“正样本最近”写成 N 分类问题——在温度 τ 缩放的相似度中挑出正样本；τ 越小难分负样本权重越大</span>
+<span class="cm"># InfoNCE 是含正、负样本的对比目标（SimCLR / MoCo / CLIP）</span></div>
     <div class="formula-block">&theta;<sub>teacher</sub> &larr; &lambda;&theta;<sub>teacher</sub> + (1&minus;&lambda;)&theta;<sub>student</sub>，&nbsp;&nabla; 只更新 &theta;<sub>student</sub>（stop-gradient）</div>
-    <div class="code-block"><span class="cm"># 人话（DINO）：教师不反向传播，靠 EMA 缓慢跟随学生；配合中心化 + 锐化，无负样本也能防坍塌</span></div>
+    <div class="code-block"><span class="cm"># 人话（DINO，自蒸馏目标，不是 InfoNCE）：无显式负样本；教师不反向传播，靠 EMA 缓慢跟随学生；</span>
+<span class="cm"># 配合中心化 + 锐化防坍塌</span></div>
+    <div class="keypoint warm"><div>注意：两类目标并列在此，只为比较<strong>“如何防止坍塌”</strong>——InfoNCE 属于<strong>对比学习</strong>，显式使用正负样本；DINO 属于<strong>非对比自蒸馏</strong>，不使用 InfoNCE，也没有显式负样本，二者不要混为一谈。</div></div>
   </div>
 </section>
 
 <section class="slide" data-layout="two-col">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">17</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">17</span></div>
   <div class="kicker hook-return">回应开场问题 2 · 为什么会发生表征坍塌？</div>
   <h2 class="slide-title">数据增广定义不变性，训练目标必须防止坍塌</h2>
   <div class="cols">
@@ -278,7 +281,7 @@
 </section>
 
 <section class="slide dense" data-layout="table">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">18</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">18</span></div>
   <div class="kicker hook-return">回应开场问题 1 · 怎样选择安全的数据增广？</div>
   <h2 class="slide-title">同一种数据增广，对不同任务可能有相反作用</h2>
   <div class="table-wrap">
@@ -296,7 +299,7 @@
 </section>
 
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">19</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">19</span></div>
   <h2 class="slide-title">SimCLR：简单的对比学习框架</h2>
   <div class="split-body">
     <div class="split-text">
@@ -317,7 +320,7 @@
 </section>
 
 <section class="slide flip" data-layout="split">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">20</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">20</span></div>
   <h2 class="slide-title">MoCo：动量对比</h2>
   <div class="split-body">
     <div class="split-text">
@@ -338,7 +341,7 @@
 </section>
 
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">21</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">21</span></div>
   <h2 class="slide-title">DINO：无标签自蒸馏</h2>
   <div class="split-body">
     <div class="split-text">
@@ -359,7 +362,7 @@
 </section>
 
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">22</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">22</span></div>
   <h2 class="slide-title">DINOv2 → DINOv3：自监督视觉<span class="em">基础模型</span></h2>
   <div class="split-body">
     <div class="split-text">
@@ -380,7 +383,7 @@
 </section>
 
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">23</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">23</span></div>
   <h2 class="slide-title">CLIP：对比式语言-图像预训练</h2>
   <div class="full-media">
     <img src="assets/lecture3/s081_img124.png" alt="CLIP">
@@ -391,7 +394,7 @@
 </section>
 
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">24</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">24</span></div>
   <h2 class="slide-title">SigLIP 系列与 <span class="em">MLLM</span> 的视觉编码器</h2>
   <div class="split-body">
     <div class="split-text">
@@ -413,30 +416,51 @@
 
 <!-- ========== 实践指南：自监督方法怎么选 ========== -->
 <section class="slide dense" data-layout="table">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">25</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">25</span></div>
   <div class="kicker hook-return">回应开场问题 3 · 方法怎么选、问题怎么查？</div>
   <h2 class="slide-title">实践指南：SimCLR / MoCo / DINO / MAE 各适合什么条件？</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>方法</th><th>适合的数据与资源</th><th>上手要点</th><th>常见坑</th></tr></thead>
       <tbody>
-        <tr><td><strong>SimCLR</strong></td><td>通用自然图像；需要<strong>大 batch</strong>（如 4096）与多卡</td><td>增广组合（裁剪 + 颜色抖动）最关键；投影头训练后即弃</td><td>batch 太小 → 负样本不足，性能骤降</td></tr>
+        <tr><td><strong>SimCLR</strong></td><td>通用自然图像；原始论文典型配置为 <strong>batch 4096</strong> + 多卡，较小 batch 需配合其他技巧</td><td>增广组合（裁剪 + 颜色抖动）最关键；投影头训练后即弃</td><td>常见经验：batch 减小 → 负样本减少，性能往往下降</td></tr>
         <tr><td><strong>MoCo</strong></td><td>显存 / 卡数受限；中小 batch 也能练</td><td>队列长度与动量系数（如 0.999）要调</td><td>动量过小 → key 不一致；队列太短 → 负样本不够</td></tr>
-        <tr><td><strong>DINO</strong></td><td>ViT 骨干；想要<strong>密集 / 分割友好</strong>的特征</td><td>教师 EMA + 中心化 + 锐化缺一不可</td><td>去掉中心化或锐化 → 立即坍塌</td></tr>
-        <tr><td><strong>MAE</strong></td><td>大数据 + 大模型（ViT-B 以上）；训练吞吐高</td><td>高掩码率（75%）；<strong>全量微调</strong>收益最大</td><td>掩码率太低 → 退化成“抄近路”，学不到语义</td></tr>
+        <tr><td><strong>DINO</strong></td><td>ViT 骨干；想要<strong>密集 / 分割友好</strong>的特征</td><td>经典实现中教师 EMA + 中心化 + 锐化是重要组成</td><td>常见经验：去掉中心化或锐化会显著增加坍塌风险（具体表现因配置而异）</td></tr>
+        <tr><td><strong>MAE</strong></td><td>论文典型配置为 ViT-B 及以上 + 大数据；较小骨干也可用，训练吞吐高</td><td>高掩码率（75%）；论文报告<strong>全量微调</strong>收益最大，线性探测 / 参数高效微调也是常见选择</td><td>掩码率太低 → 退化成“抄近路”，学不到语义</td></tr>
       </tbody>
     </table>
   </div>
   <div class="keypoint warm"><div>排障速查：<strong>坍塌</strong>——特征方差趋零、所有样本表示趋同，查负样本 / 温度 τ / 教师更新；<strong>过拟合代理任务</strong>——代理精度涨但下游不涨；<strong>增广不合适</strong>——冻结特征上语义近邻明显错误，回到增广表逐项核对。</div></div>
 </section>
 
+<!-- ========== 统一比较：自监督方法的关键维度（新增页） ========== -->
+<section class="slide dense" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">26</span></div>
+  <div class="kicker hook-return">回应开场问题 3 · 用同一把尺子比较各方法</div>
+  <h2 class="slide-title">统一比较：目标、防坍塌、特征粒度与使用方式</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>比较维度</th><th>SimCLR</th><th>MoCo</th><th>DINO</th><th>MAE</th><th>I-JEPA</th></tr></thead>
+      <tbody>
+        <tr><td><strong>正样本 / 预测目标</strong></td><td>同一图像的两个增广视图</td><td>同左：query 匹配队列中的 key</td><td>全局 + 局部视图，匹配教师输出分布</td><td>重建被遮蔽 patch 的像素</td><td>由上下文预测目标块的表征</td></tr>
+        <tr><td><strong>防坍塌机制</strong></td><td>batch 内负样本排斥</td><td>队列负样本 + 动量编码器</td><td>EMA 教师 + stop-gradient + 中心化 / 锐化</td><td>像素回归目标本身无平凡解</td><td>EMA 目标编码器 + stop-gradient</td></tr>
+        <tr><td><strong>特征粒度</strong></td><td>全局语义为主</td><td>全局语义为主</td><td>全局语义 + patch 稠密特征</td><td>块级重建，微调后可用于稠密任务</td><td>语义块级表征</td></tr>
+        <tr><td><strong>预训练成本</strong>（论文典型配置）</td><td>大 batch（4096）+ 多卡</td><td>中小 batch，省显存</td><td>ViT + 多 crop，成本中等</td><td>非对称结构吞吐高；ViT-B 以上 + 大数据</td><td>只编码可见块，较节省</td></tr>
+        <tr><td><strong>下游使用</strong></td><td>线性探针 / 微调</td><td>线性探针 / 微调</td><td>冻结特征直接做分类、检索、分割</td><td>以全量微调为主；线性探针偏弱</td><td>冻结 + 轻量探针</td></tr>
+        <tr><td><strong>不变性来源</strong></td><td>裁剪 + 颜色抖动等增广</td><td>同左</td><td>多 crop 增广</td><td>主要靠掩码，而非增广</td><td>掩码与块采样</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint warm"><div>分类口径：对比学习（SimCLR、MoCo、CLIP）显式使用负样本；非对比自蒸馏（BYOL、DINO）无显式负样本；掩码建模（MAE）与联合嵌入预测（I-JEPA）以“预测被遮部分”为目标——它们同属判别式 / 基于视图一致性的自监督，但机制不同，<strong>不要把 DINO 当作 InfoNCE 的变体</strong>。</div></div>
+</section>
+
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">26</span></div>
-  <h2 class="slide-title">本章小结：对比学习</h2>
+  <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">27</span></div>
+  <h2 class="slide-title">本章小结：判别式自监督——对比与自蒸馏</h2>
   <div class="card-grid" data-cols="2">
     <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">增广与坍塌</div><p>正样本增广规定模型应忽略哪些变化；训练目标还要防止所有输入映射到同一向量的<strong>表征坍塌</strong>。</p></div>
     <div class="mini-card"><div class="mc-no">02</div><div class="mc-title">InfoNCE 与 EMA</div><p>InfoNCE 把“正样本最近”写成温度缩放的 N 分类；DINO 用 <strong>EMA 教师 + stop-gradient</strong> 在无负样本下稳定训练。</p></div>
-    <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">SimCLR / MoCo / DINO</div><p>大 batch、队列 + 动量、自蒸馏三条路线；按<strong>数据规模与资源</strong>选择（见实践指南）。</p></div>
+    <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">对比 vs 自蒸馏</div><p>SimCLR（大 batch 负样本）、MoCo（队列 + 动量）是<strong>对比</strong>路线；DINO 是<strong>无负样本的自蒸馏</strong>，不使用 InfoNCE——多方法统一比较见前页。</p></div>
     <div class="mini-card"><div class="mc-no">04</div><div class="mc-title">CLIP → SigLIP 2</div><p>图文对比实现 <strong>zero-shot</strong>；sigmoid 损失更高效；视觉编码器成为 MLLM 的“眼睛”（冻结与否因模型而异）。</p></div>
   </div>
 </section>
@@ -449,7 +473,7 @@
 </section>
 
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">28</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">29</span></div>
   <h2 class="slide-title">掩码建模的起点：BERT</h2>
   <div class="split-body">
     <div class="split-text">
@@ -470,7 +494,7 @@
 </section>
 
 <section class="slide flip" data-layout="split">
-  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">29</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">30</span></div>
   <h2 class="slide-title">MAE：掩码自编码器</h2>
   <div class="split-body">
     <div class="split-text">
@@ -492,19 +516,19 @@
 
 <!-- ========== 研究案例：EVA ========== -->
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模</span><span class="meta-page">30</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模</span><span class="meta-page">31</span></div>
   <div class="kicker">Research Case · HUST-VL</div>
   <h2 class="slide-title">EVA：遮住图像块，但预测的是语义特征</h2>
   <div class="full-media">
     <img src="assets/lecture3/research/eva_pipeline.png" alt="EVA 掩码视觉表征学习流程">
   </div>
   <div class="caption">训练目标来自冻结的图文对齐视觉编码器：EVA 只看未遮挡 patch，预测被遮挡位置对应的语义视觉特征，而不是 RGB 像素。</div>
-  <div class="keypoint warm"><div>与 MAE 对比着讲：输入遮挡方式相似，关键差别在监督目标。像素重建重视外观细节；语义特征预测更直接强调跨任务可迁移的信息。</div></div>
+  <div class="keypoint warm"><div>与 MAE 对比着讲：输入遮挡方式相似，关键差别在监督目标。像素重建重视外观细节；语义特征预测更直接强调跨任务可迁移的信息。<strong>局限</strong>：监督目标来自冻结的图文教师模型——教师的能力上限与偏差会被学生继承，且大规模预训练算力成本高。</div></div>
   <div class="src-note" style="right:170px">Fang et al., EVA, CVPR 2023 Highlight · arxiv.org/abs/2211.07636</div>
 </section>
 
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">31</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">32</span></div>
   <h2 class="slide-title">MAE 的重建效果</h2>
   <div class="full-media">
     <img src="assets/lecture3/mae_results.png" alt="MAE 重建结果">
@@ -514,7 +538,7 @@
 </section>
 
 <section class="slide" data-layout="code">
-  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">32</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">33</span></div>
   <h2 class="slide-title">掩码建模的目标：只算被遮住的部分</h2>
   <div class="code-body">
     <div class="formula-block">&#8467;<sub>MAE</sub> = (1 / |M|) &Sigma;<sub>i &isin; M</sub> &#8214;x<sub>i</sub> &minus; x&#770;<sub>i</sub>&#8214;<sup>2</sup></div>
@@ -526,7 +550,7 @@
 </section>
 
 <section class="slide" data-layout="code">
-  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">33</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">34</span></div>
   <h2 class="slide-title">自回归 / GPT 式预训练</h2>
   <div class="code-body">
     <div class="formula-block">p(x) = &prod;<sub>i</sub> p(x<sub>i</sub> | x<sub>1</sub>, …, x<sub>i−1</sub>; &theta;)</div>
@@ -539,7 +563,7 @@
 </section>
 
 <section class="slide" data-layout="gallery">
-  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">34</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">35</span></div>
   <h2 class="slide-title">更多自监督路线</h2>
   <div class="gallery-grid" data-cols="3">
     <figure>
@@ -559,7 +583,7 @@
 </section>
 
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">35</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">36</span></div>
   <h2 class="slide-title">JEPA：在<span class="em">表征空间</span>做预测</h2>
   <div class="split-body">
     <div class="split-text">
@@ -580,7 +604,7 @@
 </section>
 
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">36</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">37</span></div>
   <h2 class="slide-title">本章小结：掩码建模与自回归</h2>
   <div class="card-grid" data-cols="2">
     <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">BERT</div><p>随机遮蔽词再预测 + 双向 Transformer，确立“<strong>遮蔽—预测</strong>”范式（NLP）。</p></div>
@@ -594,11 +618,11 @@
 <section class="slide" data-layout="section">
   <div class="section-num">10</div>
   <div class="section-title">拓展（选讲）：隐式神经表示与 3D 表征</div>
-  <div class="section-sub">网络参数能否直接表示一张图像或一个三维场景？本章为拓展内容，供学有余力的同学选学</div>
+  <div class="section-sub">认知对象已经改变：从“跨样本学习通用表征”转向“用参数表示单个场景 / 信号”<br>本章为拓展选讲内容，供学有余力的同学选学</div>
 </section>
 
 <section class="slide" data-layout="two-col">
-  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">38</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">39</span></div>
   <div class="kicker">拓展 · 选讲</div>
   <h2 class="slide-title">先厘清：本章的“表征”和前面讲的不是一回事</h2>
   <div class="cols">
@@ -619,11 +643,11 @@
       </ul>
     </div>
   </div>
-  <div class="keypoint warm"><div>注意定位：<strong>3DGS 是显式表示</strong>（一组带参数的三维高斯），严格说并不属于 INR；把它放在本章，是因为它与 NeRF 回答同一个问题——“如何表示一个场景，并渲染新视角”。</div></div>
+  <div class="keypoint warm"><div>注意定位：编码器特征（跨样本泛化）、INR（单个信号的隐式参数化）与显式 3D 表示（3DGS）<strong>是三种不同的“表征”</strong>——3DGS 严格说并不属于 INR；把它放在本章，是因为它与 NeRF 回答同一个问题——“如何表示一个场景，并渲染新视角”。不要把“用到了神经网络”都当作同一种表征学习。</div></div>
 </section>
 
 <section class="slide inr-concept-slide" data-layout="split">
-  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">39</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">40</span></div>
   <div class="kicker">拓展 · 选讲</div>
   <h2 class="slide-title">INR：用网络参数化连续信号</h2>
   <div class="split-body">
@@ -648,7 +672,7 @@
 </section>
 
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">40</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">41</span></div>
   <div class="kicker">拓展 · 选讲</div>
   <h2 class="slide-title">代表工作：NeRF 神经辐射场</h2>
   <div class="full-media">
@@ -659,7 +683,7 @@
 </section>
 
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">41</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">42</span></div>
   <div class="kicker">拓展 · 选讲</div>
   <h2 class="slide-title">从 NeRF 到 <span class="em">3D Gaussian Splatting</span></h2>
   <div class="split-body">
@@ -681,7 +705,7 @@
 
 <!-- ========== 研究案例：4D Gaussian Splatting ========== -->
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">42</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">43</span></div>
   <div class="kicker">Research Case · HUST-VL · 拓展选讲</div>
   <h2 class="slide-title">4D Gaussian Splatting：共享一套高斯，只预测随时间发生的形变</h2>
   <div class="full-media">
@@ -693,19 +717,19 @@
 </section>
 
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">43</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">44</span></div>
   <div class="kicker">Research Case · 4D Gaussian Splatting · 拓展选讲</div>
   <h2 class="slide-title">方法是否有用，要同时看画质和渲染速度</h2>
   <div class="full-media">
     <img src="assets/lecture3/research/4dgs_teaser.jpg" alt="4D Gaussian Splatting 动态场景新视角合成效果">
   </div>
   <div class="caption">动态场景中的人物和物体会随时间变化，模型需要在新视角下同时恢复空间结构与运动。论文在 800×800、RTX 3090 上报告 82 FPS。</div>
-  <div class="keypoint warm"><div>课堂追问：PSNR 更高但只能离线渲染，和画质略低但达到实时，哪一个更好？答案取决于自由视点视频、编辑、机器人感知等具体使用场景。</div></div>
+  <div class="keypoint warm"><div>课堂追问：PSNR 更高但只能离线渲染，和画质略低但达到实时，哪一个更好？答案取决于自由视点视频、编辑、机器人感知等具体使用场景。<strong>局限</strong>：核心假设是“一套基准高斯 + 连续形变”——物体出现 / 消失、大幅遮挡或剧烈运动时形变场难以建模；且需要多视角同步视频与逐场景优化。</div></div>
   <div class="src-note" style="right:170px">官方项目结果图：Wu et al., CVPR 2024</div>
 </section>
 
 <section class="slide dense inr-impact-slide" data-layout="table">
-  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">44</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">45</span></div>
   <div class="kicker">拓展 · 选讲</div>
   <h2 class="slide-title">INR 的影响：存储一个函数，而不只是存储采样值</h2>
   <div class="table-wrap">
@@ -724,7 +748,7 @@
 
 <!-- ========== 三讲后的最小实践 ========== -->
 <section class="slide dense" data-layout="table">
-  <div class="slide-meta"><span>第 3 讲（下） · 课堂实践</span><span class="meta-page">45</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 课堂实践</span><span class="meta-page">46</span></div>
   <div class="kicker">Minimum Viable Experiment</div>
   <h2 class="slide-title">三讲之后，完成一个最小但完整的视觉实验</h2>
   <div class="table-wrap">
@@ -735,7 +759,7 @@
         <tr><td><strong>数据划分</strong></td><td>固定训练、验证、测试集；说明划分单位</td><td>是否存在同主体、近重复或时间泄漏</td></tr>
         <tr><td><strong>可复现基线</strong></td><td>训练一个简单 CNN，或微调一个公开预训练模型</td><td>记录随机种子、配置和最好验证轮次</td></tr>
         <tr><td><strong>一次对照实验</strong></td><td>只改变一种增广、预训练方式或冻结策略</td><td>除目标因素外，其余条件尽量一致</td></tr>
-        <tr><td><strong>结果与失败分析</strong></td><td>报告测试指标，并检查至少 20 个失败样例</td><td>错误是否集中在特定类别、场景或数据来源</td></tr>
+        <tr><td><strong>结果与失败分析</strong></td><td>报告测试指标；失败样例按类别、场景、数据来源分层抽样并报告错误分布，样例数由测试集规模与错误率决定，不设固定阈值</td><td>错误是否集中在特定类别、场景或数据来源</td></tr>
       </tbody>
     </table>
   </div>
@@ -744,7 +768,7 @@
 
 <!-- ========== 全讲总结 ========== -->
 <section class="slide dense hook-answer-slide" data-layout="table">
-  <div class="slide-meta"><span>第 3 讲（下） · 自监督时代的表征学习</span><span class="meta-page">46</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督时代的表征学习</span><span class="meta-page">47</span></div>
   <div class="kicker">Closing the Loop</div>
   <h2 class="slide-title">回到开场：用好自监督，要回答这四件事</h2>
   <div class="table-wrap">
@@ -753,7 +777,7 @@
       <tbody>
         <tr><td><strong>1 · 数据增广</strong></td><td>只把不改变任务语义的变化当作正样本；几何任务还必须同步更新框、掩码或关键点。</td></tr>
         <tr><td><strong>2 · 防止坍塌</strong></td><td>“两个视图一致”存在常数解；需要负样本、非对称网络、动量教师（EMA + stop-gradient）或输出约束排除无信息解。</td></tr>
-        <tr><td><strong>3 · 方法选择</strong></td><td>SimCLR 要大 batch、MoCo 省显存、DINO 出密集特征、MAE 适合大数据大模型；按数据与资源条件选择，并会排查坍塌与过拟合。</td></tr>
+        <tr><td><strong>3 · 方法选择</strong></td><td>SimCLR 论文典型配置为大 batch、MoCo 用队列省显存、DINO 出密集特征、MAE 论文配置为大数据大模型——这些是典型配置与常见经验，而非硬性规则；按数据与资源条件选择，并会排查坍塌与过拟合。</td></tr>
         <tr><td><strong>4 · 两种“表征”</strong></td><td>可迁移特征表征追求跨任务泛化；INR 用权重精确表示单个信号；3DGS 是显式场景表示，不属于 INR。</td></tr>
       </tbody>
     </table>
@@ -769,7 +793,7 @@
 
 <!-- ========== 参考文献（附录） ========== -->
 <section class="slide refs" data-layout="bullets">
-  <div class="slide-meta"><span>第 3 讲（下） · 参考文献</span><span class="meta-page">48</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 参考文献</span><span class="meta-page">49</span></div>
   <div class="kicker">Appendix</div>
   <h2 class="slide-title">参考文献（附录，一）：自监督学习 · 对比学习 · 掩码建模</h2>
   <ol class="ref-list cols-2">
@@ -792,7 +816,7 @@
 </section>
 
 <section class="slide refs" data-layout="bullets">
-  <div class="slide-meta"><span>第 3 讲（下） · 参考文献</span><span class="meta-page">49</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 参考文献</span><span class="meta-page">50</span></div>
   <div class="kicker">Appendix</div>
   <h2 class="slide-title">参考文献（附录，二）：基础模型 · 隐式神经表示与 3D 表征</h2>
   <ol class="ref-list cols-2" start="16">

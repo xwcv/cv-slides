@@ -83,8 +83,8 @@
   <div class="split-body">
     <div class="split-text">
       <ul class="bullets">
-        <li>用局部梯度方向直方图描述形状</li>
-        <li>直觉：不关心“边缘在哪”，只统计“边缘朝哪个方向”，得到形状的粗略素描</li>
+        <li>用局部梯度方向直方图描述形状：cell 内统计梯度方向 → block 内归一化 → 按空间网格拼接</li>
+        <li>直觉：不追踪精确的边缘坐标，但保留局部区域中的梯度方向分布——得到带粗粒度位置信息的形状素描</li>
         <li>经典组合：<strong>HOG + SVM</strong>——手工特征 + 浅层分类器</li>
         <li>行人检测的里程碑工作（Dalal &amp; Triggs, 2005）</li>
         <li>行人相对刚性，适合用模板表达</li>
@@ -194,7 +194,7 @@
       <div><strong>解耦 disentangled</strong><p>姿态、光照等变化尽量由不同因素解释。</p></div>
       <div><strong>可解释 interpretable</strong><p>人能理解维度、方向或区域与语义的关系。</p></div>
     </div>
-    <div class="keypoint"><div>记住：判断表征好坏的终极标准是<strong>“下游任务是否变容易”</strong>（Bengio, Courville &amp; Vincent, IEEE TPAMI 2013）。</div></div>
+    <div class="keypoint"><div>记住：判断表征好坏的终极标准是<strong>“下游任务是否变容易”</strong>（Bengio, Courville &amp; Vincent, IEEE TPAMI 2013）。这些性质<strong>依赖任务且相互制约</strong>——对分类无关的姿态信息，对姿态估计却是关键；紧凑、充分、不变、解耦、可解释不一定能同时满足。核心原则：<strong>保留任务需要的信息，抑制任务不需要的变化</strong>。</div></div>
   </div>
 </section>
 
@@ -272,12 +272,12 @@
     <div class="split-text">
       <ul class="bullets">
         <li>寻找数据方差最大的一组正交基（本征表示）</li>
-        <li>直觉：给高维数据找“主轴”，沿主轴方向数据变化最剧烈、信息量最大</li>
+        <li>直觉：给高维数据找“主轴”，保留数据变化最大的方向</li>
         <li>以<strong>重建 / 压缩</strong>为目标的线性降维</li>
         <li>第一个本征脸对应最大方差方向，依次递减</li>
         <li>数据驱动，但只是线性、浅层的变换</li>
       </ul>
-      <div class="keypoint warm"><div>注意：PCA 是<strong>线性</strong>方法，只看二阶统计量（方差）；人脸角度、表情等非线性变化它表达不了。</div></div>
+      <div class="keypoint warm"><div>注意：PCA 最大化投影方差，等价于最小化<strong>线性重建误差</strong>；“方差最大 = 信息量最大”只在特定分布假设下才成立，不能直接等同。且 PCA 是<strong>线性</strong>方法，只看二阶统计量；人脸角度、表情等非线性变化它表达不了。</div></div>
     </div>
     <div class="split-media">
       <img src="assets/lecture3/s016_img14.png" alt="本征脸">
@@ -358,6 +358,7 @@
         <li>聚类 + 空间金字塔，汇聚成整图表征</li>
         <li>MIT Indoor 67 场景分类准确率 50.15%，当时最优</li>
         <li>Wang et al., MMDL, ICML 2013</li>
+        <li><strong>局限 / 失败条件</strong>：假设判别性图像块能被聚类稳定挖掘——类别内差异大、背景主导或模式不重复出现时，模式挖掘会失效，且流水线各环节的误差逐级累积</li>
       </ul>
       <div class="keypoint"><div>记住：浅层学习的上限在于——特征可以学，但<strong>层层之间的组合方式仍是人工搭建</strong>的。</div></div>
     </div>
@@ -558,6 +559,7 @@
         <li>在深度 / 宽度 / 卷积核三个级别做参数重映射</li>
         <li>架构适配总成本较 DPC 降低约三个数量级</li>
         <li>Fang et al., FNA++, IEEE TPAMI 2021</li>
+        <li><strong>局限 / 失败条件</strong>：假设异构架构间存在可学习的参数映射——结构差异过大、或源任务与目标任务差距太大时，重映射收益消失，仍需重新训练或搜索</li>
       </ul>
     </div>
     <div class="split-media">
