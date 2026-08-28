@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第3讲（下） · 自监督时代的表征学习 — 深度学习与计算机视觉</title>
+<link rel="stylesheet" href="css/slides.css?v=20260827">
+</head>
+<body>
+<div id="viewport">
+  <div id="stage">
+
+<!-- ========== 封面 ========== -->
+<section class="slide" data-layout="cover">
+  <div class="kicker">Deep Learning &amp; Computer Vision</div>
+  <h1 class="cover-title">自监督时代的表征学习</h1>
+  <div class="cover-sub">Representation Learning in the Self-Supervised Era<br>授课教师：王兴刚 · 华中科技大学</div>
+  <div class="cover-lecture">
+    <span class="tag">第 3 讲（下）</span>
+    <span class="tag neutral">2026 秋季学期</span>
+  </div>
+</section>
+
+<!-- ========== 导览 ========== -->
+<section class="slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督时代的表征学习</span><span class="meta-page">02</span></div>
+  <div class="kicker">Overview</div>
+  <h2 class="slide-title">本讲（下）关注：监督信号如何来自<span class="em">数据本身</span>？</h2>
+  <div class="slide-body">
+    <p class="lead">承接上讲：迁移与半监督仍依赖人工标注的起点；自监督把标签彻底从数据中构造出来。</p>
+    <ul class="bullets">
+      <li>自监督学习的范式与评估：代理任务、两阶段、线性探针 <span class="tag">Preface</span></li>
+      <li>对比学习：SimCLR、MoCo、DINO → DINOv3、CLIP 与 SigLIP <span class="tag warm">InfoNCE</span></li>
+      <li>掩码建模与自回归：BERT、MAE、EVA、JEPA 系列</li>
+      <li>实践指南：方法怎么选、坍塌与过拟合怎么查</li>
+      <li>拓展（选讲）：隐式神经表示（INR）与 3D 表征——另一种“表征”的含义 <span class="tag neutral">NeRF · 3DGS</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== 本讲学习结果 ========== -->
+<section class="slide opening-hooks-slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（下） · 导览</span><span class="meta-page">03</span></div>
+  <div class="kicker">Learning Outcomes</div>
+  <h2 class="slide-title">学完本讲（下），你应该能动手选好、用好自监督方法</h2>
+  <div class="slide-body">
+    <ol class="hook-question-list">
+      <li><span>1</span><div>如何为具体视觉任务选择数据增广，并说明<strong>为什么这种增广安全？</strong></div></li>
+      <li><span>2</span><div>为什么对比学习可能得到“所有输入都一样”的<strong>坍塌表征</strong>，各方法如何防止？</div></li>
+      <li><span>3</span><div>SimCLR / MoCo / DINO / MAE 各适合什么<strong>数据规模与资源条件</strong>？</div></li>
+      <li><span>4</span><div>INR 的“表征”与可迁移特征表征<strong>是不是同一回事</strong>？3DGS 又属于哪一类？</div></li>
+    </ol>
+    <div class="keypoint warm"><div>自监督不是“没有监督”，而是<strong>监督信号由数据变换、预测对象和损失函数共同定义</strong>——看懂损失函数，就看懂了一半方法。</div></div>
+  </div>
+</section>
+
+<!-- ========== 07 自监督学习 ========== -->
+<section class="slide" data-layout="section">
+  <div class="section-num">07</div>
+  <div class="section-title">无监督 / 自监督学习</div>
+  <div class="section-sub">没有人工标签，监督信号还能从哪里来？</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督学习</span><span class="meta-page">05</span></div>
+  <h2 class="slide-title">自监督：标签来自数据本身</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>把“无监督”问题转化为“监督”形式的经验风险最小化</li>
+        <li>预测目标（伪标签）直接从原始数据中构造</li>
+        <li>无需任何人工标注</li>
+      </ul>
+      <div class="keypoint"><div>记住：自监督 = <strong>监督信号从数据自身构造</strong>，用监督学习的方法消化无标注数据。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s098_img147.png" alt="Escher 画手">
+      <div class="caption">Escher《画手》(1948)：自己“画”出自己的监督信号</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：M.C. Escher, Drawing Hands (1948)</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督学习</span><span class="meta-page">06</span></div>
+  <h2 class="slide-title">自编码器：最经典的无监督表征学习</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/s052_img95.png" alt="自编码器">
+  </div>
+  <div class="caption">编码器把输入压缩为瓶颈向量 z，解码器重建输入；z 即学到的表征（Hinton &amp; Salakhutdinov, Science 2006）</div>
+  <div class="keypoint"><div>记住：自编码器的直觉是<strong>“压缩即理解”</strong>——能从瓶颈 z 重建原图，说明 z 保留了关键信息。</div></div>
+  <div class="src-note" style="right:170px">图源：Hinton &amp; Salakhutdinov, Science 2006</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督学习</span><span class="meta-page">07</span></div>
+  <h2 class="slide-title">自监督学习的两阶段范式</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/s058_img101.png" alt="自监督两阶段">
+  </div>
+  <div class="caption">阶段一：无标注数据上训练代理任务；阶段二：少量标签微调到下游任务</div>
+  <div class="keypoint"><div>记住：自监督学习 = <strong>预训练（代理任务）+ 迁移（下游微调）</strong> 两阶段，与监督预训练的使用方式完全一致。</div></div>
+  <div class="src-note" style="right:170px">图源：Gidaris &amp; Bursuc, Advances in Self-Supervised Learning 教程</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督学习</span><span class="meta-page">08</span></div>
+  <h2 class="slide-title">如何度量表征质量：线性探针</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <p class="lead">先冻结预训练编码器，只允许最后的线性分类器学习。</p>
+      <ul class="bullets">
+        <li>准确率高，说明类别信息已经能被一条线性决策边界读出。</li>
+        <li>它便于公平比较不同预训练方法，不让大规模下游微调掩盖表征差异。</li>
+        <li>还应报告全量微调、少样本学习以及检测、分割等迁移结果。</li>
+      </ul>
+      <div class="keypoint warm"><div>线性探针只测试线性可分性。结果低不等于编码器完全没有相关信息。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/research/linear_probe_pipeline.png" alt="冻结编码器并训练线性分类头的评估流程">
+      <div class="caption">蓝色编码器参数固定；只有分类头根据标签更新</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Stanford CS231n 课件（协议见 Chen et al., ICML 2020）</div>
+</section>
+
+<section class="slide dense" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督学习</span><span class="meta-page">09</span></div>
+  <div class="kicker hook-return">衔接上讲 · 怎样证明表征有用？</div>
+  <h2 class="slide-title">线性探针之外，还要怎样评估表征？</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>评估方式</th><th>模型参数如何使用</th><th>主要回答的问题</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>线性探针</strong></td><td>冻结编码器，只训练线性层</td><td>类别信息是否容易被线性读出</td></tr>
+        <tr><td><strong>k-NN / 图像检索</strong></td><td>直接比较冻结特征的邻近关系</td><td>表征空间是否把语义相近样本放在一起</td></tr>
+        <tr><td><strong>少样本与微调</strong></td><td>使用少量标签，部分或全部更新参数</td><td>表征能否高效适应新任务</td></tr>
+        <tr><td><strong>检测 / 分割 / 深度迁移</strong></td><td>接入任务头并在密集任务上训练</td><td>是否保留局部结构、边界与几何信息</td></tr>
+        <tr><td><strong>跨域与鲁棒性测试</strong></td><td>更换数据来源、扰动或子群</td><td>能力是否只对原数据分布有效</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint warm"><div>单一协议只观察表征的一部分性质。公平比较还要统一骨干网络、数据规模、输入分辨率、训练预算和微调配方。</div></div>
+  <div class="src-note" style="right:170px">依据：SimCLR, ICML 2020；DINO, ICCV 2021；WILDS, ICML 2021</div>
+</section>
+
+<section class="slide" data-layout="gallery">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督学习</span><span class="meta-page">10</span></div>
+  <h2 class="slide-title">自监督信号的三种来源</h2>
+  <div class="gallery-grid" data-cols="3">
+    <figure>
+      <img src="assets/lecture3/s061_img103.png" alt="数据压缩">
+      <figcaption>(a) 数据压缩：重建数据本身</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/lecture3/s062_img104.png" alt="标签预测">
+      <figcaption>(b) 标签预测：预测人造标签</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/lecture3/s063_img105.png" alt="数据预测">
+      <figcaption>(c) 数据预测：用一部分预测另一部分</figcaption>
+    </figure>
+  </div>
+  <div class="src-note" style="right:170px">图源：Stanford CS231n 课件（自监督学习讲）</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督学习</span><span class="meta-page">11</span></div>
+  <h2 class="slide-title">代理任务示例：图像上色</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>输入灰度图（L 通道），预测颜色信息（ab 通道）</li>
+        <li>颜色是“免费”的监督信号</li>
+        <li>网络被迫理解物体与场景结构</li>
+        <li>Zhang, Isola &amp; Efros, ECCV 2016</li>
+      </ul>
+      <div class="keypoint"><div>记住：好的代理任务强迫网络<strong>理解语义</strong>（“草是绿的、天是蓝的”需要认出物体），而非记忆低层统计。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s064_img106.png" alt="图像上色">
+      <div class="caption">从灰度图预测彩色：颜色即免费的标签</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Zhang, Isola &amp; Efros, ECCV 2016</div>
+</section>
+
+<section class="slide flip" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督学习</span><span class="meta-page">12</span></div>
+  <h2 class="slide-title">代理任务示例：旋转预测</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>随机旋转 0° / 90° / 180° / 270°，预测旋转角度</li>
+        <li>判断“哪边朝上”需要理解物体朝向与结构</li>
+        <li>简单却有效的代理任务</li>
+        <li>Gidaris et al., ICLR 2018</li>
+      </ul>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s065_img107.png" alt="旋转预测">
+      <div class="caption">旋转预测：同一图像的四种旋转分别预测其角度</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Gidaris et al., ICLR 2018</div>
+</section>
+
+<!-- ========== 四种方式：两个正交维度（重构页） ========== -->
+<section class="slide representation-source-slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督学习</span><span class="meta-page">13</span></div>
+  <div class="kicker hook-return">衔接上讲 · 问题 1：表征的信息从哪里来？</div>
+  <h2 class="slide-title">获得表征的方式：两个正交维度，不是四种并列</h2>
+  <div class="full-media">
+    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='430'><rect width='1000' height='430' fill='white'/><text x='530' y='30' font-size='17' text-anchor='middle' fill='%232456d6' font-family='sans-serif' font-weight='bold'>维度二：预训练结果怎样用于新任务 →</text><text x='350' y='58' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>冻结特征直接使用（线性探针 / k-NN）</text><text x='750' y='58' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>微调适配新任务</text><text x='30' y='230' font-size='17' fill='%23c2521e' font-family='sans-serif' font-weight='bold' transform='rotate(-90 30 230)' text-anchor='middle'>维度一：训练信号从哪里来 →</text><text x='110' y='155' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>人工标签</text><text x='110' y='315' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>数据自身构造</text><rect x='160' y='80' width='380' height='140' rx='10' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='350' y='130' font-size='17' text-anchor='middle' fill='%2322222a' font-family='sans-serif' font-weight='bold'>监督预训练 + 线性探针</text><text x='350' y='158' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>如 ImageNet 特征直接做检索</text><rect x='560' y='80' width='380' height='140' rx='10' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='750' y='130' font-size='17' text-anchor='middle' fill='%2322222a' font-family='sans-serif' font-weight='bold'>监督预训练 + 微调</text><text x='750' y='158' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>经典迁移学习（上讲第 5 章）</text><rect x='160' y='240' width='380' height='140' rx='10' fill='%23fbece4' stroke='%23c2521e' stroke-width='2'/><text x='350' y='290' font-size='17' text-anchor='middle' fill='%2322222a' font-family='sans-serif' font-weight='bold'>自监督预训练 + 冻结评估</text><text x='350' y='318' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>线性探针 / k-NN 比较表征质量</text><rect x='560' y='240' width='380' height='140' rx='10' fill='%23fbece4' stroke='%23c2521e' stroke-width='2'/><text x='750' y='290' font-size='17' text-anchor='middle' fill='%2322222a' font-family='sans-serif' font-weight='bold'>自监督预训练 + 下游微调</text><text x='750' y='318' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>SimCLR / MAE 的主流用法</text><text x='530' y='412' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>手工特征不参与学习（人工设计描述子），因此不在这个矩阵里，而是矩阵之外的历史起点。</text></svg>" alt="获得表征方式的两维矩阵（自绘示意）">
+  </div>
+  <div class="caption">维度一（训练信号来源）回答“信息从哪里来”；维度二（使用方式）回答“预训练结果怎样用于新任务”——迁移学习是维度二上的选择，不与维度一并列（自绘示意）</div>
+  <div class="keypoint"><div>“不用人工标签”不等于“没有监督信号”：自监督的目标仍由<strong>数据变换、预测对象和损失函数</strong>共同定义。</div></div>
+  <div class="src-note" style="right:170px">依据：Bengio et al., TPAMI 2013 · Yosinski et al., NeurIPS 2014 · SimCLR, ICML 2020</div>
+</section>
+
+<!-- ========== 08 对比学习 ========== -->
+<section class="slide" data-layout="section">
+  <div class="section-num">08</div>
+  <div class="section-title">自监督学习：对比学习</div>
+  <div class="section-sub">怎样构造“相似样本”，又怎样避免所有特征变得一样？</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">15</span></div>
+  <h2 class="slide-title">生成式 vs 对比式</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/s068_img109.png" alt="生成式与对比式">
+  </div>
+  <div class="caption">生成式在输出（像素）空间计算损失；对比式在表征空间区分“相似 / 不相似”</div>
+  <div class="keypoint warm"><div>注意：对比学习不做像素级重建，损失更聚焦高层语义；但“更省算力”<strong>并非普遍成立</strong>——实际开销取决于 batch 大小、负样本数量、编码器个数与训练规模（如 SimCLR 的大 batch 并不便宜）。</div></div>
+  <div class="src-note" style="right:170px">图源：自监督学习课程讲义（示意）</div>
+</section>
+
+<section class="slide" data-layout="code">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">16</span></div>
+  <h2 class="slide-title">对比学习的目标：从直觉到 InfoNCE</h2>
+  <div class="code-body">
+    <div class="formula-block">score(f(x), f(x<sup>+</sup>)) &nbsp;&Gt;&nbsp; score(f(x), f(x<sup>−</sup>))</div>
+    <div class="code-block"><span class="cm"># 人话：同一图像的两个增广视图在特征空间靠近，不同图像远离；score 常用向量内积</span></div>
+    <div class="formula-block">&#8467;<sub>InfoNCE</sub> = &minus;log [ exp(sim(z<sub>i</sub>, z<sub>j</sub>)/&tau;) / &Sigma;<sub>k=1..N</sub> exp(sim(z<sub>i</sub>, z<sub>k</sub>)/&tau;) ]</div>
+    <div class="code-block"><span class="cm"># 人话：把“正样本最近”写成 N 分类问题——在温度 τ 缩放的相似度中挑出正样本；τ 越小难分负样本权重越大</span></div>
+    <div class="formula-block">&theta;<sub>teacher</sub> &larr; &lambda;&theta;<sub>teacher</sub> + (1&minus;&lambda;)&theta;<sub>student</sub>，&nbsp;&nabla; 只更新 &theta;<sub>student</sub>（stop-gradient）</div>
+    <div class="code-block"><span class="cm"># 人话（DINO）：教师不反向传播，靠 EMA 缓慢跟随学生；配合中心化 + 锐化，无负样本也能防坍塌</span></div>
+  </div>
+</section>
+
+<section class="slide" data-layout="two-col">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">17</span></div>
+  <div class="kicker hook-return">回应开场问题 2 · 为什么会发生表征坍塌？</div>
+  <h2 class="slide-title">数据增广定义不变性，训练目标必须防止坍塌</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="col-title">正样本不是天然存在的</div>
+      <ul class="bullets">
+        <li>同一图像的两种增广被规定为“语义相同”</li>
+        <li>裁剪、颜色抖动等选择直接决定模型忽略哪些变化</li>
+        <li>若增广删掉任务关键信息，学到的不变性会伤害下游任务</li>
+      </ul>
+    </div>
+    <div class="col">
+      <div class="col-title">为什么会表征坍塌？</div>
+      <ul class="bullets">
+        <li>若所有输入都映射到同一个向量，正样本当然完全一致</li>
+        <li>但这种表示不再区分任何样本，无法用于下游任务</li>
+        <li>对比学习用负样本排斥坍塌；BYOL、DINO 依靠非对称网络、动量教师和输出正则等设计</li>
+      </ul>
+    </div>
+  </div>
+  <div class="keypoint"><div>自监督目标不仅要让两个视图一致，还要保证不同输入保留足够差异；<strong>增广假设与防坍塌机制</strong>共同决定表征质量。</div></div>
+  <div class="src-note" style="right:170px">依据：SimCLR, ICML 2020；BYOL, NeurIPS 2020；DINO, ICCV 2021</div>
+</section>
+
+<section class="slide dense" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">18</span></div>
+  <div class="kicker hook-return">回应开场问题 1 · 怎样选择安全的数据增广？</div>
+  <h2 class="slide-title">同一种数据增广，对不同任务可能有相反作用</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>任务</th><th>可以考虑的增广</th><th>需要谨慎的增广</th><th>原因</th></tr></thead>
+      <tbody>
+        <tr><td>普通物体分类</td><td>适度裁剪、缩放、颜色抖动</td><td>裁掉主体的大幅裁剪</td><td>类别通常不随位置和轻微颜色变化</td></tr>
+        <tr><td>道路文字识别</td><td>轻微透视、亮度和模糊</td><td>水平翻转、过强裁剪</td><td>翻转会改变字符，裁剪会删除文字</td></tr>
+        <tr><td>医学影像左右病灶</td><td>符合采集过程的噪声和强度变化</td><td>未核对语义的左右翻转</td><td>左右位置可能直接影响诊断含义</td></tr>
+        <tr><td>目标检测 / 分割</td><td>同步变换图像与框或掩码</td><td>只变图像、不更新标注</td><td>几何变换必须保持标签对齐</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint"><div>请为自己的研究任务写出一种“安全增广”和一种“危险增广”，并说明它们分别<strong>保留或破坏了什么任务信息</strong>。</div></div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">19</span></div>
+  <h2 class="slide-title">SimCLR：简单的对比学习框架</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>同一图像两种增广 → 共享编码器 f(·) + 投影头 g(·)</li>
+        <li>最大化两个视图表征的一致性（对比损失）</li>
+        <li>训练完成后丢弃投影头，用 h 做下游任务</li>
+        <li>线性评估首次逼近监督 ResNet-50（Chen et al., ICML 2020）</li>
+      </ul>
+      <div class="keypoint warm"><div>注意：投影头 g(·) 只在训练时存在，<strong>下游任务用编码器输出 h，不用 g 的输出</strong>——这是新手最常搞混的一点。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s072_img116.png" alt="SimCLR 框架">
+      <div class="caption">SimCLR 框架：增广 → 编码 → 投影 → 最大化相似度</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Chen et al., ICML 2020</div>
+</section>
+
+<section class="slide flip" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">20</span></div>
+  <h2 class="slide-title">MoCo：动量对比</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>把对比学习看作“查字典”：query 匹配 key</li>
+        <li><strong>动量编码器 + 队列</strong>：维护大量一致的负样本</li>
+        <li>摆脱对超大 batch size 的依赖</li>
+        <li>He et al., CVPR 2020</li>
+      </ul>
+      <div class="keypoint"><div>记住：MoCo 的两大件——<strong>队列</strong>（存历史 key 当负样本）+ <strong>动量编码器</strong>（慢速更新，保证 key 的一致性），让小 batch 也能做对比学习。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s074_img120.png" alt="MoCo">
+      <div class="caption">MoCo：动量编码器维护一个动态样本队列</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：He et al., CVPR 2020</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">21</span></div>
+  <h2 class="slide-title">DINO：无标签自蒸馏</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>学生网络匹配教师（EMA）网络的输出分布</li>
+        <li>无需负样本，也没有显式的对比项</li>
+        <li>ViT 的自注意力图<strong>自动涌现</strong>物体分割能力</li>
+        <li>Caron et al., ICCV 2021</li>
+      </ul>
+      <div class="keypoint warm"><div>注意：没有负样本时模型容易“坍塌”（所有输入输出相同）；DINO 用教师输出的<strong>中心化 + 锐化</strong>避免坍塌。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/dino_attention_frame.png" alt="DINO 注意力可视化">
+      <div class="caption">DINO 自注意力图（右）自动聚焦前景物体</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Caron et al., ICCV 2021</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">22</span></div>
+  <h2 class="slide-title">DINOv2 → DINOv3：自监督视觉<span class="em">基础模型</span></h2>
+  <div class="split-body">
+    <div class="split-text">
+      <p class="lead">目标不是只做好 ImageNet 分类，而是让同一套冻结特征支持多种视觉任务。</p>
+      <ul class="bullets">
+        <li><strong>DINOv2</strong>用 1.42 亿张精选图像训练；分类、检索、分割和深度估计都可直接读取冻结特征。</li>
+        <li><strong>DINOv3</strong>进一步扩大数据和模型，并用 <strong>Gram anchoring</strong> 维持 patch 特征在长训练中的质量。</li>
+        <li>从 DINO 的注意力涌现到 DINOv3 的稠密特征：patch token 不只包含全图语义，也保留可用于稠密任务的空间结构。</li>
+      </ul>
+      <div class="keypoint"><div>判断视觉基础模型时，要同时看全局任务和像素级任务；只看分类准确率不够。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='430'><rect width='640' height='430' fill='white'/><path d='M70 380 L70 40' stroke='%2322222a' stroke-width='2.5' marker-end='url(%23a)'/><text x='40' y='30' font-size='14' fill='%23666' font-family='sans-serif'>scale</text><rect x='110' y='300' width='150' height='60' rx='8' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='185' y='326' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif' font-weight='bold'>DINO 2021</text><text x='185' y='348' font-size='12' text-anchor='middle' fill='%23666' font-family='sans-serif'>self-distillation, ViT</text><rect x='290' y='220' width='150' height='60' rx='8' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='365' y='246' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif' font-weight='bold'>DINOv2 2023</text><text x='365' y='268' font-size='12' text-anchor='middle' fill='%23666' font-family='sans-serif'>142M curated images</text><rect x='470' y='120' width='150' height='60' rx='8' fill='%23fbece4' stroke='%23c2521e' stroke-width='2'/><text x='545' y='146' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif' font-weight='bold'>DINOv3 2025</text><text x='545' y='168' font-size='12' text-anchor='middle' fill='%23666' font-family='sans-serif'>Gram anchoring</text><path d='M260 330 L288 260' stroke='%232456d6' stroke-width='2' marker-end='url(%23b)'/><path d='M440 250 L468 160' stroke='%232456d6' stroke-width='2' marker-end='url(%23b)'/><text x='320' y='415' font-size='13' text-anchor='middle' fill='%23666' font-family='sans-serif'>frozen features: classification / retrieval / segmentation / depth</text><defs><marker id='a' markerWidth='8' markerHeight='8' refX='7' refY='4' orient='auto'><path d='M0 0 L8 4 L0 8 z' fill='%2322222a'/></marker><marker id='b' markerWidth='8' markerHeight='8' refX='7' refY='4' orient='auto'><path d='M0 0 L8 4 L0 8 z' fill='%232456d6'/></marker></defs></svg>" alt="DINO 系列规模化路线（自绘示意）">
+      <div class="caption">数据与模型规模持续放大，冻结特征逐步成为通用视觉骨干（自绘示意）</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">数据与方法：Oquab et al., TMLR 2024；Siméoni et al., arXiv:2508.10104（Gram anchoring）</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">23</span></div>
+  <h2 class="slide-title">CLIP：对比式语言-图像预训练</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/s081_img124.png" alt="CLIP">
+  </div>
+  <div class="caption">4 亿图文对对比预训练；用文本编码器把类别名变成分类器，实现 zero-shot 识别（Radford et al., 2021）</div>
+  <div class="keypoint"><div>记住：CLIP 把“分类器权重”换成<strong>类别名的文本编码</strong>——换类别只需改一句话，因此能 zero-shot 识别任意新类别。</div></div>
+  <div class="src-note" style="right:170px">图源：Radford et al., ICML 2021</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">24</span></div>
+  <h2 class="slide-title">SigLIP 系列与 <span class="em">MLLM</span> 的视觉编码器</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li><strong>SigLIP</strong>（Zhai et al., ICCV 2023）：用 <strong>sigmoid 逐对损失</strong>替代 CLIP 的 softmax 对比损失——不需全局归一化，训练更简单高效</li>
+        <li><strong>SigLIP 2</strong>（Tschannen et al., 2025）：多语言，语义理解、定位与稠密特征增强；被多家 MLLM 选用为视觉编码器<strong>之一</strong></li>
+        <li>MLLM（LLaVA 等）的常见做法：<strong>冻结</strong>视觉编码器，经连接器接入 LLM；但<strong>部分模型会解冻或联合训练</strong>视觉编码器</li>
+        <li>Cambrian-1（Tong et al., NeurIPS 2024）：编码器选择与连接器设计显著影响 MLLM 性能</li>
+      </ul>
+      <div class="keypoint"><div>记住：大模型时代，视觉表征学习的产出常常作为 <strong>MLLM 的“眼睛”</strong>被复用——但这只“眼睛”是否冻结、如何连接，因模型而异。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='440'><rect width='640' height='440' fill='white'/><rect x='30' y='30' width='120' height='80' rx='8' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='90' y='65' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Image</text><text x='90' y='88' font-size='12' text-anchor='middle' fill='%23666' font-family='sans-serif'>input</text><path d='M90 112 L90 152' stroke='%2322222a' stroke-width='2.5' marker-end='url(%23a)'/><rect x='30' y='156' width='200' height='90' rx='8' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='130' y='188' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif' font-weight='bold'>Vision encoder</text><text x='130' y='210' font-size='12' text-anchor='middle' fill='%23666' font-family='sans-serif'>CLIP / SigLIP / DINOv2</text><text x='130' y='232' font-size='12' text-anchor='middle' fill='%23c2521e' font-family='sans-serif'>frozen (sometimes tuned)</text><path d='M130 248 L130 288' stroke='%2322222a' stroke-width='2.5' marker-end='url(%23a)'/><rect x='30' y='292' width='200' height='80' rx='8' fill='%23fbece4' stroke='%23c2521e' stroke-width='2'/><text x='130' y='324' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif' font-weight='bold'>Connector / projector</text><text x='130' y='346' font-size='12' text-anchor='middle' fill='%23666' font-family='sans-serif'>trained</text><path d='M232 332 L292 332' stroke='%2322222a' stroke-width='2.5' marker-end='url(%23a)'/><rect x='296' y='266' width='180' height='130' rx='8' fill='white' stroke='%232456d6' stroke-width='2.5'/><text x='386' y='306' font-size='16' text-anchor='middle' fill='%2322222a' font-family='sans-serif' font-weight='bold'>LLM</text><text x='386' y='330' font-size='12' text-anchor='middle' fill='%23666' font-family='sans-serif'>visual tokens + text tokens</text><text x='386' y='352' font-size='12' text-anchor='middle' fill='%23c2521e' font-family='sans-serif'>trained / instruction-tuned</text><rect x='296' y='156' width='180' height='60' rx='8' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='386' y='181' font-size='14' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Text / prompt</text><text x='386' y='201' font-size='12' text-anchor='middle' fill='%23666' font-family='sans-serif'>question, instruction</text><path d='M386 218 L386 262' stroke='%2322222a' stroke-width='2.5' marker-end='url(%23a)'/><path d='M478 332 L538 332' stroke='%2322222a' stroke-width='2.5' marker-end='url(%23a)'/><rect x='542' y='292' width='80' height='80' rx='8' fill='%23fbece4' stroke='%23c2521e' stroke-width='2'/><text x='582' y='326' font-size='14' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Text</text><text x='582' y='346' font-size='14' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>output</text><text x='320' y='425' font-size='12' text-anchor='middle' fill='%23666' font-family='sans-serif'>orange = trained, blue = pretrained (frozen or jointly tuned, model-dependent)</text><defs><marker id='a' markerWidth='8' markerHeight='8' refX='7' refY='4' orient='auto'><path d='M0 0 L8 4 L0 8 z' fill='%2322222a'/></marker></defs></svg>" alt="MLLM 视觉编码器接入方式（自绘示意）">
+      <div class="caption">图像 → 视觉编码器 → 连接器 / 投影 → LLM → 文本输出；各组件是否参与训练因模型而异（自绘示意）</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">依据：Zhai et al., ICCV 2023；Tschannen et al., arXiv:2502.14786；Tong et al., NeurIPS 2024</div>
+</section>
+
+<!-- ========== 实践指南：自监督方法怎么选 ========== -->
+<section class="slide dense" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">25</span></div>
+  <div class="kicker hook-return">回应开场问题 3 · 方法怎么选、问题怎么查？</div>
+  <h2 class="slide-title">实践指南：SimCLR / MoCo / DINO / MAE 各适合什么条件？</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>方法</th><th>适合的数据与资源</th><th>上手要点</th><th>常见坑</th></tr></thead>
+      <tbody>
+        <tr><td><strong>SimCLR</strong></td><td>通用自然图像；需要<strong>大 batch</strong>（如 4096）与多卡</td><td>增广组合（裁剪 + 颜色抖动）最关键；投影头训练后即弃</td><td>batch 太小 → 负样本不足，性能骤降</td></tr>
+        <tr><td><strong>MoCo</strong></td><td>显存 / 卡数受限；中小 batch 也能练</td><td>队列长度与动量系数（如 0.999）要调</td><td>动量过小 → key 不一致；队列太短 → 负样本不够</td></tr>
+        <tr><td><strong>DINO</strong></td><td>ViT 骨干；想要<strong>密集 / 分割友好</strong>的特征</td><td>教师 EMA + 中心化 + 锐化缺一不可</td><td>去掉中心化或锐化 → 立即坍塌</td></tr>
+        <tr><td><strong>MAE</strong></td><td>大数据 + 大模型（ViT-B 以上）；训练吞吐高</td><td>高掩码率（75%）；<strong>全量微调</strong>收益最大</td><td>掩码率太低 → 退化成“抄近路”，学不到语义</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint warm"><div>排障速查：<strong>坍塌</strong>——特征方差趋零、所有样本表示趋同，查负样本 / 温度 τ / 教师更新；<strong>过拟合代理任务</strong>——代理精度涨但下游不涨；<strong>增广不合适</strong>——冻结特征上语义近邻明显错误，回到增广表逐项核对。</div></div>
+</section>
+
+<section class="slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（下） · 对比学习</span><span class="meta-page">26</span></div>
+  <h2 class="slide-title">本章小结：对比学习</h2>
+  <div class="card-grid" data-cols="2">
+    <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">增广与坍塌</div><p>正样本增广规定模型应忽略哪些变化；训练目标还要防止所有输入映射到同一向量的<strong>表征坍塌</strong>。</p></div>
+    <div class="mini-card"><div class="mc-no">02</div><div class="mc-title">InfoNCE 与 EMA</div><p>InfoNCE 把“正样本最近”写成温度缩放的 N 分类；DINO 用 <strong>EMA 教师 + stop-gradient</strong> 在无负样本下稳定训练。</p></div>
+    <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">SimCLR / MoCo / DINO</div><p>大 batch、队列 + 动量、自蒸馏三条路线；按<strong>数据规模与资源</strong>选择（见实践指南）。</p></div>
+    <div class="mini-card"><div class="mc-no">04</div><div class="mc-title">CLIP → SigLIP 2</div><p>图文对比实现 <strong>zero-shot</strong>；sigmoid 损失更高效；视觉编码器成为 MLLM 的“眼睛”（冻结与否因模型而异）。</p></div>
+  </div>
+</section>
+
+<!-- ========== 09 掩码建模与自回归 ========== -->
+<section class="slide" data-layout="section">
+  <div class="section-num">09</div>
+  <div class="section-title">自监督学习：掩码建模与自回归</div>
+  <div class="section-sub">遮住一部分或预测下一部分，为什么能学到表征？</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">28</span></div>
+  <h2 class="slide-title">掩码建模的起点：BERT</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>随机遮蔽部分词（[MASK]），让模型预测原词</li>
+        <li>双向 Transformer 编码器</li>
+        <li>“遮蔽—预测”成为自监督预训练的通用范式</li>
+        <li>Devlin et al., NAACL 2019</li>
+      </ul>
+      <div class="keypoint"><div>记住：“<strong>遮蔽—预测</strong>”（mask-and-predict）从 BERT 开始成为自监督预训练的通用范式，后被迁移到视觉。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s083_img125.png" alt="BERT">
+      <div class="caption">BERT：遮蔽词预测 + 双向 Transformer 编码器</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Devlin et al., NAACL-HLT 2019</div>
+</section>
+
+<section class="slide flip" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">29</span></div>
+  <h2 class="slide-title">MAE：掩码自编码器</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>随机遮蔽 75% 图像块，编码器<strong>只处理可见块</strong></li>
+        <li>轻量解码器 + 掩码 token 重建被遮蔽的像素</li>
+        <li>非对称结构大幅降低预训练计算量</li>
+        <li>可扩展：ViT-Huge 上依然有效（He et al., CVPR 2022）</li>
+      </ul>
+      <div class="keypoint warm"><div>注意：为什么图像能遮 <strong>75%</strong> 而 BERT 只遮 15%？图像的空间冗余远高于语言——遮少了等于“抄近路”，学不到语义。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/mae_arch.png" alt="MAE 架构">
+      <div class="caption">MAE 架构：非对称编码器-解码器</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：He et al., CVPR 2022</div>
+</section>
+
+<!-- ========== 研究案例：EVA ========== -->
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模</span><span class="meta-page">30</span></div>
+  <div class="kicker">Research Case · HUST-VL</div>
+  <h2 class="slide-title">EVA：遮住图像块，但预测的是语义特征</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/research/eva_pipeline.png" alt="EVA 掩码视觉表征学习流程">
+  </div>
+  <div class="caption">训练目标来自冻结的图文对齐视觉编码器：EVA 只看未遮挡 patch，预测被遮挡位置对应的语义视觉特征，而不是 RGB 像素。</div>
+  <div class="keypoint warm"><div>与 MAE 对比着讲：输入遮挡方式相似，关键差别在监督目标。像素重建重视外观细节；语义特征预测更直接强调跨任务可迁移的信息。</div></div>
+  <div class="src-note" style="right:170px">Fang et al., EVA, CVPR 2023 Highlight · arxiv.org/abs/2211.07636</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">31</span></div>
+  <h2 class="slide-title">MAE 的重建效果</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/mae_results.png" alt="MAE 重建结果">
+  </div>
+  <div class="caption">遮蔽 80% 图像块后仍能重建出语义合理的内容（每组：遮蔽输入 / 重建 / 原图）</div>
+  <div class="src-note" style="right:170px">图源：He et al., CVPR 2022</div>
+</section>
+
+<section class="slide" data-layout="code">
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">32</span></div>
+  <h2 class="slide-title">掩码建模的目标：只算被遮住的部分</h2>
+  <div class="code-body">
+    <div class="formula-block">&#8467;<sub>MAE</sub> = (1 / |M|) &Sigma;<sub>i &isin; M</sub> &#8214;x<sub>i</sub> &minus; x&#770;<sub>i</sub>&#8214;<sup>2</sup></div>
+    <div class="code-block"><span class="cm"># M：被遮蔽的 patch 集合；x_i 为原始像素，x&#770;_i 为解码器重建</span>
+<span class="cm"># 人话：只在被遮住的块上计算像素均方误差，可见块不参与损失——</span>
+<span class="cm"># 编码器因此必须真正“理解”可见内容，才能补全缺失部分</span></div>
+    <div class="keypoint"><div>与 InfoNCE 对照着记：对比学习在<strong>表征空间</strong>拉近正样本、推远负样本；掩码建模在<strong>像素（或特征）空间</strong>回归被遮住的内容。</div></div>
+  </div>
+</section>
+
+<section class="slide" data-layout="code">
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">33</span></div>
+  <h2 class="slide-title">自回归 / GPT 式预训练</h2>
+  <div class="code-body">
+    <div class="formula-block">p(x) = &prod;<sub>i</sub> p(x<sub>i</sub> | x<sub>1</sub>, …, x<sub>i−1</sub>; &theta;)</div>
+    <div class="code-block"><span class="cm"># GPT-1 (2018)：Transformer 解码器做语言建模，逐词预测</span>
+<span class="cm"># Image GPT (2020)：图像像素按光栅顺序排成序列，</span>
+<span class="cm">#   逐像素自回归预测（也可用 BERT 式掩码目标）</span>
+<span class="cm"># 与掩码建模互补的另一条生成式路线</span></div>
+    <div class="keypoint"><div>直观理解：自回归就是<strong>“根据前文预测下一个”</strong>；图像像素排成序列后，也能逐像素采用同样的预测方式。</div></div>
+  </div>
+</section>
+
+<section class="slide" data-layout="gallery">
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">34</span></div>
+  <h2 class="slide-title">更多自监督路线</h2>
+  <div class="gallery-grid" data-cols="3">
+    <figure>
+      <img src="assets/lecture3/s097_img145.png" alt="Barlow Twins">
+      <figcaption>(a) Barlow Twins：互相关矩阵逼近单位阵（ICML 2021）</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/lecture3/data2vec_fig.png" alt="data2vec">
+      <figcaption>(b) data2vec：跨模态的教师-学生掩码建模</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/lecture3/ibot_fig.png" alt="iBOT">
+      <figcaption>(c) iBOT：在线 tokenizer 的掩码图像建模</figcaption>
+    </figure>
+  </div>
+  <div class="src-note" style="right:170px">图源：Zbontar et al., ICML 2021；Baevski et al., ICML 2022；Zhou et al., ICLR 2022</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">35</span></div>
+  <h2 class="slide-title">JEPA：在<span class="em">表征空间</span>做预测</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li><strong>Context encoder</strong>读取未遮挡区域，产生上下文表征。</li>
+        <li><strong>Predictor</strong>结合目标块的位置，预测被遮挡区域应有的表征。</li>
+        <li><strong>Target encoder</strong>给出学习目标；它不通过梯度直接更新，而由 context encoder 的参数做指数移动平均。</li>
+        <li><strong>V-JEPA</strong> 把该思路推广到视频；<strong>V-JEPA 2</strong> 进一步用于动作条件下的机器人规划。</li>
+      </ul>
+      <div class="keypoint"><div>I-JEPA 不要求把像素逐点还原。训练关注较稳定的语义与结构，同时允许忽略难以预测的纹理细节。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/research/ijepa_architecture.png" alt="I-JEPA 使用上下文编码器、预测器和目标编码器学习目标块表征的结构图">
+      <div class="caption">预测表征与 target encoder 的输出比较，不直接重建目标像素</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Assran et al., I-JEPA, CVPR 2023；V-JEPA：Bardes et al., TMLR 2024；V-JEPA 2：arXiv:2506.09985</div>
+</section>
+
+<section class="slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（下） · 掩码建模与自回归</span><span class="meta-page">36</span></div>
+  <h2 class="slide-title">本章小结：掩码建模与自回归</h2>
+  <div class="card-grid" data-cols="2">
+    <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">BERT</div><p>随机遮蔽词再预测 + 双向 Transformer，确立“<strong>遮蔽—预测</strong>”范式（NLP）。</p></div>
+    <div class="mini-card"><div class="mc-no">02</div><div class="mc-title">MAE</div><p>遮 75% 图像块，编码器只处理可见块 + 轻量解码器重建——损失只在被遮块上计算（MSE）。</p></div>
+    <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">自回归 / GPT 式</div><p>p(x) = ∏ p(x<sub>i</sub> | x<sub>&lt;i</sub>)：逐元素预测；GPT-1 与 Image GPT 把该路线带入预训练。</p></div>
+    <div class="mini-card"><div class="mc-no">04</div><div class="mc-title">更多路线与 JEPA</div><p>Barlow Twins、data2vec、iBOT；<strong>JEPA 系列</strong>（I-JEPA / V-JEPA / V-JEPA 2）在表征空间预测，通往世界模型与机器人规划。</p></div>
+  </div>
+</section>
+
+<!-- ========== 10 拓展：隐式神经表示与 3D 表征（选讲） ========== -->
+<section class="slide" data-layout="section">
+  <div class="section-num">10</div>
+  <div class="section-title">拓展（选讲）：隐式神经表示与 3D 表征</div>
+  <div class="section-sub">网络参数能否直接表示一张图像或一个三维场景？本章为拓展内容，供学有余力的同学选学</div>
+</section>
+
+<section class="slide" data-layout="two-col">
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">38</span></div>
+  <div class="kicker">拓展 · 选讲</div>
+  <h2 class="slide-title">先厘清：本章的“表征”和前面讲的不是一回事</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="col-title">可迁移的特征表征（本讲主线）</div>
+      <ul class="bullets">
+        <li>编码器在<strong>大量数据</strong>上训练，权重对所有样本共享</li>
+        <li>目标是<strong>泛化</strong>：表征能迁移到没见过的数据与任务</li>
+        <li>评价看下游任务：分类、检索、分割……</li>
+      </ul>
+    </div>
+    <div class="col">
+      <div class="col-title">信号的参数化表示（INR，本章）</div>
+      <ul class="bullets">
+        <li>网络权重<strong>过拟合单个信号</strong>（一张图、一个场景）</li>
+        <li>目标是<strong>精确表示</strong>：坐标进、属性出，连续可查询</li>
+        <li>评价看重建画质、存储与渲染速度</li>
+      </ul>
+    </div>
+  </div>
+  <div class="keypoint warm"><div>注意定位：<strong>3DGS 是显式表示</strong>（一组带参数的三维高斯），严格说并不属于 INR；把它放在本章，是因为它与 NeRF 回答同一个问题——“如何表示一个场景，并渲染新视角”。</div></div>
+</section>
+
+<section class="slide inr-concept-slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">39</span></div>
+  <div class="kicker">拓展 · 选讲</div>
+  <h2 class="slide-title">INR：用网络参数化连续信号</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <p class="lead">不再保存每个离散采样值，而是学习一个可以查询的连续函数：</p>
+      <div class="inr-equation">y = f<sub>θ</sub>(x)</div>
+      <ul class="bullets compact">
+        <li><strong>θ</strong>：网络权重，编码一个图像、视频或场景</li>
+        <li><strong>x</strong>：连续坐标；<strong>y</strong>：该位置的颜色、密度等属性</li>
+        <li>优势：连续可微，可在训练采样点之外查询</li>
+        <li>限制：容量、训练时间与高频细节仍需权衡</li>
+      </ul>
+    </div>
+    <div class="inr-query-map" aria-label="隐式神经表示的坐标查询示意">
+      <div class="inr-query-row"><span>图像</span><code>(x, y)</code><b>→</b><strong>f<sub>θ</sub></strong><b>→</b><code>(r, g, b)</code></div>
+      <div class="inr-query-row"><span>视频</span><code>(x, y, t)</code><b>→</b><strong>f<sub>θ</sub></strong><b>→</b><code>(r, g, b)</code></div>
+      <div class="inr-query-row"><span>3D 场景</span><code>(x, y, z, d)</code><b>→</b><strong>f<sub>θ</sub></strong><b>→</b><code>(r, g, b, σ)</code></div>
+      <p>坐标可以连续取值，因此输出分辨率不必在存储时固定。</p>
+    </div>
+  </div>
+  <div class="keypoint"><div>INR 的关键不是“用了一个 MLP”，而是<strong>把离散样本改写为可查询的坐标—属性函数</strong>。</div></div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">40</span></div>
+  <div class="kicker">拓展 · 选讲</div>
+  <h2 class="slide-title">代表工作：NeRF 神经辐射场</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/s104_img151.png" alt="NeRF">
+  </div>
+  <div class="caption">5D 输入（空间位置 + 视角方向）→ 颜色 + 密度；体渲染 + 渲染损失端到端优化（Mildenhall et al., ECCV 2020）</div>
+  <div class="src-note" style="right:170px">图源：Mildenhall et al., ECCV 2020</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">41</span></div>
+  <div class="kicker">拓展 · 选讲</div>
+  <h2 class="slide-title">从 NeRF 到 <span class="em">3D Gaussian Splatting</span></h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li><strong>NeRF</strong>用 MLP 隐式存储场景，沿每条射线查询大量采样点并做体渲染。</li>
+        <li><strong>3DGS</strong>显式保存大量三维高斯；每个高斯具有位置、形状、颜色和不透明度。</li>
+        <li>渲染时把可见高斯投影到图像并排序混合，因此可达到实时新视角合成。</li>
+      </ul>
+      <div class="keypoint warm"><div>3DGS 的优势主要是渲染速度和显式可编辑性；内存占用、几何精度和极端视角仍要单独评估。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/research/3dgs_teaser.png" alt="3D Gaussian Splatting 的高质量实时新视角合成结果">
+      <div class="caption">显式高斯表示支持高质量、实时的新视角渲染</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Kerbl et al., 3D Gaussian Splatting, ACM TOG 2023</div>
+</section>
+
+<!-- ========== 研究案例：4D Gaussian Splatting ========== -->
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">42</span></div>
+  <div class="kicker">Research Case · HUST-VL · 拓展选讲</div>
+  <h2 class="slide-title">4D Gaussian Splatting：共享一套高斯，只预测随时间发生的形变</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/research/4dgs_pipeline.png" alt="4D Gaussian Splatting 动态场景表示与形变网络">
+  </div>
+  <div class="caption">一套 canonical 3D Gaussians 表示场景基准状态；4D 神经体素编码空间与时间，轻量 MLP 预测位置、旋转和尺度的变化，再用高斯光栅化渲染。</div>
+  <div class="keypoint"><div>沿图回答：哪些参数跨时间共享？哪些量随时间变化？如果每一帧都独立保存一套高斯，会失去什么？</div></div>
+  <div class="src-note" style="right:170px">Wu et al., 4D Gaussian Splatting, CVPR 2024 · github.com/hustvl/4DGaussians</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">43</span></div>
+  <div class="kicker">Research Case · 4D Gaussian Splatting · 拓展选讲</div>
+  <h2 class="slide-title">方法是否有用，要同时看画质和渲染速度</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/research/4dgs_teaser.jpg" alt="4D Gaussian Splatting 动态场景新视角合成效果">
+  </div>
+  <div class="caption">动态场景中的人物和物体会随时间变化，模型需要在新视角下同时恢复空间结构与运动。论文在 800×800、RTX 3090 上报告 82 FPS。</div>
+  <div class="keypoint warm"><div>课堂追问：PSNR 更高但只能离线渲染，和画质略低但达到实时，哪一个更好？答案取决于自由视点视频、编辑、机器人感知等具体使用场景。</div></div>
+  <div class="src-note" style="right:170px">官方项目结果图：Wu et al., CVPR 2024</div>
+</section>
+
+<section class="slide dense inr-impact-slide" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（下） · 拓展：INR 与 3D 表征</span><span class="meta-page">44</span></div>
+  <div class="kicker">拓展 · 选讲</div>
+  <h2 class="slide-title">INR 的影响：存储一个函数，而不只是存储采样值</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>应用</th><th>代表方法</th><th>连续函数怎样被使用</th><th>需要同时检查</th></tr></thead>
+      <tbody>
+        <tr><td><strong>图像 / 视频压缩</strong></td><td>COIN++、NeRV</td><td>用网络权重编码一个信号，按坐标重新生成像素或帧</td><td>码率、重建质量与解码速度</td></tr>
+        <tr><td><strong>连续超分辨率</strong></td><td>LIIF、UltraSR</td><td>查询任意连续坐标，而非固定整数倍放大</td><td>跨倍率泛化和高频细节</td></tr>
+        <tr><td><strong>光场与新视角</strong></td><td>SIGNET、NeRF</td><td>根据空间位置与视线方向预测颜色或辐射场属性</td><td>画质、训练成本与渲染速度</td></tr>
+        <tr><td><strong>生成建模</strong></td><td>函数分布建模</td><td>把每个样本看成一个连续函数，再学习函数之间的分布</td><td>模型容量与生成多样性</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint warm"><div>“权重即数据”只是表示方式：INR 的权重针对<strong>单个信号</strong>拟合，与迁移学习中“跨数据集通用的编码器权重”<strong>不是同一概念</strong>；是否值得使用，还要与离散表示比较画质、存储、训练时间和查询速度。</div></div>
+</section>
+
+<!-- ========== 三讲后的最小实践 ========== -->
+<section class="slide dense" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（下） · 课堂实践</span><span class="meta-page">45</span></div>
+  <div class="kicker">Minimum Viable Experiment</div>
+  <h2 class="slide-title">三讲之后，完成一个最小但完整的视觉实验</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>需要提交什么</th><th>最低要求</th><th>检查重点</th></tr></thead>
+      <tbody>
+        <tr><td><strong>问题定义</strong></td><td>写清输入、输出、数据单位和主要指标</td><td>任务与指标是否匹配</td></tr>
+        <tr><td><strong>数据划分</strong></td><td>固定训练、验证、测试集；说明划分单位</td><td>是否存在同主体、近重复或时间泄漏</td></tr>
+        <tr><td><strong>可复现基线</strong></td><td>训练一个简单 CNN，或微调一个公开预训练模型</td><td>记录随机种子、配置和最好验证轮次</td></tr>
+        <tr><td><strong>一次对照实验</strong></td><td>只改变一种增广、预训练方式或冻结策略</td><td>除目标因素外，其余条件尽量一致</td></tr>
+        <tr><td><strong>结果与失败分析</strong></td><td>报告测试指标，并检查至少 20 个失败样例</td><td>错误是否集中在特定类别、场景或数据来源</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint warm"><div>目标不是刷出最高分，而是让别人能够复现实验，并看懂<strong>模型在哪些条件下有效、哪些条件下会失败</strong>。</div></div>
+</section>
+
+<!-- ========== 全讲总结 ========== -->
+<section class="slide dense hook-answer-slide" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督时代的表征学习</span><span class="meta-page">46</span></div>
+  <div class="kicker">Closing the Loop</div>
+  <h2 class="slide-title">回到开场：用好自监督，要回答这四件事</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>开场问题</th><th>现在应能给出的回答</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1 · 数据增广</strong></td><td>只把不改变任务语义的变化当作正样本；几何任务还必须同步更新框、掩码或关键点。</td></tr>
+        <tr><td><strong>2 · 防止坍塌</strong></td><td>“两个视图一致”存在常数解；需要负样本、非对称网络、动量教师（EMA + stop-gradient）或输出约束排除无信息解。</td></tr>
+        <tr><td><strong>3 · 方法选择</strong></td><td>SimCLR 要大 batch、MoCo 省显存、DINO 出密集特征、MAE 适合大数据大模型；按数据与资源条件选择，并会排查坍塌与过拟合。</td></tr>
+        <tr><td><strong>4 · 两种“表征”</strong></td><td>可迁移特征表征追求跨任务泛化；INR 用权重精确表示单个信号；3DGS 是显式场景表示，不属于 INR。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint"><div>结合第 3 讲（上）的四个问题——学习信号、保留与忽略、微调策略、评价协议——构成判断表征是否好用的完整图景。</div></div>
+</section>
+
+<!-- ========== 结束页 ========== -->
+<section class="slide" data-layout="statement">
+  <div class="statement-text">表征学习仍在解决一个核心问题：<br>如何少用人工标注，<br>学到<span class="em">可迁移、可复用</span>的视觉表征。</div>
+  <div class="statement-sub">第 3 讲（下）完 · 问题与讨论</div>
+</section>
+
+<!-- ========== 参考文献（附录） ========== -->
+<section class="slide refs" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（下） · 参考文献</span><span class="meta-page">48</span></div>
+  <div class="kicker">Appendix</div>
+  <h2 class="slide-title">参考文献（附录，一）：自监督学习 · 对比学习 · 掩码建模</h2>
+  <ol class="ref-list cols-2">
+    <li><span class="ref-title">Reducing the Dimensionality of Data with Neural Networks</span>. <span class="ref-venue">Hinton &amp; Salakhutdinov. Science 2006.</span></li>
+    <li><span class="ref-title">Colorful Image Colorization</span>. <span class="ref-venue">Zhang, Isola, Efros. ECCV 2016.</span></li>
+    <li><span class="ref-title">Unsupervised Representation Learning by Predicting Image Rotations</span>. <span class="ref-venue">Gidaris, Singh, Komodakis. ICLR 2018.</span></li>
+    <li><span class="ref-title">A Simple Framework for Contrastive Learning of Visual Representations (SimCLR)</span>. <span class="ref-venue">Chen, Kornblith, Norouzi, Hinton. ICML 2020.</span></li>
+    <li><span class="ref-title">Momentum Contrast for Unsupervised Visual Representation Learning (MoCo)</span>. <span class="ref-venue">He, Fan, Wu, Xie, Girshick. CVPR 2020.</span></li>
+    <li><span class="ref-title">Emerging Properties in Self-Supervised Vision Transformers (DINO)</span>. <span class="ref-venue">Caron et al. ICCV 2021.</span></li>
+    <li><span class="ref-title">Learning Transferable Visual Models From Natural Language Supervision (CLIP)</span>. <span class="ref-venue">Radford et al. ICML 2021.</span></li>
+    <li><span class="ref-title">Barlow Twins: Self-Supervised Learning via Redundancy Reduction</span>. <span class="ref-venue">Zbontar et al. ICML 2021.</span></li>
+    <li><span class="ref-title">BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</span>. <span class="ref-venue">Devlin, Chang, Lee, Toutanova. NAACL-HLT 2019.</span></li>
+    <li><span class="ref-title">Masked Autoencoders Are Scalable Vision Learners (MAE)</span>. <span class="ref-venue">He et al. CVPR 2022.</span></li>
+    <li><span class="ref-title">EVA: Exploring the Limits of Masked Visual Representation Learning at Scale</span>. <span class="ref-venue">Fang et al. CVPR 2023 Highlight.</span></li>
+    <li><span class="ref-title">Improving Language Understanding by Generative Pre-Training (GPT)</span>. <span class="ref-venue">Radford et al. OpenAI Technical Report 2018.</span></li>
+    <li><span class="ref-title">Generative Pretraining from Pixels (Image GPT)</span>. <span class="ref-venue">Chen et al. ICML 2020.</span></li>
+    <li><span class="ref-title">data2vec: A General Framework for Self-Supervised Learning in Speech, Vision and Language</span>. <span class="ref-venue">Baevski et al. ICML 2022.</span></li>
+    <li><span class="ref-title">iBOT: Image BERT Pre-Training with Online Tokenizer</span>. <span class="ref-venue">Zhou et al. ICLR 2022.</span></li>
+  </ol>
+</section>
+
+<section class="slide refs" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（下） · 参考文献</span><span class="meta-page">49</span></div>
+  <div class="kicker">Appendix</div>
+  <h2 class="slide-title">参考文献（附录，二）：基础模型 · 隐式神经表示与 3D 表征</h2>
+  <ol class="ref-list cols-2" start="16">
+    <li><span class="ref-title">DINOv2: Learning Robust Visual Features without Supervision</span>. <span class="ref-venue">Oquab et al. TMLR 2024.</span></li>
+    <li><span class="ref-title">DINOv3</span>. <span class="ref-venue">Siméoni et al. arXiv Technical Report 2025.</span></li>
+    <li><span class="ref-title">Sigmoid Loss for Language Image Pre-Training (SigLIP)</span>. <span class="ref-venue">Zhai, Mustafa, Kolesnikov, Beyer. ICCV 2023.</span></li>
+    <li><span class="ref-title">SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding, Localization, and Dense Features</span>. <span class="ref-venue">Tschannen et al. arXiv 2025.</span></li>
+    <li><span class="ref-title">Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture (I-JEPA)</span>. <span class="ref-venue">Assran et al. CVPR 2023.</span></li>
+    <li><span class="ref-title">Revisiting Feature Prediction for Learning Visual Representations from Video (V-JEPA)</span>. <span class="ref-venue">Bardes et al. TMLR 2024.</span></li>
+    <li><span class="ref-title">V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning</span>. <span class="ref-venue">Assran et al. arXiv 2025.</span></li>
+    <li><span class="ref-title">Cambrian-1: A Fully Open, Vision-Centric Exploration of Multimodal LLMs</span>. <span class="ref-venue">Tong et al. NeurIPS 2024.</span></li>
+    <li><span class="ref-title">3D Gaussian Splatting for Real-Time Radiance Field Rendering</span>. <span class="ref-venue">Kerbl, Kopanas, Leimkühler, Drettakis. ACM TOG (SIGGRAPH) 2023.</span></li>
+    <li><span class="ref-title">4D Gaussian Splatting for Real-Time Dynamic Scene Rendering</span>. <span class="ref-venue">Wu et al. CVPR 2024.</span></li>
+    <li><span class="ref-title">NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis</span>. <span class="ref-venue">Mildenhall et al. ECCV 2020.</span></li>
+    <li><span class="ref-title">NeRV: Neural Representations for Videos</span>. <span class="ref-venue">Chen et al. NeurIPS 2021.</span></li>
+    <li><span class="ref-title">Learning Continuous Image Representation with Local Implicit Image Function (LIIF)</span>. <span class="ref-venue">Chen, Liu, Wang. CVPR 2021.</span></li>
+    <li><span class="ref-title">COIN++: Neural Compression Across Modalities</span>. <span class="ref-venue">Dupont et al. TMLR 2022.</span></li>
+    <li><span class="ref-title">SIGNET: Efficient Neural Representation for Light Fields</span>. <span class="ref-venue">Feng &amp; Varshney. ICCV 2021.</span></li>
+  </ol>
+</section>
+
+  </div><!-- /#stage -->
+</div><!-- /#viewport -->
+
+<div id="pager"></div>
+<div id="progress-track"><div id="progress"></div></div>
+<script src="js/slides.js?v=20260827b"></script>
+</body>
+</html>

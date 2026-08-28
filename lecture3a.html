@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第3讲（上） · 从浅层到深度：特征表征之路 — 深度学习与计算机视觉</title>
+<link rel="stylesheet" href="css/slides.css?v=20260827">
+</head>
+<body>
+<div id="viewport">
+  <div id="stage">
+
+<!-- ========== 封面 ========== -->
+<section class="slide" data-layout="cover">
+  <div class="kicker">Deep Learning &amp; Computer Vision</div>
+  <h1 class="cover-title">从浅层到深度：特征表征之路</h1>
+  <div class="cover-sub">Representation Learning: From Handcrafted to Deep<br>授课教师：王兴刚 · 华中科技大学</div>
+  <div class="cover-lecture">
+    <span class="tag">第 3 讲（上）</span>
+    <span class="tag neutral">2026 秋季学期</span>
+  </div>
+</section>
+
+<!-- ========== 导览 ========== -->
+<section class="slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 从浅层到深度：特征表征之路</span><span class="meta-page">02</span></div>
+  <div class="kicker">Overview</div>
+  <h2 class="slide-title">本讲（上）关注：<span class="em">表征</span>如何被获得和评价？</h2>
+  <div class="slide-body">
+    <p class="lead">视觉系统的核心不是分类器，而是把像素变成“好用的表征”。</p>
+    <ul class="bullets">
+      <li>手工设计特征：SIFT、HOG 及其局限</li>
+      <li>浅层特征学习：PCA、稀疏编码、中层模式挖掘</li>
+      <li>深度表征：CNN 内部学到了什么</li>
+      <li>降低标注依赖之一：迁移学习与半监督学习</li>
+      <li>降低标注依赖之二：自监督学习（对比学习、掩码建模）—— 见<strong>第 3 讲（下）</strong> <span class="tag">SimCLR</span> <span class="tag warm">MAE</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== 本讲学习结果 ========== -->
+<section class="slide opening-hooks-slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 导览</span><span class="meta-page">03</span></div>
+  <div class="kicker">Learning Outcomes</div>
+  <h2 class="slide-title">学完本讲（上），你应该能判断一种表征是否好用</h2>
+  <div class="slide-body">
+    <ol class="hook-question-list">
+      <li><span>1</span><div>手工特征、监督表征、迁移学习和自监督学习，<strong>信息分别从哪里来？</strong></div></li>
+      <li><span>2</span><div>面对平移、颜色、裁剪等变化，<strong>哪些应该忽略，哪些必须保留？</strong></div></li>
+      <li><span>3</span><div>面对一个新任务，<strong>线性探针、部分微调还是全量微调</strong>，该怎么选？</div></li>
+      <li><span>4</span><div>为什么线性探针不够？还应怎样验证表征对<strong>真实下游任务</strong>有用？</div></li>
+    </ol>
+    <div class="keypoint warm"><div>“表征好”不是脱离任务的结论。学生需要说清楚：<strong>它保留了什么信息、忽略了什么变化、在哪个任务和评估协议下有效</strong>。自监督方法的具体构造（增广、防坍塌）在第 3 讲（下）展开。</div></div>
+  </div>
+</section>
+
+<!-- ========== 01 手工特征时代 ========== -->
+<section class="slide" data-layout="section">
+  <div class="section-num">01</div>
+  <div class="section-title">手工特征时代</div>
+  <div class="section-sub">在深度学习之前，人们怎样把图像变成可比较的数字？</div>
+</section>
+
+<section class="slide" data-layout="gallery">
+  <div class="slide-meta"><span>第 3 讲（上） · 手工特征时代</span><span class="meta-page">05</span></div>
+  <h2 class="slide-title">SIFT：尺度不变特征变换</h2>
+  <div class="gallery-grid" data-cols="2">
+    <figure>
+      <img src="assets/lecture3/s002_img1.png" alt="SIFT 关键点与描述子">
+      <figcaption>(a) 关键点 → 梯度方向直方图描述子</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/lecture3/s002_img2.png" alt="SIFT 图像匹配">
+      <figcaption>(b) 基于 SIFT 的跨视角图像匹配</figcaption>
+    </figure>
+  </div>
+  <div class="src-note" style="right:170px">图源：Lowe, IJCV 2004</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 手工特征时代</span><span class="meta-page">06</span></div>
+  <h2 class="slide-title">HOG：方向梯度直方图</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>用局部梯度方向直方图描述形状</li>
+        <li>直觉：不关心“边缘在哪”，只统计“边缘朝哪个方向”，得到形状的粗略素描</li>
+        <li>经典组合：<strong>HOG + SVM</strong>——手工特征 + 浅层分类器</li>
+        <li>行人检测的里程碑工作（Dalal &amp; Triggs, 2005）</li>
+        <li>行人相对刚性，适合用模板表达</li>
+      </ul>
+      <div class="keypoint"><div>记住：<strong>HOG + SVM</strong> 是深度学习之前视觉任务的标准范式——人工设计特征，机器学习只负责最后的分类器。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s003_img3.png" alt="HOG 描述子">
+      <div class="caption">HOG 描述子与 SVM 权重可视化</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Dalal &amp; Triggs, CVPR 2005</div>
+</section>
+
+<section class="slide flip" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 手工特征时代</span><span class="meta-page">07</span></div>
+  <h2 class="slide-title">HOG + SVM 行人检测</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>典型范式：<strong>浅层特征 + 浅层分类器</strong></li>
+        <li>检测流程：滑动窗口扫描 → 每个窗口提取 HOG → SVM 打分</li>
+        <li>在 EPFL / PETS2009 数据集上效果良好</li>
+        <li>但模板固定，难以应对复杂变化</li>
+      </ul>
+      <div class="keypoint warm"><div>注意：这类方法的“智能”几乎全在人工设计的特征里，分类器本身很浅——特征一旦失效，整体就失效。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s004_img4.png" alt="HOG+SVM 行人检测效果">
+      <div class="caption">HOG + SVM 在监控场景中的行人检测结果</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Dalal &amp; Triggs, CVPR 2005（CS231n 课件）</div>
+</section>
+
+<section class="slide robustness-slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 手工特征时代</span><span class="meta-page">08</span></div>
+  <div class="kicker">Where hand-crafted assumptions break</div>
+  <h2 class="slide-title">手工特征不够<span class="em">鲁棒</span>：真实变化往往超出设计假设</h2>
+  <div class="slide-body">
+    <div class="robustness-grid">
+      <div><span>Occlusion</span><strong>遮挡</strong><p>关键点或轮廓被挡住，描述子可能找不到稳定对应。</p></div>
+      <div><span>Illumination</span><strong>光照变化</strong><p>阴影、曝光和局部反光会改变梯度与对比度。</p></div>
+      <div><span>Appearance / Pose</span><strong>外观与姿态</strong><p>非刚体形变或姿态变化会破坏固定模板的匹配。</p></div>
+      <div><span>Viewpoint / Scale</span><strong>视角与尺度</strong><p>超出预设范围的透视与尺度变化仍会改变局部结构。</p></div>
+    </div>
+    <div class="keypoint warm"><div>注意：手工特征的“不变性”来自<strong>人工假设</strong>（如 SIFT 假设尺度 / 旋转不变）；开放世界中假设一旦不成立，特征就失效。</div></div>
+  </div>
+</section>
+
+<section class="slide" data-layout="statement">
+  <div class="statement-text">与其人工“设计”特征，<br>不如让机器从数据中<span class="em">学习</span>表征。</div>
+  <div class="statement-sub">—— 表征学习的出发点</div>
+</section>
+
+<section class="slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 手工特征时代</span><span class="meta-page">10</span></div>
+  <h2 class="slide-title">本章小结：手工特征时代</h2>
+  <div class="card-grid" data-cols="3">
+    <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">SIFT</div><p>关键点 + 梯度方向直方图描述子，尺度 / 旋转不变，擅长图像匹配。<br>关键术语：<strong>尺度不变</strong>、描述子</p></div>
+    <div class="mini-card"><div class="mc-no">02</div><div class="mc-title">HOG + SVM</div><p>方向梯度直方图刻画形状，配 SVM 做行人检测，是“手工特征 + 浅层分类器”的经典范式。<br>关键术语：<strong>模板</strong>、滑动窗口</p></div>
+    <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">共同局限</div><p>不变性靠人工假设，在遮挡、光照、姿态、视角、尺度剧变的开放世界中不够鲁棒 → 特征应当<strong>从数据中学</strong>。</p></div>
+  </div>
+</section>
+
+<!-- ========== 02 什么是好的表征 ========== -->
+<section class="slide" data-layout="section">
+  <div class="section-num">02</div>
+  <div class="section-title">什么是好的表征</div>
+  <div class="section-sub">表征应该保留什么、忽略什么，怎样证明它有用？</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 什么是好的表征</span><span class="meta-page">12</span></div>
+  <h2 class="slide-title">LeCun 的蛋糕：自监督才是主体</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>纯强化学习 = 樱桃：偶尔的几个比特奖励</li>
+        <li>监督学习 = 糖霜：每样本 10~10,000 比特</li>
+        <li>无监督 / 预测学习 = <strong>蛋糕主体</strong>：每样本数百万比特</li>
+        <li>“比特”指标签携带的信息量——人工标签的信息远远少于数据本身</li>
+        <li>智能的大部分来自对世界的预测式学习</li>
+      </ul>
+      <div class="keypoint warm"><div>注意：蛋糕是<strong>信息量的直观比喻</strong>，不是严格可测量的监督信号排序定律；它传达的动机是——人工标签的信息远少于数据本身，这是自监督兴起的根本动机。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s007_img5.png" alt="LeCun 蛋糕比喻">
+      <div class="caption">Yann LeCun 著名的“蛋糕”比喻</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Yann LeCun, NeurIPS 2016 Keynote</div>
+</section>
+
+<section class="slide representation-quality-slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 什么是好的表征</span><span class="meta-page">13</span></div>
+  <h2 class="slide-title">好的表征应具备哪些性质？</h2>
+  <div class="slide-body">
+    <div class="representation-map">
+      <div class="rm-input"><span>输入 x</span><strong>目标信息 + 姿态、光照、背景等干扰</strong></div>
+      <div class="rm-encoder"><span>编码器</span><strong>f<sub>θ</sub></strong></div>
+      <div class="rm-output"><span>表征 z</span><strong>保留任务需要的信息，减少无关变化</strong></div>
+    </div>
+    <div class="quality-properties">
+      <div><strong>紧凑 compact</strong><p>去除冗余，用更少维度表达有效信息。</p></div>
+      <div><strong>充分 sufficient</strong><p>没有丢掉完成下游任务所需的关键因素。</p></div>
+      <div><strong>解耦 disentangled</strong><p>姿态、光照等变化尽量由不同因素解释。</p></div>
+      <div><strong>可解释 interpretable</strong><p>人能理解维度、方向或区域与语义的关系。</p></div>
+    </div>
+    <div class="keypoint"><div>记住：判断表征好坏的终极标准是<strong>“下游任务是否变容易”</strong>（Bengio, Courville &amp; Vincent, IEEE TPAMI 2013）。</div></div>
+  </div>
+</section>
+
+<section class="slide dense" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（上） · 什么是好的表征</span><span class="meta-page">14</span></div>
+  <div class="kicker hook-return">回应开场问题 2 · 哪些变化应被保留？</div>
+  <h2 class="slide-title">不变性与等变性：要保留什么，取决于任务</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>输入变化</th><th>分类任务希望</th><th>定位 / 几何任务希望</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>物体在图像中平移</td><td><strong>近似不变</strong>：仍判断为同一类别</td><td><strong>等变</strong>：预测位置应随之移动</td></tr>
+        <tr><td>水平翻转</td><td>多数自然物体分类可保持类别</td><td>文字、交通方向和左右解剖结构可能改变语义</td></tr>
+        <tr><td>颜色改变</td><td>形状主导的类别可适度忽略</td><td>细粒度识别、病理和材料检测可能必须保留</td></tr>
+        <tr><td>裁剪或遮挡</td><td>可容忍非关键区域缺失</td><td>过强裁剪会删除目标或几何关系</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint"><div>好的表征不是对所有变化都不敏感，而是对<strong>与任务无关的变化保持稳定</strong>，对任务需要的变化保留可预测响应。</div></div>
+  <div class="src-note" style="right:170px">依据：Bengio, Courville &amp; Vincent, IEEE TPAMI 2013；SimCLR, ICML 2020</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（上） · 什么是好的表征</span><span class="meta-page">15</span></div>
+  <h2 class="slide-title">如何评估一种表征学习方法？</h2>
+  <div class="full-media">
+    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='400'><rect width='1000' height='400' fill='white'/><rect x='20' y='150' width='170' height='100' rx='10' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='105' y='195' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Unlabeled data</text><text x='105' y='222' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>lots of it</text><path d='M195 200 L245 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='250' y='150' width='200' height='100' rx='10' fill='%23fbece4' stroke='%23c2521e' stroke-width='2'/><text x='350' y='188' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Pretext task</text><text x='350' y='212' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>self-supervised</text><text x='350' y='234' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>pretraining</text><path d='M455 200 L505 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='510' y='150' width='200' height='100' rx='10' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='610' y='188' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Encoder f&#952;</text><text x='610' y='212' font-size='15' text-anchor='middle' fill='%23c2521e' font-family='sans-serif'>frozen</text><text x='610' y='234' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>the learned representation</text><path d='M715 200 L765 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='770' y='120' width='210' height='160' rx='10' fill='white' stroke='%232456d6' stroke-width='2.5'/><text x='875' y='152' font-size='18' text-anchor='middle' fill='%232456d6' font-family='sans-serif' font-weight='bold'>Evaluate downstream</text><text x='875' y='182' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>linear probe / k-NN</text><text x='875' y='206' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>few-shot / fine-tune</text><text x='875' y='230' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>detection / segmentation</text><text x='875' y='258' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>with few labels</text><text x='500' y='330' font-size='16' text-anchor='middle' fill='%23666' font-family='sans-serif'>What matters is not pretext accuracy, but whether the encoder makes downstream tasks easier.</text><defs><marker id='a' markerWidth='8' markerHeight='8' refX='7' refY='4' orient='auto'><path d='M0 0 L8 4 L0 8 z' fill='%2322222a'/></marker></defs></svg>" alt="自监督表征评估流程（自绘示意）">
+  </div>
+  <div class="caption">不关心代理任务本身做得多好——在下游任务（少量标注）上评估学到的特征提取器（自绘示意）</div>
+  <div class="keypoint warm"><div>注意：评估的不是代理任务精度（比如旋转预测准不准），而是学到的编码器在<strong>下游任务</strong>上的表现。</div></div>
+</section>
+
+<section class="slide flip" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 什么是好的表征</span><span class="meta-page">16</span></div>
+  <h2 class="slide-title">生物视觉的层级表征</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>视觉皮层逐级抽象：V1/V2 → V4 → PIT/AIT</li>
+        <li>从边缘、纹理到部件、完整物体</li>
+        <li>深度网络的层级设计正是受此启发（如 HMAX 类皮层模型）</li>
+      </ul>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s018_img19.png" alt="视觉皮层层级">
+      <div class="caption">大脑视觉通路的层级结构（Serre, 2014）</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Serre et al., IEEE TPAMI 2007（教程版式：Serre, 2014）</div>
+</section>
+
+<section class="slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 什么是好的表征</span><span class="meta-page">17</span></div>
+  <h2 class="slide-title">本章小结：什么是好的表征</h2>
+  <div class="card-grid" data-cols="3">
+    <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">评价与任务相关</div><p>紧凑、充分等性质可作参考；应对无关变化保持<strong>不变</strong>，对位置等任务变量保持<strong>等变</strong>。</p></div>
+    <div class="mini-card"><div class="mc-no">02</div><div class="mc-title">看下游能力</div><p>不看代理任务精度，而要检查表征能否让分类、检索、密集预测等<strong>实际下游任务</strong>变容易。</p></div>
+    <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">两点启示</div><p>LeCun 蛋糕（信息量比喻）：自监督的信息量远大于监督；生物视觉的<strong>层级抽象</strong>启发了深度网络设计。</p></div>
+  </div>
+</section>
+
+<!-- ========== 03 浅层特征学习 ========== -->
+<section class="slide" data-layout="section">
+  <div class="section-num">03</div>
+  <div class="section-title">浅层特征学习</div>
+  <div class="section-sub">不使用深网络，能否从数据中自动发现特征？</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 浅层特征学习</span><span class="meta-page">19</span></div>
+  <h2 class="slide-title">PCA：学习一组本征基向量</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>寻找数据方差最大的一组正交基（本征表示）</li>
+        <li>直觉：给高维数据找“主轴”，沿主轴方向数据变化最剧烈、信息量最大</li>
+        <li>以<strong>重建 / 压缩</strong>为目标的线性降维</li>
+        <li>第一个本征脸对应最大方差方向，依次递减</li>
+        <li>数据驱动，但只是线性、浅层的变换</li>
+      </ul>
+      <div class="keypoint warm"><div>注意：PCA 是<strong>线性</strong>方法，只看二阶统计量（方差）；人脸角度、表情等非线性变化它表达不了。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s016_img14.png" alt="本征脸">
+      <div class="caption">前 10 个本征脸（Eigenface）</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Turk &amp; Pentland, J. Cognitive Neuroscience 1991</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（上） · 浅层特征学习</span><span class="meta-page">20</span></div>
+  <h2 class="slide-title">PCA 人脸重建：保留了什么，丢了什么？</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/pca_recon_compare.png" alt="原图与 PCA 重建对齐对比">
+  </div>
+  <div class="caption">对齐对比（上行原图 / 下行重建）：身份与大尺度结构保留良好，但高频细节丢失、出现“叠影”伪影——线性基的表达能力上限</div>
+  <div class="src-note" style="right:170px">图源：Turk &amp; Pentland, J. Cognitive Neuroscience 1991（裁剪重排）</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 浅层特征学习</span><span class="meta-page">21</span></div>
+  <h2 class="slide-title">稀疏表示：字典上的稀疏组合</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>测试样本 = 训练字典的<strong>稀疏线性组合</strong> + 稀疏误差</li>
+        <li>求解 L1 最小化：min ‖x‖₁，s.t. Ax = y</li>
+        <li>直观理解：用尽可能少的训练样本拼出测试样本，因此大部分系数为零</li>
+        <li>遮挡 / 噪声被建模为稀疏误差项，因此对它们很鲁棒</li>
+      </ul>
+      <div class="keypoint"><div>记住：稀疏表示把<strong>遮挡当成稀疏误差</strong>显式建模，这是它在遮挡人脸识别上鲁棒的根本原因。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s017_img17.png" alt="稀疏表示人脸识别">
+      <div class="caption">稀疏表示人脸识别：遮挡 / 噪声下仍可定位正确身份</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Wright et al., IEEE TPAMI 2009</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（上） · 浅层特征学习</span><span class="meta-page">22</span></div>
+  <h2 class="slide-title">经典目标识别流水线</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/s019_img20.png" alt="经典识别流水线">
+  </div>
+  <div class="caption">手工特征提取器 → BoW 中层模型（Segments / Parts）→ 分类器</div>
+  <div class="src-note" style="right:170px">图源：Stanford CS231n 课件</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 浅层特征学习</span><span class="meta-page">23</span></div>
+  <h2 class="slide-title">多示例学习（MIL）</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>标注以“包”为单位：<strong>正包</strong>至少含一个正实例</li>
+        <li><strong>负包</strong>中所有实例都是负例</li>
+        <li>类比：一袋糖果里只要有一颗是草莓味，整袋就标为“草莓包”</li>
+        <li>适合弱标注：图像级标签 → 挖掘区域级概念</li>
+      </ul>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s021_img26.png" alt="多示例学习">
+      <div class="caption">多示例学习中的正包与负包</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：多示例学习示意图（CS231n 课件）</div>
+</section>
+
+<section class="slide flip" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 浅层特征学习</span><span class="meta-page">24</span></div>
+  <h2 class="slide-title">挖掘有判别力的中层视觉模式</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>用多示例学习从图像块中挖掘判别性模式（G-code）</li>
+        <li>聚类 + 空间金字塔，汇聚成整图表征</li>
+        <li>MIT Indoor 67 场景分类准确率 50.15%，当时最优</li>
+        <li>Wang et al., MMDL, ICML 2013</li>
+      </ul>
+      <div class="keypoint"><div>记住：浅层学习的上限在于——特征可以学，但<strong>层层之间的组合方式仍是人工搭建</strong>的。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s023_img62.png" alt="MMDL 中层模式挖掘">
+      <div class="caption">MMDL：从训练图像挖掘中层判别模式并构建图像表征</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Wang et al., ICML 2013</div>
+</section>
+
+<section class="slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 浅层特征学习</span><span class="meta-page">25</span></div>
+  <h2 class="slide-title">本章小结：浅层特征学习</h2>
+  <div class="card-grid" data-cols="2">
+    <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">PCA / 本征脸</div><p>以重建为目标的<strong>线性</strong>降维：找方差最大的正交基。局限：无法表达非线性结构。</p></div>
+    <div class="mini-card"><div class="mc-no">02</div><div class="mc-title">稀疏表示</div><p>测试样本 = 字典的稀疏组合 + 稀疏误差；L1 最小化求解；对<strong>遮挡 / 噪声</strong>鲁棒。</p></div>
+    <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">中层模式挖掘</div><p>多示例学习（MIL）从弱标注中挖掘判别性图像块模式，聚类 + 空间金字塔汇聚成整图表征。</p></div>
+    <div class="mini-card"><div class="mc-no">04</div><div class="mc-title">历史定位</div><p>特征开始“学”了，但流水线仍靠人工串联——为<strong>端到端深度学习</strong>埋下伏笔。</p></div>
+  </div>
+</section>
+
+<!-- ========== 04 深度表征学习 ========== -->
+<section class="slide" data-layout="section">
+  <div class="section-num">04</div>
+  <div class="section-title">深度表征学习</div>
+  <div class="section-sub">多层网络内部究竟学到了哪些视觉模式？</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 深度表征学习</span><span class="meta-page">27</span></div>
+  <h2 class="slide-title">深度学习：一切模块皆可学习</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>不再手工设计任何模块</li>
+        <li>边缘 / 纹理 / 部件 / 分类器<strong>全部从数据中学</strong></li>
+        <li>整个流水线端到端联合优化</li>
+      </ul>
+      <div class="keypoint"><div>记住：<strong>端到端</strong> = 特征提取与分类器不再分开设计，而由同一个损失函数联合优化——误差信号一路反传到最底层。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s025_img65.png" alt="深度学习流水线">
+      <div class="caption">与经典流水线对照：所有方框都变成“可学习”</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Stanford CS231n 课件</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 深度表征学习</span><span class="meta-page">28</span></div>
+  <h2 class="slide-title">CNN 第一层学到什么？</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>第一层自发学到<strong>类 Gabor</strong> 的边缘与颜色滤波器</li>
+        <li>Gabor 滤波器是手工时代的经典边缘检测器——CNN 自己“重新发明”了它</li>
+        <li>可视化方法：寻找使某滤波器响应最强的图像块</li>
+        <li>与手工特征时代的边缘检测器惊人相似</li>
+      </ul>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s028_img67.png" alt="CNN 第一层滤波器">
+      <div class="caption">第一层滤波器及其最强响应图像块</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Zeiler &amp; Fergus, ECCV 2014</div>
+</section>
+
+<section class="slide" data-layout="gallery">
+  <div class="slide-meta"><span>第 3 讲（上） · 深度表征学习</span><span class="meta-page">29</span></div>
+  <h2 class="slide-title">CNN 逐层抽象：从纹理到物体</h2>
+  <div class="gallery-grid" data-cols="3">
+    <figure>
+      <img src="assets/lecture3/s029_img68.png" alt="第二层响应">
+      <figcaption>(a) Layer 2：纹理与简单图案</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/lecture3/s031_img70.png" alt="第四层响应">
+      <figcaption>(b) Layer 4：物体部件（狗脸、钟表）</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/lecture3/s032_img71.png" alt="第五层响应">
+      <figcaption>(c) Layer 5：完整物体与场景</figcaption>
+    </figure>
+  </div>
+  <div class="src-note" style="right:170px">图源：Zeiler &amp; Fergus, ECCV 2014</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（上） · 深度表征学习</span><span class="meta-page">30</span></div>
+  <h2 class="slide-title">CNN “学会”了经典识别流水线</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/s033_img72.png" alt="CNN 学到经典流水线">
+  </div>
+  <div class="caption">网络内部自发形成 边缘 → 纹理 → 部件 → 物体 的层级表征</div>
+  <div class="src-note" style="right:170px">图源：Stanford CS231n 课件；可视化：Zeiler &amp; Fergus, ECCV 2014</div>
+</section>
+
+<section class="slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 深度表征学习</span><span class="meta-page">31</span></div>
+  <h2 class="slide-title">本章小结：深度表征学习</h2>
+  <div class="card-grid" data-cols="3">
+    <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">端到端学习</div><p>所有模块可学习，同一损失联合优化——手工流水线被整体取代。<br>关键术语：<strong>end-to-end</strong></p></div>
+    <div class="mini-card"><div class="mc-no">02</div><div class="mc-title">CNN 内部表征</div><p>可视化显示：网络自发形成 边缘 → 纹理 → 部件 → 物体 的<strong>层级结构</strong>，与生物视觉和经典流水线对应。</p></div>
+    <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">代价</div><p>强监督学到好表征，但依赖<strong>海量人工标注</strong>——引出后续的迁移 / 半监督 / 自监督。</p></div>
+  </div>
+</section>
+
+<section class="slide" data-layout="statement">
+  <div class="statement-text">强监督深度学习可以学到好的表征，<br>但代价是<span class="em">海量人工标注</span>。</div>
+  <div class="statement-sub">—— 接下来的问题：如何减少对标签的依赖？</div>
+</section>
+
+<!-- ========== 05 迁移学习 ========== -->
+<section class="slide" data-layout="section">
+  <div class="section-num">05</div>
+  <div class="section-title">迁移学习</div>
+  <div class="section-sub">为什么在别的数据上学到的参数可以帮助新任务？</div>
+</section>
+
+<section class="slide" data-layout="image-full">
+  <div class="slide-meta"><span>第 3 讲（上） · 迁移学习</span><span class="meta-page">34</span></div>
+  <h2 class="slide-title">预训练 → 微调 → 测试</h2>
+  <div class="full-media">
+    <img src="assets/lecture3/s037_img75.png" alt="预训练与微调">
+  </div>
+  <div class="caption">微调（finetuning）：从旧任务学到的表征出发，用少量数据适配新任务</div>
+  <div class="src-note" style="right:170px">图源：Stanford CS231n 课件</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 迁移学习</span><span class="meta-page">35</span></div>
+  <h2 class="slide-title">微调实践：迁移的是“权重”</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <p class="lead">“好的表征让后续的学习任务更容易。”—— Goodfellow et al.,《Deep Learning》, 2016</p>
+      <ul class="bullets">
+        <li>“学到的表征”具体就是网络的<strong>权重与偏置</strong></li>
+        <li>保留骨干网络，替换最后的分类头</li>
+        <li>新任务只需少量标注即可达到好效果</li>
+      </ul>
+      <div class="keypoint"><div>记住：微调的本质是<strong>迁移权重</strong>——骨干冻结或小学习率更新，只把新分类头训练好。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s038_img76.png" alt="微调实践">
+      <div class="caption">预训练（物体识别）→ 微调（场景识别）</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Stanford CS231n 课件</div>
+</section>
+
+<!-- ========== 实践指南：微调策略 ========== -->
+<section class="slide dense" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（上） · 迁移学习</span><span class="meta-page">36</span></div>
+  <div class="kicker hook-return">回应开场问题 3 · 微调策略怎么选？</div>
+  <h2 class="slide-title">实践指南：线性探针、部分微调，还是全量微调？</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>策略</th><th>什么时候选</th><th>冻结与学习率怎么设</th><th>典型风险</th></tr></thead>
+      <tbody>
+        <tr><td><strong>线性探针</strong>（全部冻结）</td><td>标注极少（几十~几百张）；或目的是公平比较预训练表征</td><td>编码器全冻结，只训练线性头；正常学习率即可</td><td>对非线性任务欠拟合——低分不代表特征里没有信息</td></tr>
+        <tr><td><strong>部分微调</strong>（解冻后几层）</td><td>中等标注量；源域与目标域比较接近</td><td>冻结底层（通用边缘纹理），解冻高层；高层用 1/10 学习率，新分类头可正常</td><td>解冻层数过多 → 小数据上过拟合</td></tr>
+        <tr><td><strong>全量微调</strong></td><td>标注较充足，或目标域与源域差异大（如医学影像、遥感）</td><td>全网小学习率（如 1e-4），分类头可大 10 倍；配合较强增广</td><td>灾难性遗忘、过拟合；小数据上慎用</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint warm"><div>对照实验纪律：一次只改一个因素（冻结层数 / 学习率 / 增广），固定数据划分与随机种子。<strong>识别负迁移</strong>：微调后不如从头训练，或验证集早早过拟合——先检查源域差距与增广是否破坏了任务语义。</div></div>
+</section>
+
+<section class="slide flip" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 迁移学习</span><span class="meta-page">37</span></div>
+  <h2 class="slide-title">监督学习的代价：标签从哪来？</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>监督学习 = 图像 X + 人工标签 Y</li>
+        <li>每一个标签背后都是人工标注的成本</li>
+        <li>标注昂贵、规模受限——能否利用海量无标注数据？</li>
+      </ul>
+      <div class="keypoint warm"><div>注意：标注成本随任务精细度急剧上升——图像级分类 ≪ 检测框 ≪ 像素级分割 / 关键点。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s039_img77.png" alt="监督学习依赖人工标注">
+      <div class="caption">监督学习的标签来自人工标注</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Stanford CS231n 课件</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 迁移学习</span><span class="meta-page">38</span></div>
+  <h2 class="slide-title">异构网络之间的知识迁移</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>知识不仅跨任务迁移，还能<strong>跨网络结构</strong>迁移</li>
+        <li>在深度 / 宽度 / 卷积核三个级别做参数重映射</li>
+        <li>架构适配总成本较 DPC 降低约三个数量级</li>
+        <li>Fang et al., FNA++, IEEE TPAMI 2021</li>
+      </ul>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s042_img80.png" alt="FNA++ 参数重映射">
+      <div class="caption">FNA++：深度 / 宽度 / 卷积核级别的参数重映射</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Fang et al., IEEE TPAMI 2021</div>
+</section>
+
+<section class="slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 迁移学习</span><span class="meta-page">39</span></div>
+  <h2 class="slide-title">本章小结：迁移学习</h2>
+  <div class="card-grid" data-cols="3">
+    <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">预训练 → 微调</div><p>大数据集上预训练，小数据集上微调：<strong>迁移的是权重</strong>，保留骨干、替换分类头。</p></div>
+    <div class="mini-card"><div class="mc-no">02</div><div class="mc-title">策略选择</div><p>线性探针 / 部分微调 / 全量微调按<strong>标注量与域差距</strong>选择；一次只改一个因素做对照。</p></div>
+    <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">跨结构迁移</div><p>知识还能跨网络结构迁移（如 FNA++ 的参数重映射），但预训练仍依赖<strong>人工标注</strong>。</p></div>
+  </div>
+</section>
+
+<!-- ========== 06 半监督学习 ========== -->
+<section class="slide" data-layout="section">
+  <div class="section-num">06</div>
+  <div class="section-title">半监督学习</div>
+  <div class="section-sub">标签很少时，怎样利用大量未标注图像？</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 半监督学习</span><span class="meta-page">41</span></div>
+  <h2 class="slide-title">半监督学习：伪标签</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>设定：少量标注数据 + 大量无标注数据</li>
+        <li>用当前模型为无标注数据生成<strong>伪标签</strong></li>
+        <li>在“标注 + 伪标注”数据上重新训练，迭代提升</li>
+      </ul>
+      <div class="keypoint warm"><div>注意：伪标签会把模型的错误<strong>自我强化</strong>（确认偏差，confirmation bias）——实践中必须用置信度阈值过滤低质量伪标签。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s046_img87.png" alt="伪标签流程">
+      <div class="caption">伪标签：模型自己为无标注数据“造”标签</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：伪标签流程示意（方法：Lee, ICMLW 2013）</div>
+</section>
+
+<section class="slide flip" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 半监督学习</span><span class="meta-page">42</span></div>
+  <h2 class="slide-title">FixMatch：弱增广出标签，强增广学一致</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>弱增广图像的预测超过阈值 → 转化为 one-hot 伪标签</li>
+        <li>强增广图像的预测与伪标签计算交叉熵</li>
+        <li>核心：同一语义的不同视图应有<strong>一致预测</strong></li>
+        <li>Sohn et al., NeurIPS 2020</li>
+      </ul>
+      <div class="keypoint"><div>记住：FixMatch 的分工——<strong>弱增广</strong>负责产出可信伪标签，<strong>强增广</strong>负责学习“扰动下预测不变”。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s048_img90.png" alt="FixMatch">
+      <div class="caption">FixMatch：一致性 + 伪标签的统一框架</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Sohn et al., NeurIPS 2020</div>
+</section>
+
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 3 讲（上） · 半监督学习</span><span class="meta-page">43</span></div>
+  <h2 class="slide-title">Mean Teacher：师生一致性</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets">
+        <li>学生网络正常梯度训练</li>
+        <li>教师网络 = 学生参数的<strong>指数滑动平均</strong>（EMA）</li>
+        <li>θ′<sub>t</sub> = αθ′<sub>t−1</sub> + (1−α)θ<sub>t</sub>，α 接近 1（如 0.99），教师变化缓慢</li>
+        <li>直观理解：教师是学生参数的长期平均，因此提供的学习目标更稳定</li>
+        <li>Tarvainen &amp; Valpola, NeurIPS 2017</li>
+      </ul>
+      <div class="keypoint"><div>记住：一致性正则的核心假设——对输入做小扰动（增广 / 噪声 / 不同模型），<strong>预测结果不应改变</strong>。</div></div>
+    </div>
+    <div class="split-media">
+      <img src="assets/lecture3/s049_img93.png" alt="Mean Teacher">
+      <div class="caption">Mean Teacher：教师由学生 EMA 更新，提供更稳定的目标</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">图源：Tarvainen &amp; Valpola, NeurIPS 2017</div>
+</section>
+
+<section class="slide" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 半监督学习</span><span class="meta-page">44</span></div>
+  <h2 class="slide-title">本章小结：半监督学习</h2>
+  <div class="card-grid" data-cols="3">
+    <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">伪标签</div><p>模型自己给无标注数据“造”标签再自训；陷阱是<strong>确认偏差</strong>，需置信度阈值。</p></div>
+    <div class="mini-card"><div class="mc-no">02</div><div class="mc-title">FixMatch</div><p><strong>弱增广出标签、强增广学一致</strong>，把伪标签与一致性正则统一到一个框架。</p></div>
+    <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">Mean Teacher</div><p>教师 = 学生参数的 <strong>EMA</strong>，目标更稳定；一致性假设贯穿所有半监督方法。</p></div>
+  </div>
+</section>
+
+<!-- ========== 全讲总结 ========== -->
+<section class="slide dense hook-answer-slide" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（上） · 从浅层到深度：特征表征之路</span><span class="meta-page">45</span></div>
+  <div class="kicker">Closing the Loop</div>
+  <h2 class="slide-title">回到开场：判断表征是否好用，先回答这四件事</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>开场问题</th><th>现在应能给出的回答</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1 · 学习信号</strong></td><td>区分人工设计、人工标签、预训练权重和数据内部关系分别提供了什么信息。</td></tr>
+        <tr><td><strong>2 · 保留与忽略</strong></td><td>对任务无关变化保持不变；对位置、方向或细粒度属性等任务变量保留响应，必要时保持等变。</td></tr>
+        <tr><td><strong>3 · 微调策略</strong></td><td>按标注量与源域差距选择线性探针、部分微调或全量微调；一次只改一个因素，警惕负迁移。</td></tr>
+        <tr><td><strong>4 · 评价协议</strong></td><td>线性探针只看线性可分性；还要按用途检查检索、少样本微调、密集迁移、跨域表现和失败样例。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint"><div>面对自己的任务，最后用三句话落地：希望表征<strong>保留什么、忽略什么、准备怎样验证</strong>。增广如何定义不变性、训练如何防止坍塌，见第 3 讲（下）。</div></div>
+</section>
+
+<!-- ========== 结束页 ========== -->
+<section class="slide" data-layout="statement">
+  <div class="statement-text">特征可以从数据中学，也可以从旧任务借；<br>当标注真正稀缺时，<br><span class="em">数据本身</span>就是监督信号。</div>
+  <div class="statement-sub">第 3 讲（上）完 · 下讲：自监督时代的表征学习</div>
+</section>
+
+<!-- ========== 参考文献（附录） ========== -->
+<section class="slide refs" data-layout="bullets">
+  <div class="slide-meta"><span>第 3 讲（上） · 参考文献</span><span class="meta-page">47</span></div>
+  <div class="kicker">Appendix</div>
+  <h2 class="slide-title">参考文献（附录）：手工特征 · 浅层与深度表征 · 弱监督</h2>
+  <ol class="ref-list cols-2">
+    <li><span class="ref-title">Distinctive Image Features from Scale-Invariant Keypoints</span>. <span class="ref-venue">Lowe. IJCV 2004.</span></li>
+    <li><span class="ref-title">Histograms of Oriented Gradients for Human Detection</span>. <span class="ref-venue">Dalal &amp; Triggs. CVPR 2005.</span></li>
+    <li><span class="ref-title">Eigenfaces for Recognition</span>. <span class="ref-venue">Turk &amp; Pentland. Journal of Cognitive Neuroscience 1991.</span></li>
+    <li><span class="ref-title">Robust Face Recognition via Sparse Representation</span>. <span class="ref-venue">Wright, Yang, Ganesh, Sastry, Ma. IEEE TPAMI 2009.</span></li>
+    <li><span class="ref-title">Max-Margin Multiple-Instance Dictionary Learning</span>. <span class="ref-venue">Wang, Wang, Bai, Liu, Tu. ICML 2013.</span></li>
+    <li><span class="ref-title">Representation Learning: A Review and New Perspectives</span>. <span class="ref-venue">Bengio, Courville, Vincent. IEEE TPAMI 2013.</span></li>
+    <li><span class="ref-title">Robust Object Recognition with Cortex-Like Mechanisms</span>. <span class="ref-venue">Serre, Wolf, Bileschi, Riesenhuber, Poggio. IEEE TPAMI 2007.</span></li>
+    <li><span class="ref-title">Visualizing and Understanding Convolutional Networks</span>. <span class="ref-venue">Zeiler &amp; Fergus. ECCV 2014.</span></li>
+    <li><span class="ref-title">Deep Learning</span>. <span class="ref-venue">Goodfellow, Bengio, Courville. MIT Press 2016.</span></li>
+    <li><span class="ref-title">FNA++: Fast Network Adaptation via Parameter Remapping and Architecture Search</span>. <span class="ref-venue">Fang, Sun, Zhang, Peng, Li, Liu, Wang. IEEE TPAMI 2021.</span></li>
+    <li><span class="ref-title">Mean Teachers Are Better Role Models: Weight-Averaged Consistency Targets Improve Semi-Supervised Deep Learning Results</span>. <span class="ref-venue">Tarvainen &amp; Valpola. NeurIPS 2017.</span></li>
+    <li><span class="ref-title">FixMatch: Simplifying Semi-Supervised Learning with Consistency and Confidence</span>. <span class="ref-venue">Sohn et al. NeurIPS 2020.</span></li>
+  </ol>
+</section>
+
+  </div><!-- /#stage -->
+</div><!-- /#viewport -->
+
+<div id="pager"></div>
+<div id="progress-track"><div id="progress"></div></div>
+<script src="js/slides.js?v=20260827b"></script>
+</body>
+</html>
