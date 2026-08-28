@@ -88,7 +88,7 @@
     <img src="assets/lecture3/s052_img95.png" alt="自编码器">
   </div>
   <div class="caption">编码器把输入压缩为瓶颈向量 z，解码器重建输入；z 即学到的表征（Hinton &amp; Salakhutdinov, Science 2006）</div>
-  <div class="keypoint"><div>记住：自编码器的直觉是<strong>“压缩即理解”</strong>——能从瓶颈 z 重建原图，说明 z 保留了关键信息。</div></div>
+  <div class="keypoint warm"><div>注意：“压缩即理解”说过强了——重建成功只说明 z 保留了<strong>重建所需的信息</strong>，不代表学到语义：自编码器可能主要保存颜色、纹理和局部细节，甚至学习近似恒等映射。合适的瓶颈与训练目标可能促使模型提取有用结构，但必须通过<strong>下游任务验证</strong>。</div></div>
   <div class="src-note" style="right:170px">图源：Hinton &amp; Salakhutdinov, Science 2006</div>
 </section>
 
@@ -177,7 +177,7 @@
         <li>网络被迫理解物体与场景结构</li>
         <li>Zhang, Isola &amp; Efros, ECCV 2016</li>
       </ul>
-      <div class="keypoint"><div>记住：好的代理任务强迫网络<strong>理解语义</strong>（“草是绿的、天是蓝的”需要认出物体），而非记忆低层统计。</div></div>
+      <div class="keypoint"><div>注意：“好的代理任务强迫网络理解语义”是设计意图，不是保证——上色也可能被低层纹理、边界或数据集偏差“走捷径”（“草是绿的、天是蓝的”的统计规律不一定需要认出物体）。代理任务能否学到语义，要通过<strong>迁移实验确认</strong>；这与第一讲讨论过的 <strong>shortcut learning</strong> 是同一个问题。</div></div>
     </div>
     <div class="split-media">
       <img src="assets/lecture3/s064_img106.png" alt="图像上色">
@@ -194,10 +194,11 @@
     <div class="split-text">
       <ul class="bullets">
         <li>随机旋转 0° / 90° / 180° / 270°，预测旋转角度</li>
-        <li>判断“哪边朝上”需要理解物体朝向与结构</li>
+        <li>设计意图：判断“哪边朝上”需要理解物体朝向与结构</li>
         <li>简单却有效的代理任务</li>
         <li>Gidaris et al., ICLR 2018</li>
       </ul>
+      <div class="keypoint warm"><div>注意：旋转预测同样可能被“走捷径”——低层纹理、边界伪影或数据集偏差都可能泄露角度。代理任务精度高不等于学到语义，要靠迁移实验确认（同第一讲的 shortcut learning）。</div></div>
     </div>
     <div class="split-media">
       <img src="assets/lecture3/s065_img107.png" alt="旋转预测">
@@ -445,7 +446,7 @@
         <tr><td><strong>正样本 / 预测目标</strong></td><td>同一图像的两个增广视图</td><td>同左：query 匹配队列中的 key</td><td>全局 + 局部视图，匹配教师输出分布</td><td>重建被遮蔽 patch 的像素</td><td>由上下文预测目标块的表征</td></tr>
         <tr><td><strong>防坍塌机制</strong></td><td>batch 内负样本排斥</td><td>队列负样本 + 动量编码器</td><td>EMA 教师 + stop-gradient + 中心化 / 锐化</td><td>像素回归目标本身无平凡解</td><td>EMA 目标编码器 + stop-gradient</td></tr>
         <tr><td><strong>特征粒度</strong></td><td>全局语义为主</td><td>全局语义为主</td><td>全局语义 + patch 稠密特征</td><td>块级重建，微调后可用于稠密任务</td><td>语义块级表征</td></tr>
-        <tr><td><strong>预训练成本</strong>（论文典型配置）</td><td>大 batch（4096）+ 多卡</td><td>中小 batch，省显存</td><td>ViT + 多 crop，成本中等</td><td>非对称结构吞吐高；ViT-B 以上 + 大数据</td><td>只编码可见块，较节省</td></tr>
+        <tr><td><strong>预训练成本</strong>（论文典型配置）</td><td>大 batch（4096）+ 多卡</td><td>中小 batch，省显存</td><td>ViT + 多 crop，成本中等</td><td>非对称结构吞吐高；ViT-B 以上 + 大数据</td><td>避免像素级解码，但训练成本还取决于目标编码器、目标块数量和具体实现</td></tr>
         <tr><td><strong>下游使用</strong></td><td>线性探针 / 微调</td><td>线性探针 / 微调</td><td>冻结特征直接做分类、检索、分割</td><td>以全量微调为主；线性探针偏弱</td><td>冻结 + 轻量探针</td></tr>
         <tr><td><strong>不变性来源</strong></td><td>裁剪 + 颜色抖动等增广</td><td>同左</td><td>多 crop 增广</td><td>主要靠掩码，而非增广</td><td>掩码与块采样</td></tr>
       </tbody>
@@ -746,9 +747,44 @@
   <div class="keypoint warm"><div>“权重即数据”只是表示方式：INR 的权重针对<strong>单个信号</strong>拟合，与迁移学习中“跨数据集通用的编码器权重”<strong>不是同一概念</strong>；是否值得使用，还要与离散表示比较画质、存储、训练时间和查询速度。</div></div>
 </section>
 
+<!-- ========== 贯穿案例：零件缺陷检测（本讲视角：表征与训练策略） ========== -->
+<section class="slide dense" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（下） · 贯穿案例：零件缺陷检测</span><span class="meta-page">46</span></div>
+  <div class="kicker">贯穿案例 · 零件缺陷检测 · 表征与训练策略</div>
+  <h2 class="slide-title">同一任务上的三条路线：数据量、成本与预期效果</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>路线</th><th>数据量需求</th><th>训练成本</th><th>预期效果</th></tr></thead>
+      <tbody>
+        <tr><td><strong>从头训练</strong></td><td>需要大量按批次划分的缺陷标注；缺陷样本稀少时尤其吃力</td><td>训练轮次多，需自行调架构与超参</td><td>数据充足时可贴合产线分布；数据少时易过拟合、泛化差</td></tr>
+        <tr><td><strong>ImageNet 微调</strong></td><td>少量标注即可起步</td><td>以预训练权重初始化，收敛快、成本低</td><td>通常显著优于从头训练；但自然图像与工业表面存在域差距，低层纹理特征未必匹配</td></tr>
+        <tr><td><strong>自监督预训练（DINO / MAE）再迁移</strong></td><td>预训练用<strong>无标注</strong>产线图像，下游只需少量标注</td><td>多一段预训练开销，可按资源选方法（MoCo 省显存、MAE 吞吐高）</td><td>预训练分布与任务同源，域差距最小；缺陷标注极少时往往是最佳路线</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint warm"><div>任务设定回顾（第一、二讲）：输入产线相机零件图像，输出合格 / 缺陷（可细分划痕、凹坑、污渍）；按<strong>生产批次</strong>划分数据；<strong>缺陷召回率优先</strong>，兼顾误报率与 PR 曲线。三条路线应在同一划分、同一指标下对照。</div></div>
+</section>
+
+<section class="slide dense" data-layout="table">
+  <div class="slide-meta"><span>第 3 讲（下） · 贯穿案例：零件缺陷检测</span><span class="meta-page">47</span></div>
+  <div class="kicker">贯穿案例 · 零件缺陷检测 · 表征与训练策略</div>
+  <h2 class="slide-title">增广安全吗？表征迁移了吗？最后报告什么？</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>检查项</th><th>本案例中的做法</th><th>呼应本讲方法</th></tr></thead>
+      <tbody>
+        <tr><td><strong>增广安全性</strong></td><td>翻转 / 旋转：零件方向无任务语义时安全，相机安装方向固定时反而引入分布外样本；裁剪：可能把缺陷区域切掉、把“缺陷”样本裁成“合格”，必须同步检查；颜色抖动：划痕、锈斑依赖颜色线索时不安全</td><td>只把不改变任务语义的变化当作正样本；回到增广表逐项核对</td></tr>
+        <tr><td><strong>表征是否迁移</strong></td><td>冻结编码器做线性探测与 k-NN 检索，看缺陷 / 合格能否在表征空间分开、缺陷样例的近邻是否仍是缺陷；再与全量微调对照</td><td>冻结评估 / 线性探针 / k-NN</td></tr>
+        <tr><td><strong>收尾报告</strong></td><td>报告三条路线的对照实验（除路线外条件一致）；跨域测试：换新产线、新零件型号；失败样例按缺陷类型、批次、产线<strong>分层抽样</strong>查错误分布</td><td>对照实验 + 跨域与鲁棒性测试 + 分层失败分析（见“三讲后的最小实践”）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="keypoint warm"><div>这一步不引入新知识——把三讲内容串成一次真实工作流程：问题定义 → 训练策略选择 → 增广核对 → 表征验证 → 报告失败模式。</div></div>
+</section>
+
 <!-- ========== 三讲后的最小实践 ========== -->
 <section class="slide dense" data-layout="table">
-  <div class="slide-meta"><span>第 3 讲（下） · 课堂实践</span><span class="meta-page">46</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 课堂实践</span><span class="meta-page">48</span></div>
   <div class="kicker">Minimum Viable Experiment</div>
   <h2 class="slide-title">三讲之后，完成一个最小但完整的视觉实验</h2>
   <div class="table-wrap">
@@ -768,7 +804,7 @@
 
 <!-- ========== 全讲总结 ========== -->
 <section class="slide dense hook-answer-slide" data-layout="table">
-  <div class="slide-meta"><span>第 3 讲（下） · 自监督时代的表征学习</span><span class="meta-page">47</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 自监督时代的表征学习</span><span class="meta-page">49</span></div>
   <div class="kicker">Closing the Loop</div>
   <h2 class="slide-title">回到开场：用好自监督，要回答这四件事</h2>
   <div class="table-wrap">
@@ -793,7 +829,7 @@
 
 <!-- ========== 参考文献（附录） ========== -->
 <section class="slide refs" data-layout="bullets">
-  <div class="slide-meta"><span>第 3 讲（下） · 参考文献</span><span class="meta-page">49</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 参考文献</span><span class="meta-page">51</span></div>
   <div class="kicker">Appendix</div>
   <h2 class="slide-title">参考文献（附录，一）：自监督学习 · 对比学习 · 掩码建模</h2>
   <ol class="ref-list cols-2">
@@ -816,7 +852,7 @@
 </section>
 
 <section class="slide refs" data-layout="bullets">
-  <div class="slide-meta"><span>第 3 讲（下） · 参考文献</span><span class="meta-page">50</span></div>
+  <div class="slide-meta"><span>第 3 讲（下） · 参考文献</span><span class="meta-page">52</span></div>
   <div class="kicker">Appendix</div>
   <h2 class="slide-title">参考文献（附录，二）：基础模型 · 隐式神经表示与 3D 表征</h2>
   <ol class="ref-list cols-2" start="16">

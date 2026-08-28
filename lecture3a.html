@@ -28,6 +28,7 @@
   <h2 class="slide-title">本讲（上）关注：<span class="em">表征</span>如何被获得和评价？</h2>
   <div class="slide-body">
     <p class="lead">视觉系统的核心不是分类器，而是把像素变成“好用的表征”。</p>
+    <div class="keypoint"><div>视角切换：第二讲按模型结构和能力演进展开；第三讲不再追时间线，而是追问这些模型内部的表征从哪里来、保留了什么，以及没有足够标签时怎样学习。</div></div>
     <ul class="bullets">
       <li>手工设计特征：SIFT、HOG 及其局限</li>
       <li>浅层特征学习：PCA、稀疏编码、中层模式挖掘</li>
@@ -226,7 +227,7 @@
     <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='400'><rect width='1000' height='400' fill='white'/><rect x='20' y='150' width='170' height='100' rx='10' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='105' y='195' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Unlabeled data</text><text x='105' y='222' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>lots of it</text><path d='M195 200 L245 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='250' y='150' width='200' height='100' rx='10' fill='%23fbece4' stroke='%23c2521e' stroke-width='2'/><text x='350' y='188' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Pretext task</text><text x='350' y='212' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>self-supervised</text><text x='350' y='234' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>pretraining</text><path d='M455 200 L505 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='510' y='150' width='200' height='100' rx='10' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='610' y='188' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Encoder f&#952;</text><text x='610' y='212' font-size='15' text-anchor='middle' fill='%23c2521e' font-family='sans-serif'>frozen</text><text x='610' y='234' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>the learned representation</text><path d='M715 200 L765 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='770' y='120' width='210' height='160' rx='10' fill='white' stroke='%232456d6' stroke-width='2.5'/><text x='875' y='152' font-size='18' text-anchor='middle' fill='%232456d6' font-family='sans-serif' font-weight='bold'>Evaluate downstream</text><text x='875' y='182' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>linear probe / k-NN</text><text x='875' y='206' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>few-shot / fine-tune</text><text x='875' y='230' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>detection / segmentation</text><text x='875' y='258' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>with few labels</text><text x='500' y='330' font-size='16' text-anchor='middle' fill='%23666' font-family='sans-serif'>What matters is not pretext accuracy, but whether the encoder makes downstream tasks easier.</text><defs><marker id='a' markerWidth='8' markerHeight='8' refX='7' refY='4' orient='auto'><path d='M0 0 L8 4 L0 8 z' fill='%2322222a'/></marker></defs></svg>" alt="自监督表征评估流程（自绘示意）">
   </div>
   <div class="caption">不关心代理任务本身做得多好——在下游任务（少量标注）上评估学到的特征提取器（自绘示意）</div>
-  <div class="keypoint warm"><div>注意：评估的不是代理任务精度（比如旋转预测准不准），而是学到的编码器在<strong>下游任务</strong>上的表现。</div></div>
+  <div class="keypoint warm"><div>注意：评估的不是代理任务精度（比如旋转预测准不准），而是学到的编码器在<strong>下游任务</strong>上的表现。代理任务精度高只说明学会了代理任务本身——它也可能被低层纹理、边界或数据集偏差“走捷径”；能否学到语义，要通过迁移实验确认，这与第一讲讨论过的 <strong>shortcut learning</strong> 是同一个问题。</div></div>
 </section>
 
 <section class="slide flip" data-layout="split">
@@ -394,11 +395,12 @@
   <div class="split-body">
     <div class="split-text">
       <ul class="bullets">
-        <li>不再手工设计任何模块</li>
+        <li>特征提取不再手工设计，改由数据驱动学习</li>
         <li>边缘 / 纹理 / 部件 / 分类器<strong>全部从数据中学</strong></li>
         <li>整个流水线端到端联合优化</li>
       </ul>
       <div class="keypoint"><div>记住：<strong>端到端</strong> = 特征提取与分类器不再分开设计，而由同一个损失函数联合优化——误差信号一路反传到最底层。</div></div>
+      <div class="keypoint warm"><div>注意：人工设计并未消失——网络架构、损失函数、数据增广、优化器、数据采样和归纳偏置仍由人设计。深度学习减少的是<strong>手工特征设计</strong>，而不是消除人工设计。</div></div>
     </div>
     <div class="split-media">
       <img src="assets/lecture3/s025_img65.png" alt="深度学习流水线">
@@ -574,7 +576,7 @@
   <div class="slide-meta"><span>第 3 讲（上） · 迁移学习</span><span class="meta-page">39</span></div>
   <h2 class="slide-title">本章小结：迁移学习</h2>
   <div class="card-grid" data-cols="3">
-    <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">预训练 → 微调</div><p>大数据集上预训练，小数据集上微调：<strong>迁移的是权重</strong>，保留骨干、替换分类头。</p></div>
+    <div class="mini-card"><div class="mc-no">01</div><div class="mc-title">预训练 → 微调</div><p>微调以<strong>预训练权重作为初始化</strong>，复用其中编码的表征，保留骨干、替换分类头；迁移还可通过冻结特征、蒸馏、提示学习和模型输出完成，不总是直接迁移全部权重。</p></div>
     <div class="mini-card"><div class="mc-no">02</div><div class="mc-title">策略选择</div><p>线性探针 / 部分微调 / 全量微调按<strong>标注量与域差距</strong>选择；一次只改一个因素做对照。</p></div>
     <div class="mini-card"><div class="mc-no">03</div><div class="mc-title">跨结构迁移</div><p>知识还能跨网络结构迁移（如 FNA++ 的参数重映射），但预训练仍依赖<strong>人工标注</strong>。</p></div>
   </div>

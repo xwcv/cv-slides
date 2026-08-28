@@ -15,9 +15,9 @@
 | 文件 | 讲次 | 页数 |
 |---|---|---|
 | `lecture1.html` | 第 1 讲 深度学习与计算机视觉简介 | 59 |
-| `lecture2.html` | 第 2 讲 从 AlexNet 到 ChatGPT | 89 |
+| `lecture2.html` | 第 2 讲 从 AlexNet 到 ChatGPT | 92 |
 | `lecture3a.html` | 第 3 讲（上）从浅层到深度：特征表征之路 | 47 |
-| `lecture3b.html` | 第 3 讲（下）自监督时代的表征学习 | 50 |
+| `lecture3b.html` | 第 3 讲（下）自监督时代的表征学习 | 52 |
 
 ## 目录结构
 

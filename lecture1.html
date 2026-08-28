@@ -139,7 +139,7 @@
 <!-- ========== 08 寒武纪大爆发 ========== -->
 <section class="slide" data-layout="split">
   <div class="slide-meta"><span>第 1 讲 · 为什么是视觉</span><span class="meta-page">05</span></div>
-  <h2 class="slide-title">视觉的出现，曾引发生命大爆发</h2>
+  <h2 class="slide-title">视觉是否推动了寒武纪大爆发？一种有影响力的假说</h2>
   <div class="split-body">
     <div class="split-text">
       <ul class="bullets">
@@ -154,7 +154,7 @@
       <div class="caption">寒武纪化石：那时，眼睛刚刚登上演化舞台</div>
     </div>
   </div>
-  <div class="keypoint"><div>记住：Parker 的“光开关”假说——<strong>视觉的出现</strong>让捕食与躲避成为可能，点燃了物种多样性的大爆发。</div></div>
+  <div class="keypoint"><div>记住：Parker 的“光开关”假说——<strong>视觉的出现</strong>让捕食与躲避成为可能，被认为可能点燃了物种多样性的大爆发。</div></div>
   <div class="src-note" style="right:170px">图源：Stanford CS231n Lecture 1（CC-BY 授权）</div>
 </section>
 
@@ -948,15 +948,17 @@
     <table>
       <thead><tr><th>要先问的问题</th><th>一个可执行的回答</th><th>回答不清会怎样</th></tr></thead>
       <tbody>
-        <tr><td>输入是什么？</td><td>固定工位拍摄的零件图像</td><td>设备、视角和分辨率不断变化</td></tr>
-        <tr><td>输出是什么？</td><td>是否有缺陷；必要时再给缺陷位置</td><td>把分类、检测和分割混为一谈</td></tr>
+        <tr><td>输入是什么？</td><td>产线相机拍摄的零件图像</td><td>设备、视角和分辨率不断变化</td></tr>
+        <tr><td>输出是什么？</td><td>合格 / 缺陷判定；可细分为划痕、凹坑、污渍等缺陷类别</td><td>把分类、检测和分割混为一谈</td></tr>
+        <tr><td>数据单位是什么？</td><td>一张图像对应一个标签</td><td>标签口径不一，连拍近重复图被当成新样本</td></tr>
         <tr><td>样本怎样划分？</td><td>按生产批次和时间划分训练、验证、测试集</td><td>同批次近重复图像泄漏到测试集</td></tr>
-        <tr><td>主要指标是什么？</td><td>先保证危险缺陷的 Recall，再看误报率</td><td>总体 Accuracy 很高，却漏掉少数缺陷</td></tr>
+        <tr><td>主要指标是什么？</td><td>缺陷召回率（Recall）优先，兼顾误报率与 PR 曲线</td><td>总体 Accuracy 很高，却漏掉少数缺陷</td></tr>
         <tr><td>怎样验证部署效果？</td><td>在新批次、新设备和难例上单独测试</td><td>实验室结果无法代表生产线</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="keypoint"><div>先不用讨论模型。请同桌用一分钟检查：这五个问题是否已经足以决定<strong>要收什么数据、训练什么输出、怎样判断成功</strong>？</div></div>
+  <div class="keypoint"><div>先不用讨论模型。请同桌用一分钟检查：这六行回答是否已经足以决定<strong>要收什么数据、训练什么输出、怎样判断成功</strong>？</div></div>
+  <div style="margin-top:8px; font-size:13.5px; color:var(--muted); line-height:1.45;"><span class="tag">贯穿三讲</span> 本案例将贯穿三讲：第 1 讲定义问题，第 2 讲训练基线，第 3 讲比较训练策略。</div>
 </section>
 
 <!-- ========== 40 超越二维识别：前沿方向（结构化总览） ========== -->
