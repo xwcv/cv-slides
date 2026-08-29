@@ -1479,3 +1479,59 @@ html[data-theme="dark"] .track-badge { background: #26282f; color: var(--muted);
   html[data-theme="dark"] .slide table th { background: var(--accent); color: #fff; }
   html[data-theme="dark"] .slide table tbody tr:nth-child(even) td { background: #f4f2ec; }
 }
+
+/* --------------------------------------------------------------------------
+   13. 打磨：翻页动效 / 总览页码角标 / 进度条交互 / 帮助浮层
+   -------------------------------------------------------------------------- */
+
+/* 单页模式翻页动效：轻微上浮淡入；总览与减动效偏好下关闭 */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+body:not(.overview) .slide.active { animation: slideIn .28s ease; }
+
+/* 总览缩略图页码角标（元素随画布一起缩放，故用大字号） */
+.ov-num {
+  display: none;
+  position: absolute; top: 16px; left: 20px; z-index: 6;
+  font-family: var(--font-en); font-size: 42px; font-weight: 800; line-height: 1;
+  color: #fff; background: rgba(34, 34, 42, .78);
+  border-radius: 12px; padding: 8px 18px;
+  pointer-events: none;
+}
+body.overview .ov-num { display: block; }
+
+/* 进度条：可点击跳转，悬停加粗提示可交互 */
+#progress-track { cursor: pointer; transition: height .15s ease; }
+#progress-track:hover { height: 7px; }
+
+/* 快捷键帮助浮层 */
+#help-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(20, 20, 26, .45);
+}
+#help-overlay.show { display: flex; }
+#help-card {
+  background: var(--card); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 14px;
+  padding: 28px 36px; min-width: 360px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .28);
+}
+#help-card h3 { font-size: 19px; margin-bottom: 14px; }
+#help-card p { font-size: 14.5px; line-height: 2.05; color: var(--muted); }
+#help-card .help-close { margin-top: 10px; font-size: 12.5px; color: var(--faint); }
+#help-card kbd {
+  font-family: var(--font-mono); font-size: 12px; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px;
+  border-radius: 5px; padding: 1px 7px; margin: 0 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:not(.overview) .slide.active { animation: none; }
+  #progress-track { transition: none; }
+}
+
+/* 首页卡片键盘可达性 */
+.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e9e7e1">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>第 1 讲 深度学习与计算机视觉简介 — 深度学习与计算机视觉</title>
-<link rel="stylesheet" href="css/slides.css?v=20260827">
+<link rel="stylesheet" href="css/slides.css?v=20260829">
 <script src="js/theme.js?v=20260829"></script>
 </head>
 <body>
@@ -151,7 +153,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture1/s010_img19.jpg" alt="寒武纪三叶虫化石" style="max-height:380px">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s010_img19.jpg" alt="寒武纪三叶虫化石" style="max-height:380px">
       <div class="caption">寒武纪化石：那时，眼睛刚刚登上演化舞台</div>
     </div>
   </div>
@@ -354,7 +356,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture1/s025_img183.jpg" alt="Viola-Jones 人脸检测示例" style="max-height:380px">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s025_img183.jpg" alt="Viola-Jones 人脸检测示例" style="max-height:380px">
       <div class="caption">Viola &amp; Jones, 2001：实时框出每一张人脸</div>
     </div>
   </div>
@@ -476,7 +478,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture1/s031_img212.png" alt="LeNet 网络结构">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s031_img212.png" alt="LeNet 网络结构">
       <div class="caption">LeNet（LeCun et al., 1998）：卷积—下采样—全连接</div>
     </div>
   </div>
@@ -504,7 +506,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture1/s034_img217.jpg" alt="ILSVRC 示例图像" style="max-height:380px">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s034_img217.jpg" alt="ILSVRC 示例图像" style="max-height:380px">
       <div class="caption">ILSVRC 样例：模型需从 1000 个类别中选中“钢鼓”</div>
     </div>
   </div>
@@ -517,7 +519,7 @@
   <div class="slide-meta"><span>第 1 讲 · 神经网络之路</span><span class="meta-page">23</span></div>
   <h2 class="slide-title">2012 · <span class="em">AlexNet 时刻</span>：错误率断崖式下降</h2>
   <div class="full-media">
-    <img src="assets/lecture1/s035_img218.png" alt="ILSVRC 历年冠军 Top-5 错误率">
+    <img loading="lazy" decoding="async" src="assets/lecture1/s035_img218.png" alt="ILSVRC 历年冠军 Top-5 错误率">
   </div>
   <div class="caption">ILSVRC 历年冠军 Top-5 错误率：2012 年 AlexNet 将 25.8% 一举压到 16.4%，2015 年 ResNet（3.6%）已低于人类水平（约 5.1%）<br>
   <span style="font-size:12.5px">口径说明：16.4% 为 AlexNet 单模型 top-5 错误率（CS231n 图表口径）；多模型集成在 ILSVRC 测试集为 15.3%，详见第 2 讲。ResNet 3.6% 为集成模型 ILSVRC 测试集成绩；“人类约 5.1%”指专人训练后完成同一标注任务的 top-5 错误率（Russakovsky et al., IJCV 2015），两者测试条件不同，仅作量级参考。</span></div>
@@ -533,7 +535,7 @@
     <div class="col">
       <div class="col-title"><span>1980</span> Neocognitron</div>
       <figure class="architecture-figure">
-        <div class="architecture-image-frame"><img src="assets/lecture1/s038_img220.png" alt="Neocognitron 结构"></div>
+        <div class="architecture-image-frame"><img loading="lazy" decoding="async" src="assets/lecture1/s038_img220.png" alt="Neocognitron 结构"></div>
         <figcaption>局部感受野、权值共享与逐层抽象已经出现</figcaption>
       </figure>
       <p class="architecture-condition"><strong>当时的限制：</strong>训练方法难以扩展，数据与通用算力也不足。</p>
@@ -541,7 +543,7 @@
     <div class="col">
       <div class="col-title"><span>2012</span> AlexNet</div>
       <figure class="architecture-figure">
-        <div class="architecture-image-frame"><img src="assets/lecture1/s037_img219.jpg" alt="AlexNet 结构"></div>
+        <div class="architecture-image-frame"><img loading="lazy" decoding="async" src="assets/lecture1/s037_img219.jpg" alt="AlexNet 结构"></div>
         <figcaption>卷积层级结构被端到端反向传播真正训练起来</figcaption>
       </figure>
       <p class="architecture-condition"><strong>条件成熟：</strong>ImageNet、GPU、ReLU、数据增强和正则化共同发挥作用；领先第二名约 10 个百分点，整个领域随之转向。<br><span style="font-size:12.5px;color:var(--faint)">错误率口径：单模型 top-5 16.4%；多模型集成 15.3%（ILSVRC 测试集）。结构与训练细节详见第 2 讲。</span></p>
@@ -593,15 +595,15 @@
   <h2 class="slide-title">理解世界：识别任务全面突破</h2>
   <div class="gallery-grid" data-cols="3">
     <figure>
-      <img src="assets/lecture1/s061_img446.jpg" alt="图像分类">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s061_img446.jpg" alt="图像分类">
       <figcaption>图像分类：“猫”</figcaption>
     </figure>
     <figure>
-      <img src="assets/lecture1/s061_img447.png" alt="目标检测">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s061_img447.png" alt="目标检测">
       <figcaption>目标检测：狗、狗、猫</figcaption>
     </figure>
     <figure>
-      <img src="assets/lecture1/s046_img394.png" alt="图像描述生成">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s046_img394.png" alt="图像描述生成">
       <figcaption>图像描述：“一只白色泰迪熊坐在草地上”</figcaption>
     </figure>
   </div>
@@ -614,15 +616,15 @@
   <h2 class="slide-title">创造世界：从理解到<span class="em">生成</span></h2>
   <div class="gallery-grid" data-cols="3">
     <figure>
-      <img src="assets/lecture1/s049_img407.png" alt="GAN 生成的人脸">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s049_img407.png" alt="GAN 生成的人脸">
       <figcaption>GAN：不存在的人（Karras et al., 2018）</figcaption>
     </figure>
     <figure>
-      <img src="assets/lecture1/s050_img408.jpg" alt="DALL·E 牛油果椅子">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s050_img408.jpg" alt="DALL·E 牛油果椅子">
       <figcaption>DALL·E：文字生成图像（2021）</figcaption>
     </figure>
     <figure>
-      <img src="assets/lecture1/s066_img458.jpg" alt="DALL·E 2 泰迪熊">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s066_img458.jpg" alt="DALL·E 2 泰迪熊">
       <figcaption>DALL·E 2：“泰迪熊在水下做 AI 研究”（2022）</figcaption>
     </figure>
   </div>
@@ -644,7 +646,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture1/stable_diffusion_process.png" alt="Stable Diffusion 由噪声逐步生成图像的过程">
+      <img loading="lazy" decoding="async" src="assets/lecture1/stable_diffusion_process.png" alt="Stable Diffusion 由噪声逐步生成图像的过程">
       <div class="caption">扩散生成不是一次画完，而是多步去噪</div>
     </div>
   </div>
@@ -1157,15 +1159,15 @@
   <h2 class="slide-title">2018 图灵奖：深度学习的三位奠基人</h2>
   <div class="gallery-grid" data-cols="3">
     <figure>
-      <img src="assets/lecture1/s074_img474.jpg" alt="Geoffrey Hinton">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s074_img474.jpg" alt="Geoffrey Hinton">
       <figcaption>Geoffrey Hinton</figcaption>
     </figure>
     <figure>
-      <img src="assets/lecture1/s074_img475.jpg" alt="Yoshua Bengio">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s074_img475.jpg" alt="Yoshua Bengio">
       <figcaption>Yoshua Bengio</figcaption>
     </figure>
     <figure>
-      <img src="assets/lecture1/s074_img473.jpg" alt="Yann LeCun">
+      <img loading="lazy" decoding="async" src="assets/lecture1/s074_img473.jpg" alt="Yann LeCun">
       <figcaption>Yann LeCun</figcaption>
     </figure>
   </div>
@@ -1372,6 +1374,6 @@
 
 <div id="pager"></div>
 <div id="progress-track"><div id="progress"></div></div>
-<script src="js/slides.js?v=20260827b"></script>
+<script src="js/slides.js?v=20260829"></script>
 </body>
 </html>

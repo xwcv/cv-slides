@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e9e7e1">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>第3讲（上） · 从浅层到深度：特征表征之路 — 深度学习与计算机视觉</title>
-<link rel="stylesheet" href="css/slides.css?v=20260827">
+<link rel="stylesheet" href="css/slides.css?v=20260829">
 <script src="js/theme.js?v=20260829"></script>
 </head>
 <body>
@@ -68,11 +70,11 @@
   <h2 class="slide-title">SIFT：尺度不变特征变换</h2>
   <div class="gallery-grid" data-cols="2">
     <figure>
-      <img src="assets/lecture3/s002_img1.png" alt="SIFT 关键点与描述子">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s002_img1.png" alt="SIFT 关键点与描述子">
       <figcaption>(a) 关键点 → 梯度方向直方图描述子</figcaption>
     </figure>
     <figure>
-      <img src="assets/lecture3/s002_img2.png" alt="SIFT 图像匹配">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s002_img2.png" alt="SIFT 图像匹配">
       <figcaption>(b) 基于 SIFT 的跨视角图像匹配</figcaption>
     </figure>
   </div>
@@ -94,7 +96,7 @@
       <div class="keypoint"><div>记住：<strong>HOG + SVM</strong> 是深度学习之前视觉任务的标准范式——人工设计特征，机器学习只负责最后的分类器。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s003_img3.png" alt="HOG 描述子">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s003_img3.png" alt="HOG 描述子">
       <div class="caption">HOG 描述子与 SVM 权重可视化</div>
     </div>
   </div>
@@ -115,7 +117,7 @@
       <div class="keypoint warm"><div>注意：这类方法的“智能”几乎全在人工设计的特征里，分类器本身很浅——特征一旦失效，整体就失效。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s004_img4.png" alt="HOG+SVM 行人检测效果">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s004_img4.png" alt="HOG+SVM 行人检测效果">
       <div class="caption">HOG + SVM 在监控场景中的行人检测结果</div>
     </div>
   </div>
@@ -174,7 +176,7 @@
       <div class="keypoint warm"><div>注意：蛋糕是<strong>信息量的直观比喻</strong>，不是严格可测量的监督信号排序定律；它传达的动机是——人工标签的信息远少于数据本身，这是自监督兴起的根本动机。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s007_img5.png" alt="LeCun 蛋糕比喻">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s007_img5.png" alt="LeCun 蛋糕比喻">
       <div class="caption">Yann LeCun 著名的“蛋糕”比喻</div>
     </div>
   </div>
@@ -225,7 +227,7 @@
   <div class="slide-meta"><span>第 3 讲（上） · 什么是好的表征</span><span class="meta-page">15</span></div>
   <h2 class="slide-title">如何评估一种表征学习方法？</h2>
   <div class="full-media">
-    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='400'><rect width='1000' height='400' fill='white'/><rect x='20' y='150' width='170' height='100' rx='10' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='105' y='195' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Unlabeled data</text><text x='105' y='222' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>lots of it</text><path d='M195 200 L245 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='250' y='150' width='200' height='100' rx='10' fill='%23fbece4' stroke='%23c2521e' stroke-width='2'/><text x='350' y='188' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Pretext task</text><text x='350' y='212' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>self-supervised</text><text x='350' y='234' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>pretraining</text><path d='M455 200 L505 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='510' y='150' width='200' height='100' rx='10' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='610' y='188' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Encoder f&#952;</text><text x='610' y='212' font-size='15' text-anchor='middle' fill='%23c2521e' font-family='sans-serif'>frozen</text><text x='610' y='234' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>the learned representation</text><path d='M715 200 L765 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='770' y='120' width='210' height='160' rx='10' fill='white' stroke='%232456d6' stroke-width='2.5'/><text x='875' y='152' font-size='18' text-anchor='middle' fill='%232456d6' font-family='sans-serif' font-weight='bold'>Evaluate downstream</text><text x='875' y='182' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>linear probe / k-NN</text><text x='875' y='206' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>few-shot / fine-tune</text><text x='875' y='230' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>detection / segmentation</text><text x='875' y='258' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>with few labels</text><text x='500' y='330' font-size='16' text-anchor='middle' fill='%23666' font-family='sans-serif'>What matters is not pretext accuracy, but whether the encoder makes downstream tasks easier.</text><defs><marker id='a' markerWidth='8' markerHeight='8' refX='7' refY='4' orient='auto'><path d='M0 0 L8 4 L0 8 z' fill='%2322222a'/></marker></defs></svg>" alt="自监督表征评估流程（自绘示意）">
+    <img loading="lazy" decoding="async" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='400'><rect width='1000' height='400' fill='white'/><rect x='20' y='150' width='170' height='100' rx='10' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='105' y='195' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Unlabeled data</text><text x='105' y='222' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>lots of it</text><path d='M195 200 L245 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='250' y='150' width='200' height='100' rx='10' fill='%23fbece4' stroke='%23c2521e' stroke-width='2'/><text x='350' y='188' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Pretext task</text><text x='350' y='212' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>self-supervised</text><text x='350' y='234' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>pretraining</text><path d='M455 200 L505 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='510' y='150' width='200' height='100' rx='10' fill='%23e8eefb' stroke='%232456d6' stroke-width='2'/><text x='610' y='188' font-size='19' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>Encoder f&#952;</text><text x='610' y='212' font-size='15' text-anchor='middle' fill='%23c2521e' font-family='sans-serif'>frozen</text><text x='610' y='234' font-size='15' text-anchor='middle' fill='%23666' font-family='sans-serif'>the learned representation</text><path d='M715 200 L765 200' stroke='%2322222a' stroke-width='3' marker-end='url(%23a)'/><rect x='770' y='120' width='210' height='160' rx='10' fill='white' stroke='%232456d6' stroke-width='2.5'/><text x='875' y='152' font-size='18' text-anchor='middle' fill='%232456d6' font-family='sans-serif' font-weight='bold'>Evaluate downstream</text><text x='875' y='182' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>linear probe / k-NN</text><text x='875' y='206' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>few-shot / fine-tune</text><text x='875' y='230' font-size='15' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>detection / segmentation</text><text x='875' y='258' font-size='14' text-anchor='middle' fill='%23666' font-family='sans-serif'>with few labels</text><text x='500' y='330' font-size='16' text-anchor='middle' fill='%23666' font-family='sans-serif'>What matters is not pretext accuracy, but whether the encoder makes downstream tasks easier.</text><defs><marker id='a' markerWidth='8' markerHeight='8' refX='7' refY='4' orient='auto'><path d='M0 0 L8 4 L0 8 z' fill='%2322222a'/></marker></defs></svg>" alt="自监督表征评估流程（自绘示意）">
   </div>
   <div class="caption">不关心代理任务本身做得多好——在下游任务（少量标注）上评估学到的特征提取器（自绘示意）</div>
   <div class="keypoint warm"><div>注意：评估的不是代理任务精度（比如旋转预测准不准），而是学到的编码器在<strong>下游任务</strong>上的表现。代理任务精度高只说明学会了代理任务本身——它也可能被低层纹理、边界或数据集偏差“走捷径”；能否学到语义，要通过迁移实验确认，这与第一讲讨论过的 <strong>shortcut learning</strong> 是同一个问题。</div></div>
@@ -243,7 +245,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s018_img19.png" alt="视觉皮层层级">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s018_img19.png" alt="视觉皮层层级">
       <div class="caption">大脑视觉通路的层级结构（Serre, 2014）</div>
     </div>
   </div>
@@ -282,7 +284,7 @@
       <div class="keypoint warm"><div>注意：PCA 最大化投影方差，等价于最小化<strong>线性重建误差</strong>；“方差最大 = 信息量最大”只在特定分布假设下才成立，不能直接等同。且 PCA 是<strong>线性</strong>方法，只看二阶统计量；人脸角度、表情等非线性变化它表达不了。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s016_img14.png" alt="本征脸">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s016_img14.png" alt="本征脸">
       <div class="caption">前 10 个本征脸（Eigenface）</div>
     </div>
   </div>
@@ -293,7 +295,7 @@
   <div class="slide-meta"><span>第 3 讲（上） · 浅层特征学习</span><span class="meta-page">20</span></div>
   <h2 class="slide-title">PCA 人脸重建：保留了什么，丢了什么？</h2>
   <div class="full-media">
-    <img src="assets/lecture3/pca_recon_compare.png" alt="原图与 PCA 重建对齐对比">
+    <img loading="lazy" decoding="async" src="assets/lecture3/pca_recon_compare.png" alt="原图与 PCA 重建对齐对比">
   </div>
   <div class="caption">对齐对比（上行原图 / 下行重建）：身份与大尺度结构保留良好，但高频细节丢失、出现“叠影”伪影——线性基的表达能力上限</div>
   <div class="src-note" style="right:170px">图源：Turk &amp; Pentland, J. Cognitive Neuroscience 1991（裁剪重排）</div>
@@ -313,7 +315,7 @@
       <div class="keypoint"><div>记住：稀疏表示把<strong>遮挡当成稀疏误差</strong>显式建模，这是它在遮挡人脸识别上鲁棒的根本原因。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s017_img17.png" alt="稀疏表示人脸识别">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s017_img17.png" alt="稀疏表示人脸识别">
       <div class="caption">稀疏表示人脸识别：遮挡 / 噪声下仍可定位正确身份</div>
     </div>
   </div>
@@ -324,7 +326,7 @@
   <div class="slide-meta"><span>第 3 讲（上） · 浅层特征学习</span><span class="meta-page">22</span></div>
   <h2 class="slide-title">经典目标识别流水线</h2>
   <div class="full-media">
-    <img src="assets/lecture3/s019_img20.png" alt="经典识别流水线">
+    <img loading="lazy" decoding="async" src="assets/lecture3/s019_img20.png" alt="经典识别流水线">
   </div>
   <div class="caption">手工特征提取器 → BoW 中层模型（Segments / Parts）→ 分类器</div>
   <div class="src-note" style="right:170px">图源：Stanford CS231n 课件</div>
@@ -343,7 +345,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s021_img26.png" alt="多示例学习">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s021_img26.png" alt="多示例学习">
       <div class="caption">多示例学习中的正包与负包</div>
     </div>
   </div>
@@ -365,7 +367,7 @@
       <div class="keypoint"><div>记住：浅层学习的上限在于——特征可以学，但<strong>层层之间的组合方式仍是人工搭建</strong>的。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s023_img62.png" alt="MMDL 中层模式挖掘">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s023_img62.png" alt="MMDL 中层模式挖掘">
       <div class="caption">MMDL：从训练图像挖掘中层判别模式并构建图像表征</div>
     </div>
   </div>
@@ -404,7 +406,7 @@
       <div class="keypoint warm"><div>注意：人工设计并未消失——网络架构、损失函数、数据增广、优化器、数据采样和归纳偏置仍由人设计。深度学习减少的是<strong>手工特征设计</strong>，而不是消除人工设计。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s025_img65.png" alt="深度学习流水线">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s025_img65.png" alt="深度学习流水线">
       <div class="caption">与经典流水线对照：所有方框都变成“可学习”</div>
     </div>
   </div>
@@ -424,7 +426,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s028_img67.png" alt="CNN 第一层滤波器">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s028_img67.png" alt="CNN 第一层滤波器">
       <div class="caption">第一层滤波器及其最强响应图像块</div>
     </div>
   </div>
@@ -436,15 +438,15 @@
   <h2 class="slide-title">CNN 逐层抽象：从纹理到物体</h2>
   <div class="gallery-grid" data-cols="3">
     <figure>
-      <img src="assets/lecture3/s029_img68.png" alt="第二层响应">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s029_img68.png" alt="第二层响应">
       <figcaption>(a) Layer 2：纹理与简单图案</figcaption>
     </figure>
     <figure>
-      <img src="assets/lecture3/s031_img70.png" alt="第四层响应">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s031_img70.png" alt="第四层响应">
       <figcaption>(b) Layer 4：物体部件（狗脸、钟表）</figcaption>
     </figure>
     <figure>
-      <img src="assets/lecture3/s032_img71.png" alt="第五层响应">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s032_img71.png" alt="第五层响应">
       <figcaption>(c) Layer 5：完整物体与场景</figcaption>
     </figure>
   </div>
@@ -455,7 +457,7 @@
   <div class="slide-meta"><span>第 3 讲（上） · 深度表征学习</span><span class="meta-page">30</span></div>
   <h2 class="slide-title">CNN “学会”了经典识别流水线</h2>
   <div class="full-media">
-    <img src="assets/lecture3/s033_img72.png" alt="CNN 学到经典流水线">
+    <img loading="lazy" decoding="async" src="assets/lecture3/s033_img72.png" alt="CNN 学到经典流水线">
   </div>
   <div class="caption">网络内部自发形成 边缘 → 纹理 → 部件 → 物体 的层级表征</div>
   <div class="src-note" style="right:170px">图源：Stanford CS231n 课件；可视化：Zeiler &amp; Fergus, ECCV 2014</div>
@@ -487,7 +489,7 @@
   <div class="slide-meta"><span>第 3 讲（上） · 迁移学习</span><span class="meta-page">34</span></div>
   <h2 class="slide-title">预训练 → 微调 → 测试</h2>
   <div class="full-media">
-    <img src="assets/lecture3/s037_img75.png" alt="预训练与微调">
+    <img loading="lazy" decoding="async" src="assets/lecture3/s037_img75.png" alt="预训练与微调">
   </div>
   <div class="caption">微调（finetuning）：从旧任务学到的表征出发，用少量数据适配新任务</div>
   <div class="src-note" style="right:170px">图源：Stanford CS231n 课件</div>
@@ -507,7 +509,7 @@
       <div class="keypoint"><div>记住：微调的本质是<strong>迁移权重</strong>——骨干冻结或小学习率更新，只把新分类头训练好。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s038_img76.png" alt="微调实践">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s038_img76.png" alt="微调实践">
       <div class="caption">预训练（物体识别）→ 微调（场景识别）</div>
     </div>
   </div>
@@ -545,7 +547,7 @@
       <div class="keypoint warm"><div>注意：标注成本随任务精细度急剧上升——图像级分类 ≪ 检测框 ≪ 像素级分割 / 关键点。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s039_img77.png" alt="监督学习依赖人工标注">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s039_img77.png" alt="监督学习依赖人工标注">
       <div class="caption">监督学习的标签来自人工标注</div>
     </div>
   </div>
@@ -566,7 +568,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s042_img80.png" alt="FNA++ 参数重映射">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s042_img80.png" alt="FNA++ 参数重映射">
       <div class="caption">FNA++：深度 / 宽度 / 卷积核级别的参数重映射</div>
     </div>
   </div>
@@ -603,7 +605,7 @@
       <div class="keypoint warm"><div>注意：伪标签会把模型的错误<strong>自我强化</strong>（确认偏差，confirmation bias）——实践中必须用置信度阈值过滤低质量伪标签。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s046_img87.png" alt="伪标签流程">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s046_img87.png" alt="伪标签流程">
       <div class="caption">伪标签：模型自己为无标注数据“造”标签</div>
     </div>
   </div>
@@ -624,7 +626,7 @@
       <div class="keypoint"><div>记住：FixMatch 的分工——<strong>弱增广</strong>负责产出可信伪标签，<strong>强增广</strong>负责学习“扰动下预测不变”。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s048_img90.png" alt="FixMatch">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s048_img90.png" alt="FixMatch">
       <div class="caption">FixMatch：一致性 + 伪标签的统一框架</div>
     </div>
   </div>
@@ -646,7 +648,7 @@
       <div class="keypoint"><div>记住：一致性正则的核心假设——对输入做小扰动（增广 / 噪声 / 不同模型），<strong>预测结果不应改变</strong>。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture3/s049_img93.png" alt="Mean Teacher">
+      <img loading="lazy" decoding="async" src="assets/lecture3/s049_img93.png" alt="Mean Teacher">
       <div class="caption">Mean Teacher：教师由学生 EMA 更新，提供更稳定的目标</div>
     </div>
   </div>
@@ -714,6 +716,6 @@
 
 <div id="pager"></div>
 <div id="progress-track"><div id="progress"></div></div>
-<script src="js/slides.js?v=20260827b"></script>
+<script src="js/slides.js?v=20260829"></script>
 </body>
 </html>

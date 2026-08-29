@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e9e7e1">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
   <title>第 2 讲 从 AlexNet 到智能体 — 深度学习与计算机视觉</title>
-<link rel="stylesheet" href="css/slides.css?v=20260827">
+<link rel="stylesheet" href="css/slides.css?v=20260829">
 <script src="js/theme.js?v=20260829"></script>
 <style>
   /* 根号：给被开方内容补上横线（vinculum），避免 √ 只挂在第一个字符上 */
@@ -277,7 +279,7 @@ loss = cross_entropy(logits, labels)            <span class="cm"># = −log soft
       <div class="keypoint"><div>看右图时只抓住一件事：空间分辨率逐层降低，特征种类逐层增加，局部模式被组合成更复杂的模式。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/neocognitron_arch.png" alt="Neocognitron 的层次化网络结构">
+      <img loading="lazy" decoding="async" src="assets/lecture2/neocognitron_arch.png" alt="Neocognitron 的层次化网络结构">
       <div class="caption">Neocognitron 已能看到后来 CNN 的层次化结构雏形</div>
     </div>
   </div>
@@ -385,7 +387,7 @@ loss = cross_entropy(logits, labels)            <span class="cm"># = −log soft
   <div class="slide-meta"><span>第 2 讲 · 卷积神经网络</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">20</span></span></div>
   <h2 class="slide-title">AlexNet 架构（2012）</h2>
   <div class="full-media">
-    <img src="assets/lecture2/s030_img37.png" alt="AlexNet 网络结构" style="border:none;box-shadow:none">
+    <img loading="lazy" decoding="async" src="assets/lecture2/s030_img37.png" alt="AlexNet 网络结构" style="border:none;box-shadow:none">
   </div>
   <div class="caption">5 个卷积层 + 3 个全连接层，约 6000 万参数；输入 224×224×3，输出 1000 类；在 2 块 GPU 上训练约一周；学到的表示可直接迁移到检测、分割、检索等任务。</div>
   <div class="src-note" style="right:170px">图源：Krizhevsky et al., NeurIPS 2012</div>
@@ -413,7 +415,7 @@ loss = cross_entropy(logits, labels)            <span class="cm"># = −log soft
   <div class="slide-meta"><span>第 2 讲 · 卷积神经网络</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">22</span></span></div>
   <h2 class="slide-title">网络自己学到了什么？</h2>
   <div class="full-media">
-    <img src="assets/lecture2/s031_img38.png" alt="AlexNet 第一层学到的 96 个卷积核" style="border:none;box-shadow:none">
+    <img loading="lazy" decoding="async" src="assets/lecture2/s031_img38.png" alt="AlexNet 第一层学到的 96 个卷积核" style="border:none;box-shadow:none">
   </div>
   <div class="caption">AlexNet 第一层 96 个 11×11 卷积核：一半学到频率/方向选择性的边缘检测器（灰度），另一半学到颜色检测器——与生物视觉皮层的简单细胞惊人相似。手工特征时代要精心设计的东西，网络自己学出来了。</div>
   <div class="src-note" style="right:170px">图源：Krizhevsky et al., NeurIPS 2012</div>
@@ -433,7 +435,7 @@ loss = cross_entropy(logits, labels)            <span class="cm"># = −log soft
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/s032_img39.png" alt="AlexNet 在 ImageNet 测试图上的 Top-5 预测结果">
+      <img loading="lazy" decoding="async" src="assets/lecture2/s032_img39.png" alt="AlexNet 在 ImageNet 测试图上的 Top-5 预测结果">
       <div class="caption">Krizhevsky et al., NeurIPS 2012</div>
     </div>
   </div>
@@ -487,7 +489,7 @@ loss = cross_entropy(logits, labels)            <span class="cm"># = −log soft
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/s043_img52.png" alt="Plain 网络的退化现象：层数越多训练误差越高">
+      <img loading="lazy" decoding="async" src="assets/lecture2/s043_img52.png" alt="Plain 网络的退化现象：层数越多训练误差越高">
       <div class="caption">CIFAR-10 与 ImageNet 上都观察到：过深的 plain 网络训练误差更高（He et al., CVPR 2016）</div>
     </div>
   </div>
@@ -713,7 +715,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/s044_img53.png" alt="R-CNN 流程：候选区域、CNN 特征、区域分类">
+      <img loading="lazy" decoding="async" src="assets/lecture2/s044_img53.png" alt="R-CNN 流程：候选区域、CNN 特征、区域分类">
       <div class="caption">Girshick et al., CVPR 2014</div>
     </div>
   </div>
@@ -777,7 +779,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/maskscoring_network.png" alt="Mask Scoring R-CNN 网络结构，新增 MaskIoU head">
+      <img loading="lazy" decoding="async" src="assets/lecture2/maskscoring_network.png" alt="Mask Scoring R-CNN 网络结构，新增 MaskIoU head">
       <div class="caption">蓝色部分是原 Mask R-CNN；红色 MaskIoU head 是新增模块</div>
     </div>
   </div>
@@ -789,7 +791,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="kicker">Research Case · Mask Scoring R-CNN</div>
   <h2 class="slide-title">为什么要校准分数？先看这些失败样例</h2>
   <div class="full-media">
-    <img src="assets/lecture2/maskscoring_examples.png" alt="分类分数与掩码质量不匹配的实例分割样例">
+    <img loading="lazy" decoding="async" src="assets/lecture2/maskscoring_examples.png" alt="分类分数与掩码质量不匹配的实例分割样例">
   </div>
   <div class="caption">左侧四例：分类分数很高，但掩码边界明显不准；最右侧：分类分数高且掩码质量也高。原分数难以区分这两种情况。</div>
   <div class="keypoint warm"><div>课堂追问：COCO AP 会按分数给预测排序。如果低质量掩码排在高质量掩码之前，即使类别判断正确，最终 AP 为什么仍会下降？</div></div>
@@ -851,7 +853,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="kicker">Research Case · HUST-VL</div>
   <h2 class="slide-title">YOLO-World：把类别名称从固定输出变成文本输入</h2>
   <div class="full-media">
-    <img src="assets/lecture2/yoloworld_arch.png" alt="YOLO-World 图像与文本双编码器、RepVL-PAN 和检测头结构">
+    <img loading="lazy" decoding="async" src="assets/lecture2/yoloworld_arch.png" alt="YOLO-World 图像与文本双编码器、RepVL-PAN 和检测头结构">
   </div>
   <div class="caption">承接前面的 YOLO 系列：图像进入 YOLO 检测骨干；类别文本进入文本编码器；RepVL-PAN 融合区域与文本特征，通过区域—文本对比学习建立对应关系。论文在 LVIS 报告 35.4 AP、V100 上 52 FPS。</div>
   <div class="keypoint"><div>推理时先给出“person, bus, backpack”等词，再执行检测。开放词汇不是自动发现所有未知物体，而是允许用户更换要寻找的类别。</div></div>
@@ -872,7 +874,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/s047_img57.png" alt="FCN：分类网络卷积化得到逐像素热图">
+      <img loading="lazy" decoding="async" src="assets/lecture2/s047_img57.png" alt="FCN：分类网络卷积化得到逐像素热图">
       <div class="caption">Long, Shelhamer &amp; Darrell, CVPR 2015</div>
     </div>
   </div>
@@ -890,7 +892,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       <figcaption>(a) 图像描述：CNN + RNN，Show and Tell（CVPR 2015）</figcaption>
     </figure>
     <figure class="visual-case crnn-case">
-      <img src="assets/lecture2/s053_img70.png" alt="CRNN：卷积特征序列 + 双向 LSTM + CTC 识别场景文字">
+      <img loading="lazy" decoding="async" src="assets/lecture2/s053_img70.png" alt="CRNN：卷积特征序列 + 双向 LSTM + CTC 识别场景文字">
       <figcaption>(b) 场景文字识别：CRNN（TPAMI 2017）</figcaption>
     </figure>
     <figure class="visual-case">
@@ -920,7 +922,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/x_alphago.png" alt="AlphaGo 的策略网络与价值网络示意，Nature 封面">
+      <img loading="lazy" decoding="async" src="assets/lecture2/x_alphago.png" alt="AlphaGo 的策略网络与价值网络示意，Nature 封面">
       <div class="caption">Silver et al., Nature 2016</div>
     </div>
   </div>
@@ -988,9 +990,9 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="kicker">Research Case · HUST-VL</div>
   <h2 class="slide-title">GenDSA-V2：少拍一些帧，再生成缺失的中间帧</h2>
   <div class="gallery-grid" data-cols="3">
-    <figure><img src="assets/lecture2/gendsa_frame1.png" alt="DSA 序列前一采集帧"><figcaption>保留帧 t</figcaption></figure>
-    <figure><img src="assets/lecture2/gendsa_frame2.png" alt="DSA 序列中间帧"><figcaption>待恢复的中间时刻</figcaption></figure>
-    <figure><img src="assets/lecture2/gendsa_frame3.png" alt="DSA 序列后一采集帧"><figcaption>保留帧 t+1</figcaption></figure>
+    <figure><img loading="lazy" decoding="async" src="assets/lecture2/gendsa_frame1.png" alt="DSA 序列前一采集帧"><figcaption>保留帧 t</figcaption></figure>
+    <figure><img loading="lazy" decoding="async" src="assets/lecture2/gendsa_frame2.png" alt="DSA 序列中间帧"><figcaption>待恢复的中间时刻</figcaption></figure>
+    <figure><img loading="lazy" decoding="async" src="assets/lecture2/gendsa_frame3.png" alt="DSA 序列后一采集帧"><figcaption>保留帧 t+1</figcaption></figure>
   </div>
   <div class="keypoint"><div>DSA 是时间序列，不是互不相关的单张图像。模型利用相邻采集帧中的血管结构和造影剂运动，生成未采集时刻的画面；采集帧率降低，辐射剂量随之下降。</div></div>
   <div class="src-note" style="right:170px">官方示例序列：github.com/ZrH42/GenDSA-V2</div>
@@ -1126,7 +1128,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       <div class="keypoint"><div>架构选择不是“谁淘汰谁”，而是决定模型以多大的代价让信息在空间中流动。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/local_vs_global_attention.png" alt="局部卷积与全局注意力的信息交互范围对比">
+      <img loading="lazy" decoding="async" src="assets/lecture2/local_vs_global_attention.png" alt="局部卷积与全局注意力的信息交互范围对比">
     </div>
   </div>
   <div class="src-note" style="right:170px">示意图改绘自 Huang et al., CCNet, ICCV 2019</div>
@@ -1213,7 +1215,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       <div class="keypoint"><div>多头注意力并行学习多组匹配关系；位置编码则告诉模型 token 的次序或空间位置。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/s096_img145.png" alt="缩放点积注意力与多头注意力结构图">
+      <img loading="lazy" decoding="async" src="assets/lecture2/s096_img145.png" alt="缩放点积注意力与多头注意力结构图">
       <div class="caption">左：一次注意力计算；右：多个头并行后拼接</div>
     </div>
   </div>
@@ -1307,7 +1309,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       </ul>
     </div>
     <div class="split-media ccnet-module-media">
-      <img src="assets/lecture2/ccnet_module.png" alt="Criss-Cross Attention 模块：由 Q、K 计算十字注意力，对 V 聚合并加入残差">
+      <img loading="lazy" decoding="async" src="assets/lecture2/ccnet_module.png" alt="Criss-Cross Attention 模块：由 Q、K 计算十字注意力，对 V 聚合并加入残差">
       <div class="caption">单个 Criss-Cross Attention 模块：相关性计算与内容聚合分开</div>
     </div>
   </div>
@@ -1320,7 +1322,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="kicker">Research Case · CCNet</div>
   <h2 class="slide-title">注意力图显示：第二次汇聚得到更完整的语义区域</h2>
   <div class="full-media">
-    <img src="assets/lecture2/ccnet_attention.png" alt="CCNet 一次与两次循环注意力可视化">
+    <img loading="lazy" decoding="async" src="assets/lecture2/ccnet_attention.png" alt="CCNet 一次与两次循环注意力可视化">
   </div>
   <div class="caption">每组从左到右：输入图像与查询点、R=1 的十字路径注意力、R=2 的全局上下文。高响应位置往往具有相近语义。</div>
   <div class="keypoint warm"><div>论文相较非局部模块报告约 1/11 的 GPU 显存和约 85% 的计算量减少。效率来自稀疏连接，而全局性来自重复汇聚。</div></div>
@@ -1414,11 +1416,11 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
         <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">去壳 → 腌制 → 裹粉 → 油炸<br>每步独立设计，无法联合优化</div>
       </div>
       <div class="cooking-strip">
-        <img src="assets/lecture2/s062_img79.jpeg" alt="去壳鲜虾" style="height:112px;border-radius:8px;border:1px solid var(--line)">
-        <img src="assets/lecture2/s062_img80.jpeg" alt="腌制调味" style="height:112px;border-radius:8px;border:1px solid var(--line)">
-        <img src="assets/lecture2/s062_img81.jpeg" alt="裹粉" style="height:112px;border-radius:8px;border:1px solid var(--line)">
-        <img src="assets/lecture2/s062_img82.jpeg" alt="油炸" style="height:112px;border-radius:8px;border:1px solid var(--line)">
-        <img src="assets/lecture2/s062_img83.jpeg" alt="摆盘成品" style="height:112px;border-radius:8px;border:1px solid var(--line)">
+        <img loading="lazy" decoding="async" src="assets/lecture2/s062_img79.jpeg" alt="去壳鲜虾" style="height:112px;border-radius:8px;border:1px solid var(--line)">
+        <img loading="lazy" decoding="async" src="assets/lecture2/s062_img80.jpeg" alt="腌制调味" style="height:112px;border-radius:8px;border:1px solid var(--line)">
+        <img loading="lazy" decoding="async" src="assets/lecture2/s062_img81.jpeg" alt="裹粉" style="height:112px;border-radius:8px;border:1px solid var(--line)">
+        <img loading="lazy" decoding="async" src="assets/lecture2/s062_img82.jpeg" alt="油炸" style="height:112px;border-radius:8px;border:1px solid var(--line)">
+        <img loading="lazy" decoding="async" src="assets/lecture2/s062_img83.jpeg" alt="摆盘成品" style="height:112px;border-radius:8px;border:1px solid var(--line)">
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:18px">
@@ -1427,11 +1429,11 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
         <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">原料进、成品出<br>全流程一台机器联合完成</div>
       </div>
       <div class="cooking-strip">
-        <img src="assets/lecture2/s067_img84.gif" alt="端到端烹饪：原料装填" style="height:112px;border-radius:8px;border:1px solid var(--line)">
-        <img src="assets/lecture2/s067_img85.gif" alt="端到端烹饪：传送" style="height:112px;border-radius:8px;border:1px solid var(--line)">
-        <img src="assets/lecture2/s067_img86.gif" alt="端到端烹饪：发射" style="height:112px;border-radius:8px;border:1px solid var(--line)">
-        <img src="assets/lecture2/s067_img87.gif" alt="端到端烹饪：过火" style="height:112px;border-radius:8px;border:1px solid var(--line)">
-        <img src="assets/lecture2/s067_img88.gif" alt="端到端烹饪：精准落盘" style="height:112px;border-radius:8px;border:1px solid var(--line)">
+        <img loading="lazy" decoding="async" src="assets/lecture2/s067_img84.gif" alt="端到端烹饪：原料装填" style="height:112px;border-radius:8px;border:1px solid var(--line)">
+        <img loading="lazy" decoding="async" src="assets/lecture2/s067_img85.gif" alt="端到端烹饪：传送" style="height:112px;border-radius:8px;border:1px solid var(--line)">
+        <img loading="lazy" decoding="async" src="assets/lecture2/s067_img86.gif" alt="端到端烹饪：发射" style="height:112px;border-radius:8px;border:1px solid var(--line)">
+        <img loading="lazy" decoding="async" src="assets/lecture2/s067_img87.gif" alt="端到端烹饪：过火" style="height:112px;border-radius:8px;border:1px solid var(--line)">
+        <img loading="lazy" decoding="async" src="assets/lecture2/s067_img88.gif" alt="端到端烹饪：精准落盘" style="height:112px;border-radius:8px;border:1px solid var(--line)">
       </div>
     </div>
   </div>
@@ -1460,7 +1462,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/x_emergence.png" alt="八个大模型任务上的涌现现象曲线">
+      <img loading="lazy" decoding="async" src="assets/lecture2/x_emergence.png" alt="八个大模型任务上的涌现现象曲线">
       <div class="caption">8 个 few-shot 任务上的涌现现象（Wei et al., TMLR 2022）</div>
     </div>
   </div>
@@ -1490,7 +1492,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/s073_img95.png" alt="SAM 架构：图像编码器 + 提示编码器 + 掩码解码器">
+      <img loading="lazy" decoding="async" src="assets/lecture2/s073_img95.png" alt="SAM 架构：图像编码器 + 提示编码器 + 掩码解码器">
       <div class="caption">Kirillov et al., ICCV 2023 · segment-anything.com</div>
     </div>
   </div>
@@ -1501,7 +1503,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">62</span></span></div>
   <h2 class="slide-title">Depth Anything：单目深度估计基础模型</h2>
   <div class="full-media">
-    <img src="assets/lecture2/s074_img97.png" alt="Depth Anything 在任意场景上的深度估计结果">
+    <img loading="lazy" decoding="async" src="assets/lecture2/s074_img97.png" alt="Depth Anything 在任意场景上的深度估计结果">
   </div>
   <div class="caption">任意场景零样本深度估计（上：输入图像；下：预测深度图）——「Anything」成为基础模型的命名范式。</div>
   <div class="src-note" style="right:170px">图源：Yang et al., Depth Anything, CVPR 2024 / depth-anything.github.io</div>
@@ -1603,7 +1605,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">67</span></span></div>
   <h2 class="slide-title">从语言模型到对话助手，需要哪些训练阶段？</h2>
   <div class="full-media">
-    <img src="assets/lecture2/instructgpt_training.png" alt="InstructGPT 的监督微调、奖励模型和强化学习三个训练步骤">
+    <img loading="lazy" decoding="async" src="assets/lecture2/instructgpt_training.png" alt="InstructGPT 的监督微调、奖励模型和强化学习三个训练步骤">
   </div>
   <div class="caption">① 人工示范用于监督微调；② 人工排序训练奖励模型；③ 奖励模型为 PPO 更新提供分数。图中三个步骤都发生在大规模预训练之后。</div>
   <div class="keypoint warm"><div>后训练改善指令遵循和回答偏好，但不保证事实正确；检索、工具调用和安全策略属于部署系统，不在这张训练图中。</div></div>
@@ -1769,7 +1771,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">72</span></span></div>
   <h2 class="slide-title">AIGC 浪潮：Stable Diffusion 文生图</h2>
   <div class="full-media">
-    <img src="assets/lecture2/s083_img122.png" alt="Stable Diffusion 的逐步去噪生成过程">
+    <img loading="lazy" decoding="async" src="assets/lecture2/s083_img122.png" alt="Stable Diffusion 的逐步去噪生成过程">
   </div>
   <div class="caption">文本编码器理解提示词，UNet 在潜空间逐步去噪（约 50 步），解码器还原成图像。Rombach et al., CVPR 2022；Midjourney 一年内实现千万用户与亿美元营收，随后 Sora、可灵、即梦等视频生成模型相继爆发。</div>
 </section>
@@ -1841,7 +1843,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       </ul>
     </div>
     <div class="split-media diffusion-control-media">
-      <img src="assets/lecture2/controlnet_arch.png" alt="ControlNet 锁定原网络并增加可训练副本与零卷积的架构图">
+      <img loading="lazy" decoding="async" src="assets/lecture2/controlnet_arch.png" alt="ControlNet 锁定原网络并增加可训练副本与零卷积的架构图">
       <div class="caption">ControlNet：locked copy 保留原生成能力；trainable copy 学习新条件；zero convolution 使训练初期不扰动原网络。</div>
     </div>
   </div>
@@ -2140,7 +2142,7 @@ loss.backward(); optimizer.step()</div>
       </ul>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/s093_img140.png" alt="π0 视觉-语言-动作模型框架">
+      <img loading="lazy" decoding="async" src="assets/lecture2/s093_img140.png" alt="π0 视觉-语言-动作模型框架">
       <div class="caption">Physical Intelligence π₀：VLM 预训练 + Action Expert（physicalintelligence.company）</div>
     </div>
   </div>
@@ -2233,8 +2235,8 @@ loss.backward(); optimizer.step()</div>
       <div class="keypoint"><div>这一页先只问一个问题：VLM 的语言回答是否<strong>合理</strong>——轨迹是否安全是下一页的另一个问题。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/senna_model.png" alt="Senna Model：图像与文本输入 Senna-VLM，输出场景理解与规划解释，并连接 Senna-E2E">
-      <img src="assets/lecture2/senna_data.png" alt="Senna Data：面向规划的驾驶场景理解六类标注" style="margin-top:12px">
+      <img loading="lazy" decoding="async" src="assets/lecture2/senna_model.png" alt="Senna Model：图像与文本输入 Senna-VLM，输出场景理解与规划解释，并连接 Senna-E2E">
+      <img loading="lazy" decoding="async" src="assets/lecture2/senna_data.png" alt="Senna Data：面向规划的驾驶场景理解六类标注" style="margin-top:12px">
       <div class="caption">Senna-VLM 的输入输出（上）与六类面向规划的数据标注（下）</div>
     </div>
   </div>
@@ -2262,7 +2264,7 @@ loss.backward(); optimizer.step()</div>
       <div class="keypoint warm"><div>串讲时请区分两个评价问题：<strong>语言回答是否合理</strong>（VLM 侧）与<strong>车辆轨迹是否安全</strong>（E2E 侧）——指标和数据都不一样。</div></div>
     </div>
     <div class="split-media">
-      <img src="assets/lecture2/senna_training.png" alt="Senna 三阶段训练：混合预训练、驾驶微调、规划微调；冻结与训练的模块标注" style="max-height:470px;width:auto">
+      <img loading="lazy" decoding="async" src="assets/lecture2/senna_training.png" alt="Senna 三阶段训练：混合预训练、驾驶微调、规划微调；冻结与训练的模块标注" style="max-height:470px;width:auto">
     </div>
   </div>
   <div class="src-note" style="right:170px">Jiang et al., IJCV 2026 · github.com/hustvl/Senna（图为论文总览图的三阶段训练部分）</div>
@@ -2283,7 +2285,7 @@ loss.backward(); optimizer.step()</div>
       <p class="lead wam-lead">关键变化是让模型学习<strong>动作—后果</strong>的对应关系：它不只回答“下一步做什么”，还要预测“这样做之后会看到什么”。</p>
     </div>
     <div class="split-media wam-media">
-      <img src="assets/lecture2/dreamzero_arch.png" alt="DreamZero 联合视频与动作 flow matching 的训练和闭环推理架构">
+      <img loading="lazy" decoding="async" src="assets/lecture2/dreamzero_arch.png" alt="DreamZero 联合视频与动作 flow matching 的训练和闭环推理架构">
       <div class="caption">DreamZero：训练时联合去噪未来视频与动作；执行后把真实观察写回 KV cache，抑制误差累积。</div>
     </div>
   </div>
@@ -2488,6 +2490,6 @@ loss.backward(); optimizer.step()</div>
 
 <div id="pager"></div>
 <div id="progress-track"><div id="progress"></div></div>
-<script src="js/slides.js?v=20260827b"></script>
+<script src="js/slides.js?v=20260829"></script>
 </body>
 </html>

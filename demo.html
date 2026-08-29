@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e9e7e1">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>课件设计系统 Demo — 深度学习与计算机视觉</title>
-<link rel="stylesheet" href="css/slides.css">
+<link rel="stylesheet" href="css/slides.css?v=20260829">
 <script src="js/theme.js?v=20260829"></script>
 </head>
 <body>
@@ -120,7 +122,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='420'><rect width='640' height='420' fill='white'/><circle cx='320' cy='190' r='110' fill='none' stroke='%232456d6' stroke-width='4'/><text x='320' y='200' font-size='30' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>cat: 0.92</text><text x='320' y='360' font-size='18' text-anchor='middle' fill='%23666' font-family='sans-serif'>示意图：分类结果</text></svg>" alt="分类示意">
+      <img loading="lazy" decoding="async" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='420'><rect width='640' height='420' fill='white'/><circle cx='320' cy='190' r='110' fill='none' stroke='%232456d6' stroke-width='4'/><text x='320' y='200' font-size='30' text-anchor='middle' fill='%2322222a' font-family='sans-serif'>cat: 0.92</text><text x='320' y='360' font-size='18' text-anchor='middle' fill='%23666' font-family='sans-serif'>示意图：分类结果</text></svg>" alt="分类示意">
       <div class="caption">图 1 · 图像分类任务示意</div>
     </div>
   </div>
@@ -139,7 +141,7 @@
       </ul>
     </div>
     <div class="split-media">
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='420'><rect width='640' height='420' fill='white'/><rect x='80' y='80' width='200' height='160' fill='none' stroke='%232456d6' stroke-width='4'/><rect x='360' y='160' width='180' height='180' fill='none' stroke='%23c2521e' stroke-width='4'/><text x='180' y='70' font-size='20' text-anchor='middle' fill='%232456d6' font-family='sans-serif'>person</text><text x='450' y='150' font-size='20' text-anchor='middle' fill='%23c2521e' font-family='sans-serif'>bicycle</text></svg>" alt="检测示意">
+      <img loading="lazy" decoding="async" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='420'><rect width='640' height='420' fill='white'/><rect x='80' y='80' width='200' height='160' fill='none' stroke='%232456d6' stroke-width='4'/><rect x='360' y='160' width='180' height='180' fill='none' stroke='%23c2521e' stroke-width='4'/><text x='180' y='70' font-size='20' text-anchor='middle' fill='%232456d6' font-family='sans-serif'>person</text><text x='450' y='150' font-size='20' text-anchor='middle' fill='%23c2521e' font-family='sans-serif'>bicycle</text></svg>" alt="检测示意">
       <div class="caption">图 2 · 目标检测输出示例（flip 版式）</div>
     </div>
   </div>
@@ -150,7 +152,7 @@
   <div class="slide-meta"><span>第 1 讲 · 课程导论</span><span class="meta-page">08</span></div>
   <h2 class="slide-title">语义分割：逐像素的场景理解</h2>
   <div class="full-media">
-    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='460'><rect width='1000' height='460' fill='white'/><rect x='60' y='60' width='880' height='300' fill='%23e8eefb'/><rect x='60' y='240' width='880' height='120' fill='%23fbece4'/><circle cx='300' cy='160' r='60' fill='%232456d6' opacity='0.5'/><circle cx='700' cy='150' r='50' fill='%23c2521e' opacity='0.5'/><text x='500' y='420' font-size='20' text-anchor='middle' fill='%23666' font-family='sans-serif'>天空 / 道路 / 车辆 / 行人 —— 每个像素一个类别</text></svg>" alt="语义分割示意">
+    <img loading="lazy" decoding="async" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='460'><rect width='1000' height='460' fill='white'/><rect x='60' y='60' width='880' height='300' fill='%23e8eefb'/><rect x='60' y='240' width='880' height='120' fill='%23fbece4'/><circle cx='300' cy='160' r='60' fill='%232456d6' opacity='0.5'/><circle cx='700' cy='150' r='50' fill='%23c2521e' opacity='0.5'/><text x='500' y='420' font-size='20' text-anchor='middle' fill='%23666' font-family='sans-serif'>天空 / 道路 / 车辆 / 行人 —— 每个像素一个类别</text></svg>" alt="语义分割示意">
   </div>
   <div class="caption">图 3 · 语义分割将图像分解为具有语义标签的区域</div>
 </section>
@@ -161,19 +163,19 @@
   <h2 class="slide-title">视觉任务一览</h2>
   <div class="gallery-grid" data-cols="2">
     <figure>
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><rect width='520' height='260' fill='white'/><circle cx='260' cy='130' r='70' fill='none' stroke='%232456d6' stroke-width='4'/></svg>" alt="分类">
+      <img loading="lazy" decoding="async" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><rect width='520' height='260' fill='white'/><circle cx='260' cy='130' r='70' fill='none' stroke='%232456d6' stroke-width='4'/></svg>" alt="分类">
       <figcaption>(a) 图像分类</figcaption>
     </figure>
     <figure>
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><rect width='520' height='260' fill='white'/><rect x='140' y='60' width='240' height='140' fill='none' stroke='%232456d6' stroke-width='4'/></svg>" alt="检测">
+      <img loading="lazy" decoding="async" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><rect width='520' height='260' fill='white'/><rect x='140' y='60' width='240' height='140' fill='none' stroke='%232456d6' stroke-width='4'/></svg>" alt="检测">
       <figcaption>(b) 目标检测</figcaption>
     </figure>
     <figure>
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><rect width='520' height='260' fill='white'/><rect x='0' y='150' width='520' height='110' fill='%23e8eefb'/><rect x='0' y='0' width='520' height='150' fill='%23fbece4'/></svg>" alt="分割">
+      <img loading="lazy" decoding="async" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><rect width='520' height='260' fill='white'/><rect x='0' y='150' width='520' height='110' fill='%23e8eefb'/><rect x='0' y='0' width='520' height='150' fill='%23fbece4'/></svg>" alt="分割">
       <figcaption>(c) 语义分割</figcaption>
     </figure>
     <figure>
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><rect width='520' height='260' fill='white'/><path d='M80 200 L200 80 L320 160 L440 60' fill='none' stroke='%232456d6' stroke-width='4'/></svg>" alt="姿态估计">
+      <img loading="lazy" decoding="async" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><rect width='520' height='260' fill='white'/><path d='M80 200 L200 80 L320 160 L440 60' fill='none' stroke='%232456d6' stroke-width='4'/></svg>" alt="姿态估计">
       <figcaption>(d) 姿态估计</figcaption>
     </figure>
   </div>
@@ -225,6 +227,6 @@ relu = nn.ReLU()</div>
 
 <div id="pager"></div>
 <div id="progress-track"><div id="progress"></div></div>
-<script src="js/slides.js"></script>
+<script src="js/slides.js?v=20260829"></script>
 </body>
 </html>

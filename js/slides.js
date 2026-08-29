@@ -23,7 +23,43 @@
   slides.forEach(function (slide, index) {
     var metaPage = slide.querySelector(".meta-page");
     if (metaPage) metaPage.textContent = String(index + 1).padStart(2, "0");
+    /* 总览缩略图左上角的页码角标（只在 body.overview 下显示） */
+    var badge = document.createElement("span");
+    badge.className = "ov-num";
+    badge.textContent = index + 1;
+    badge.setAttribute("aria-hidden", "true");
+    slide.appendChild(badge);
   });
+
+  /* 进度条点击跳转 */
+  var track = document.getElementById("progress-track");
+  if (track) {
+    track.addEventListener("click", function (e) {
+      var rect = track.getBoundingClientRect();
+      var ratio = (e.clientX - rect.left) / rect.width;
+      show(Math.floor(ratio * total));
+    });
+  }
+
+  /* 快捷键帮助浮层（? / H 开关，Esc 或点击关闭） */
+  var help = document.createElement("div");
+  help.id = "help-overlay";
+  help.setAttribute("role", "dialog");
+  help.setAttribute("aria-label", "快捷键帮助");
+  help.innerHTML =
+    '<div id="help-card"><h3>快捷键</h3>' +
+    '<p><kbd>←</kbd><kbd>→</kbd> / <kbd>空格</kbd> 翻页</p>' +
+    '<p><kbd>Home</kbd> / <kbd>End</kbd> 首页 / 末页</p>' +
+    '<p><kbd>O</kbd> 或 <kbd>Esc</kbd> 总览模式（点击缩略图跳转）</p>' +
+    '<p><kbd>F</kbd> 全屏　<kbd>T</kbd> 暗色 / 浅色</p>' +
+    '<p><kbd>?</kbd> 或 <kbd>H</kbd> 本帮助　点击进度条跳转</p>' +
+    '<p class="help-close">Esc 或点击任意处关闭</p></div>';
+  document.body.appendChild(help);
+  function toggleHelp(force) {
+    var on = (typeof force === "boolean") ? force : !help.classList.contains("show");
+    help.classList.toggle("show", on);
+  }
+  help.addEventListener("click", function () { toggleHelp(false); });
 
   if (pager) {
     pager.setAttribute("aria-live", "polite");
@@ -110,7 +146,8 @@
       case "End": e.preventDefault(); show(total - 1); break;
       case "f": case "F": toggleFullscreen(); break;
       case "o": case "O": toggleOverview(); break;
-      case "Escape": if (overview) toggleOverview(false); break;
+      case "Escape": if (help.classList.contains("show")) toggleHelp(false); else if (overview) toggleOverview(false); break;
+      case "?": case "h": case "H": e.preventDefault(); toggleHelp(); break;
       case "j": case "J": e.preventDefault(); next(); break;
       case "k": case "K": e.preventDefault(); prev(); break;
     }
