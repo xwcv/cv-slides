@@ -1229,43 +1229,32 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
         <li>每个词提供<strong>索引 K</strong> 和<strong>内容 V</strong>；匹配越紧，权重越大</li>
         <li>信息按权重<strong>加权汇入</strong>“它”的新表示；换成图像时，每个 patch 同样能查询远处 patch</li>
       </ul>
-      <div class="formula-block" style="font-size:19px;line-height:1.7">练习：q<sub>它</sub> = (1, 0)，k<sub>小狗</sub> = (1, 0)，k<sub>球</sub> = (0, 1)<br>手算：两个注意力权重各是多少？输出向量是什么？</div>
+      <div class="formula-block" style="font-size:18px;line-height:1.7">练习：q<sub>它</sub> = (1, 0)；k<sub>小狗</sub> = (1, 0)，v<sub>小狗</sub> = (2, 0)；k<sub>球</sub> = (0, 1)，v<sub>球</sub> = (0, 2)<br>手算（简化：只对这两个词做 softmax）：① 两个注意力权重各是多少？② 输出向量是什么？</div>
       <ul class="bullets compact">
         <li>第一步 q·k 打分 → 第二步 softmax 归一 → 第三步对 V 加权求和</li>
       </ul>
     </div>
     <div class="split-media">
-      <svg viewBox="0 0 560 380" style="max-width:100%;height:auto" role="img" aria-label="句子中「它」对各词的注意力权重示意">
+      <svg viewBox="0 0 560 230" style="max-width:100%;height:auto" role="img" aria-label="句子中「它」向「小狗」和「球」发出查询，权重留待计算">
         <g font-family="sans-serif">
           <g stroke-width="1.8">
             <rect x="24" y="36" width="72" height="42" rx="8" fill="#e8eefb" stroke="#2456d6"/>
-            <rect x="128" y="36" width="72" height="42" rx="8" fill="#e8eefb" stroke="#2456d6"/>
+            <rect x="128" y="36" width="72" height="42" rx="8" fill="#f6f4ee" stroke="#9a9aa4"/>
             <rect x="232" y="36" width="72" height="42" rx="8" fill="#e8eefb" stroke="#2456d6"/>
-            <rect x="336" y="36" width="72" height="42" rx="8" fill="#e8eefb" stroke="#2456d6"/>
+            <rect x="336" y="36" width="72" height="42" rx="8" fill="#f6f4ee" stroke="#9a9aa4"/>
             <rect x="440" y="36" width="72" height="42" rx="8" fill="#fbece4" stroke="#c2521e" stroke-width="2.6"/>
           </g>
           <g font-size="19" text-anchor="middle">
-            <text x="60" y="63" fill="#2456d6">小狗</text><text x="164" y="63" fill="#2456d6">追</text>
-            <text x="268" y="63" fill="#2456d6">球</text><text x="372" y="63" fill="#2456d6">跑</text>
+            <text x="60" y="63" fill="#2456d6">小狗</text><text x="164" y="63" fill="#6b6b76">追</text>
+            <text x="268" y="63" fill="#2456d6">球</text><text x="372" y="63" fill="#6b6b76">跑</text>
             <text x="476" y="63" fill="#c2521e" font-weight="700">它</text>
           </g>
-          <!-- 从「它」出发的注意力连线，粗细 ∝ 权重 -->
-          <path d="M452 78 C 380 118, 160 96, 66 82" fill="none" stroke="#2456d6" stroke-width="6" opacity="0.75"/>
-          <path d="M464 78 C 420 112, 320 100, 274 82" fill="none" stroke="#2456d6" stroke-width="3" opacity="0.55"/>
-          <path d="M470 78 C 448 108, 400 100, 378 82" fill="none" stroke="#9db4e8" stroke-width="1.6" opacity="0.6"/>
-          <path d="M458 78 C 400 130, 220 120, 170 82" fill="none" stroke="#9db4e8" stroke-width="1.6" opacity="0.6"/>
-          <text x="270" y="120" font-size="13" text-anchor="middle" fill="#6b6b76">连线粗细 ∝ 注意力权重（教学示意）</text>
-          <!-- 权重条形图 -->
-          <line x1="50" y1="330" x2="520" y2="330" stroke="#9a9aa4" stroke-width="1.6"/>
-          <rect x="90" y="218" width="56" height="112" fill="#2456d6"/>
-          <rect x="210" y="292" width="56" height="38" fill="#7d9ce0"/>
-          <rect x="330" y="314" width="56" height="16" fill="#9db4e8"/>
-          <rect x="450" y="321" width="56" height="9" fill="#c8d5f2"/>
-          <g font-size="14" text-anchor="middle" fill="#4a4a55">
-            <text x="118" y="208" fill="#2456d6" font-weight="700">0.62</text>
-            <text x="238" y="282">0.21</text><text x="358" y="304">0.09</text><text x="478" y="311">0.05</text>
-            <text x="118" y="352">小狗</text><text x="238" y="352">球</text><text x="358" y="352">跑</text><text x="478" y="352">追</text>
-          </g>
+          <path d="M460 78 C 380 118, 160 106, 66 82" fill="none" stroke="#2456d6" stroke-width="2" stroke-dasharray="6 4"/>
+          <path d="M468 78 C 430 108, 330 100, 274 82" fill="none" stroke="#2456d6" stroke-width="2" stroke-dasharray="6 4"/>
+          <text x="222" y="116" font-size="14" fill="#2456d6" font-weight="700">w = ?</text>
+          <text x="396" y="110" font-size="14" fill="#2456d6" font-weight="700">w = ?</text>
+          <text x="280" y="164" font-size="13.5" text-anchor="middle" fill="#6b6b76">“它”发出查询 q，与每个词的索引 k 比对；本练习只对「小狗」「球」两个候选计算</text>
+          <text x="280" y="190" font-size="13.5" text-anchor="middle" fill="#6b6b76">权重先空着——算出来再填，下一页核对</text>
         </g>
       </svg>
     </div>
@@ -1279,11 +1268,11 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="kicker">Exercise · 练习 ② · 参考答案</div>
   <h2 class="slide-title">练习 ② 参考答案：手算注意力权重</h2>
   <div class="code-body">
-    <div class="formula-block">Attention(Q,K,V) = softmax(QK<sup>T</sup> / √d<sub>k</sub>)V<span style="color:var(--muted);font-size:16px">　本题 d<sub>k</sub> = 2；√d<sub>k</sub> 缩放只压缓差距，不改变谁大谁小</span></div>
+    <div class="formula-block">Attention(Q,K,V) = softmax(QK<sup>T</sup> / √d<sub>k</sub>)V<span style="color:var(--muted);font-size:16px">　本题 q、k、v ∈ R²（d<sub>k</sub> = 2）；√d<sub>k</sub> 缩放只压缓差距，不改变谁大谁小</span></div>
     <ul class="bullets">
-      <li><strong>第一步 打分</strong>：q·k<sub>小狗</sub> = 1，q·k<sub>球</sub> = 0</li>
-      <li><strong>第二步 归一</strong>：softmax(1, 0) ≈ (<strong>0.73</strong>, <strong>0.27</strong>)（若计入 √d<sub>k</sub> 缩放，softmax(0.71, 0) ≈ (0.67, 0.33)，结论不变）</li>
-      <li><strong>第三步 加权求和</strong>：输出 = 0.73·v<sub>小狗</sub> + 0.27·v<sub>球</sub>——“它”主要读取“小狗”的信息</li>
+      <li><strong>第一步 打分</strong>：q·k<sub>小狗</sub> = 1×1 + 0×0 = <strong>1</strong>；q·k<sub>球</sub> = 1×0 + 0×1 = <strong>0</strong></li>
+      <li><strong>第二步 归一</strong>：softmax(1, 0) = (e¹, e⁰) / (e¹ + e⁰) ≈ (<strong>0.73</strong>, <strong>0.27</strong>)（若计入 √d<sub>k</sub> = √2 缩放：softmax(0.71, 0) ≈ (0.67, 0.33)，结论不变）</li>
+      <li><strong>第三步 加权求和</strong>：输出 = 0.73·v<sub>小狗</sub> + 0.27·v<sub>球</sub> = 0.73·(2, 0) + 0.27·(0, 2) = (<strong>1.46</strong>, <strong>0.54</strong>)——“它”主要读取“小狗”的信息（缩放版 (1.34, 0.66)，结论相同）</li>
     </ul>
     <div class="keypoint warm"><div>再提醒：注意力权重展示信息如何汇聚，但不能自动等同于可靠的因果解释。</div></div>
   </div>
