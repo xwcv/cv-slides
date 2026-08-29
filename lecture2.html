@@ -1789,35 +1789,44 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       </ul>
     </div>
     <div class="split-media">
-      <svg viewBox="0 0 560 330" style="max-width:100%;height:auto" role="img" aria-label="Latent Diffusion：图像经 VAE 编码进潜空间，U-Net 在文本条件下迭代去噪，再经 VAE 解码还原">
+      <svg viewBox="0 0 560 440" style="max-width:100%;height:auto" role="img" aria-label="Latent Diffusion：图像经 VAE 编码进潜空间，U-Net 在文本条件下迭代去噪，再经 VAE 解码还原">
         <g font-family="sans-serif">
-          <defs><marker id="arrs" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#22222a"/></marker></defs>
-          <rect x="18" y="40" width="88" height="66" rx="8" fill="#f6f4ee" stroke="#9a9aa4" stroke-width="1.5"/>
-          <text x="62" y="68" font-size="12.5" text-anchor="middle" fill="#4a4a55">输入图像</text>
-          <text x="62" y="86" font-size="11.5" text-anchor="middle" fill="#6b6b76">512×512×3</text>
-          <line x1="106" y1="73" x2="136" y2="73" stroke="#22222a" stroke-width="2.2" marker-end="url(#arrs)"/>
-          <rect x="142" y="40" width="96" height="66" rx="8" fill="#fff" stroke="#22222a" stroke-width="2"/>
-          <text x="190" y="68" font-size="12.5" text-anchor="middle" fill="#22222a" font-weight="700">VAE 编码器</text>
-          <text x="190" y="86" font-size="11.5" text-anchor="middle" fill="#6b6b76">压缩 ≈1/48</text>
-          <line x1="238" y1="73" x2="268" y2="73" stroke="#22222a" stroke-width="2.2" marker-end="url(#arrs)"/>
-          <rect x="274" y="30" width="180" height="110" rx="12" fill="#edf2ff" stroke="#2456d6" stroke-width="2.4"/>
-          <text x="364" y="54" font-size="13.5" text-anchor="middle" fill="#2456d6" font-weight="700">潜空间 64×64×4</text>
-          <rect x="296" y="66" width="136" height="44" rx="8" fill="#fff" stroke="#2456d6" stroke-width="1.8"/>
-          <text x="364" y="84" font-size="12.5" text-anchor="middle" fill="#2456d6">U-Net 去噪 ×20–50 步</text>
-          <text x="364" y="101" font-size="11" text-anchor="middle" fill="#6b6b76">cross-attention 读文本</text>
-          <text x="364" y="130" font-size="11.5" text-anchor="middle" fill="#6b6b76">在压缩空间里迭代，而非像素空间</text>
-          <rect x="274" y="176" width="180" height="52" rx="10" fill="#fbece4" stroke="#c2521e" stroke-width="2"/>
-          <text x="364" y="197" font-size="12.5" text-anchor="middle" fill="#c2521e" font-weight="700">CLIP 文本编码器</text>
-          <text x="364" y="215" font-size="11.5" text-anchor="middle" fill="#8a4a28">提示词 → token 向量（K, V）</text>
-          <line x1="364" y1="176" x2="364" y2="146" stroke="#c2521e" stroke-width="2.2" marker-end="url(#arrs)"/>
-          <line x1="454" y1="73" x2="484" y2="73" stroke="#22222a" stroke-width="2.2" marker-end="url(#arrs)"/>
-          <rect x="490" y="24" width="58" height="98" rx="8" fill="#fff" stroke="#22222a" stroke-width="2"/>
-          <text x="519" y="52" font-size="12" text-anchor="middle" fill="#22222a" font-weight="700">VAE</text>
-          <text x="519" y="68" font-size="12" text-anchor="middle" fill="#22222a" font-weight="700">解码器</text>
-          <text x="519" y="92" font-size="11" text-anchor="middle" fill="#6b6b76">还原像素</text>
-          <text x="519" y="110" font-size="11" text-anchor="middle" fill="#6b6b76">→ 图像</text>
-          <text x="280" y="280" font-size="13" text-anchor="middle" fill="#4a4a55">训练与生成的主体计算都发生在潜空间：这是 Stable Diffusion 能在消费级 GPU 上运行的关键</text>
-          <text x="280" y="304" font-size="12.5" text-anchor="middle" fill="#6b6b76">SD 1.x（2022）：VAE + CLIP + 约 860M 参数 U-Net；LAION 大规模图文对训练</text>
+          <defs><marker id="arrs" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#22222a"/></marker>
+          <marker id="arrs2" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#c2521e"/></marker></defs>
+          <!-- 像素空间：编码 -->
+          <rect x="20" y="18" width="150" height="54" rx="8" fill="#f6f4ee" stroke="#9a9aa4" stroke-width="1.5"/>
+          <text x="95" y="42" font-size="12.5" text-anchor="middle" fill="#4a4a55">输入图像</text>
+          <text x="95" y="60" font-size="11.5" text-anchor="middle" fill="#6b6b76">512×512×3</text>
+          <line x1="172" y1="45" x2="204" y2="45" stroke="#22222a" stroke-width="2.2" marker-end="url(#arrs)"/>
+          <rect x="210" y="18" width="150" height="54" rx="8" fill="#fff" stroke="#22222a" stroke-width="2"/>
+          <text x="285" y="42" font-size="12.5" text-anchor="middle" fill="#22222a" font-weight="700">VAE 编码器</text>
+          <text x="285" y="60" font-size="11.5" text-anchor="middle" fill="#6b6b76">压缩 ≈1/48</text>
+          <line x1="285" y1="74" x2="285" y2="96" stroke="#22222a" stroke-width="2.2" marker-end="url(#arrs)"/>
+          <!-- 潜空间 -->
+          <rect x="40" y="100" width="300" height="150" rx="12" fill="#edf2ff" stroke="#2456d6" stroke-width="2.4"/>
+          <text x="190" y="126" font-size="13.5" text-anchor="middle" fill="#2456d6" font-weight="700">潜空间 64×64×4</text>
+          <rect x="66" y="140" width="248" height="58" rx="8" fill="#fff" stroke="#2456d6" stroke-width="1.8"/>
+          <text x="190" y="164" font-size="12.5" text-anchor="middle" fill="#2456d6">U-Net 去噪 ×20–50 步</text>
+          <text x="190" y="184" font-size="11" text-anchor="middle" fill="#6b6b76">cross-attention 读取文本条件</text>
+          <text x="190" y="226" font-size="11.5" text-anchor="middle" fill="#6b6b76">扩散迭代在压缩空间进行，而非像素空间</text>
+          <!-- 文本条件 -->
+          <rect x="380" y="120" width="160" height="100" rx="10" fill="#fbece4" stroke="#c2521e" stroke-width="2"/>
+          <text x="460" y="150" font-size="12.5" text-anchor="middle" fill="#c2521e" font-weight="700">CLIP 文本编码器</text>
+          <text x="460" y="172" font-size="11.5" text-anchor="middle" fill="#8a4a28">提示词 → token 向量</text>
+          <text x="460" y="192" font-size="11.5" text-anchor="middle" fill="#8a4a28">提供 K、V</text>
+          <line x1="378" y1="169" x2="346" y2="169" stroke="#c2521e" stroke-width="2.2" marker-end="url(#arrs2)"/>
+          <!-- 解码输出 -->
+          <line x1="190" y1="252" x2="190" y2="296" stroke="#22222a" stroke-width="2.2" marker-end="url(#arrs)"/>
+          <rect x="115" y="300" width="150" height="54" rx="8" fill="#fff" stroke="#22222a" stroke-width="2"/>
+          <text x="190" y="324" font-size="12.5" text-anchor="middle" fill="#22222a" font-weight="700">VAE 解码器</text>
+          <text x="190" y="342" font-size="11.5" text-anchor="middle" fill="#6b6b76">还原像素</text>
+          <line x1="267" y1="327" x2="299" y2="327" stroke="#22222a" stroke-width="2.2" marker-end="url(#arrs)"/>
+          <rect x="305" y="300" width="170" height="54" rx="8" fill="#f6f4ee" stroke="#9a9aa4" stroke-width="1.5"/>
+          <text x="390" y="324" font-size="12.5" text-anchor="middle" fill="#4a4a55">生成图像</text>
+          <text x="390" y="342" font-size="11.5" text-anchor="middle" fill="#6b6b76">512×512×3</text>
+          <!-- 底部说明 -->
+          <text x="280" y="396" font-size="13" text-anchor="middle" fill="#4a4a55">训练与生成的主体计算都在潜空间——消费级 GPU 可跑的关键</text>
+          <text x="280" y="420" font-size="12" text-anchor="middle" fill="#6b6b76">SD 1.x（2022）：VAE + CLIP + 约 860M 参数 U-Net；LAION 图文对训练</text>
         </g>
       </svg>
       <div class="caption">Latent Diffusion 的数据通路：像素 → 潜空间（去噪在这里发生）→ 像素</div>
