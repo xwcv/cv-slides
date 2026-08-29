@@ -1371,3 +1371,111 @@ body.overview #pager, body.overview #progress-track { display: none; }
   }
   #pager, #progress-track { display: none !important; }
 }
+
+/* --------------------------------------------------------------------------
+   12. 暗色模式（html[data-theme="dark"]，由 js/theme.js 驱动，T 键切换）
+
+   策略：设计系统几乎全部走 CSS 变量，暗色首先整体换变量；
+   少数写死颜色的组件在下面逐个覆盖；
+   自绘 SVG 与 PPT 插图原本是"纸面印刷"配色，暗色下统一衬浅色图卡，
+   保证图表文字与配色完全不变。
+   -------------------------------------------------------------------------- */
+html[data-theme="dark"] {
+  --paper:      #1b1c22;
+  --paper-deep: #111218;
+  --card:       #24262f;
+  --ink:        #e9e7e1;
+  --muted:      #aaa9b4;
+  --faint:      #7f7f8a;
+  --line:       #3a3d47;
+  --accent:     #7ba2f8;
+  --accent-soft:#26304e;
+  --accent-2:   #e59a6d;
+}
+
+/* 切换瞬间的过渡（仅用户切换时由 theme.js 临时加 .theme-anim） */
+html.theme-anim *,
+html.theme-anim *::before,
+html.theme-anim *::after {
+  transition: background-color .32s ease, color .32s ease,
+              border-color .32s ease, box-shadow .32s ease !important;
+}
+
+/* 图卡：SVG 与图片在暗色下衬浅色底，保持"印刷图表"原样 */
+html[data-theme="dark"] .slide svg {
+  background: #f6f5f0;
+  border-radius: 8px;
+  padding: 8px;
+}
+html[data-theme="dark"] .slide img {
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.45);
+}
+
+/* 写死颜色组件的暗色覆盖 */
+html[data-theme="dark"] .tag.warm { background: rgba(229, 154, 109, .13); border-color: rgba(229, 154, 109, .35); }
+html[data-theme="dark"] .tag.neutral { background: #26282f; }
+html[data-theme="dark"] .history-timeline .timeline-axis::before {
+  background: linear-gradient(90deg, #3d5a9e 0%, #7ba2f8 64%, #e59a6d 100%);
+}
+html[data-theme="dark"] .history-timeline .timeline-axis::after { border-left-color: #e59a6d; }
+html[data-theme="dark"] .history-event .event-node { background: var(--paper); border-color: #7ba2f8; box-shadow: 0 0 0 5px rgba(123, 162, 248, .16); }
+html[data-theme="dark"] .history-event.highlight .event-node { border-color: #e59a6d; box-shadow: 0 0 0 5px rgba(229, 154, 109, .16); }
+html[data-theme="dark"] .history-event .event-card::after { background: var(--faint); }
+html[data-theme="dark"] .history-event .event-year { color: #9db8f0; background: #22304f; }
+html[data-theme="dark"] .history-event.highlight .event-year { color: #e59a6d; background: rgba(229, 154, 109, .13); }
+html[data-theme="dark"] .history-event .event-title { color: var(--ink); }
+html[data-theme="dark"] .history-event .event-note { color: var(--muted); }
+html[data-theme="dark"] .ccnet-equation { border-left-color: rgba(123, 162, 248, .6); background: rgba(123, 162, 248, .07); }
+html[data-theme="dark"] .ccnet-equation .eq-main { color: var(--ink); }
+html[data-theme="dark"] .ccnet-equation .eq-note { color: var(--muted); }
+html[data-theme="dark"] .application-gallery .case-visual { background: #26272e; }
+html[data-theme="dark"] .pipeline-steps > div:not(:last-child)::after { border-top-color: var(--faint); }
+html[data-theme="dark"] .pipeline-steps > div:not(:last-child)::before { border-left-color: var(--faint); }
+html[data-theme="dark"] .hook-question-list li > span,
+html[data-theme="dark"] .agent-review-list li > span { color: #10131a; }
+html[data-theme="dark"] .slide table th { background: #31427a; color: #eef2ff; }
+html[data-theme="dark"] .slide table tbody tr:nth-child(even) td { background: #23252c; }
+html[data-theme="dark"] .agent-tools div { border-top-color: var(--faint); background: rgba(255, 255, 255, .04); }
+html[data-theme="dark"] .agent-stack-strip > div { border-top-color: var(--faint); }
+html[data-theme="dark"] .agent-stack-strip > div:nth-child(4) { border-top-color: #a78bca; }
+html[data-theme="dark"] .bad-prompt { border-left-color: var(--faint); background: rgba(255, 255, 255, .045); }
+html[data-theme="dark"] .good-prompt > span { color: var(--faint); }
+html[data-theme="dark"] .agent-delivery-example { background: var(--card); }
+html[data-theme="dark"] #progress-track { background: rgba(255, 255, 255, .10); }
+html[data-theme="dark"] body.overview .slide,
+html[data-theme="dark"] .overview .slide { box-shadow: 0 4px 18px rgba(0, 0, 0, .55); }
+
+/* lecture2 内联样式中的角标（类选择器，用属性+类提升优先级覆盖） */
+html[data-theme="dark"] .track-badge { background: #26282f; color: var(--muted); border-color: var(--line); }
+
+/* 主题切换按钮 */
+#theme-toggle {
+  position: fixed; top: 18px; right: 22px; z-index: 40;
+  width: 36px; height: 36px; padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font-size: 17px; line-height: 1;
+  cursor: pointer; user-select: none;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .12);
+  transition: border-color .18s ease, transform .18s ease,
+              background-color .3s ease, color .3s ease;
+}
+#theme-toggle:hover { border-color: var(--accent); transform: translateY(-1px); }
+#theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#theme-toggle .tt-icon { pointer-events: none; }
+
+/* 打印始终用浅色版式 */
+@media print {
+  #theme-toggle { display: none !important; }
+  html[data-theme="dark"] {
+    --paper: #fbfaf7; --paper-deep: #ffffff; --card: #ffffff;
+    --ink: #22222a; --muted: #62626d; --faint: #858590; --line: #dedbd3;
+    --accent: #1f55d5; --accent-soft: #edf2ff; --accent-2: #c2521e;
+  }
+  html[data-theme="dark"] .slide svg { background: transparent; padding: 0; }
+  html[data-theme="dark"] .slide table th { background: var(--accent); color: #fff; }
+  html[data-theme="dark"] .slide table tbody tr:nth-child(even) td { background: #f4f2ec; }
+}
