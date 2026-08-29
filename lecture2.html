@@ -1810,7 +1810,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="kicker">Exercise · 课堂 3 分钟</div>
   <h2 class="slide-title">练习 ③：把扩散训练的一步补全</h2>
   <div class="code-body">
-    <div class="formula-block" style="font-size:16px">符号对照（与上上页一致）：<strong>ε</strong> = 真实加入的高斯噪声；<strong>ε<sub>θ</sub>(x<sub>t</sub>, t)</strong> = 网络对该噪声的预测；<strong>ᾱ<sub>t</sub></strong> = 第 t 步保留原图信号的比例（t 越大越小）</div>
+    <div class="formula-block" style="font-size:16px">符号对照（与前面「扩散模型：前向加噪、反向去噪」页一致）：<strong>ε</strong> = 真实加入的高斯噪声；<strong>ε<sub>θ</sub>(x<sub>t</sub>, t)</strong> = 网络对该噪声的预测；<strong>ᾱ<sub>t</sub></strong> = 第 t 步保留原图信号的比例（t 越大越小）</div>
     <div class="code-block"><span class="cm"># 扩散模型训练一步（DDPM）：请填空 ① ② ③</span>
 x0  = sample(dataset)          <span class="cm"># 取一张真实图像</span>
 t   = randint(1, T)            <span class="cm"># 随机挑一个噪声时刻</span>
