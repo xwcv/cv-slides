@@ -219,23 +219,21 @@
     weights -= step_size * grad   <span class="cm"># w ← w − η · ∂L/∂w</span></div>
     <div class="code-block"><span class="cm"># 反向传播（Backpropagation）= 用链式法则高效算出每一层的 ∂L/∂w</span>
 <span class="cm"># 前向算预测 → 计算损失 → 反向传梯度 → 更新权重</span></div>
-    <div class="keypoint"><div>训练神经网络 = <strong>梯度下降</strong>负责更新参数 + <strong>反向传播</strong>负责高效算梯度，二者缺一不可。</div></div>
-  </div>
+    <div class="keypoint"><div>训练神经网络 = <strong>梯度下降</strong>负责更新参数 + <strong>反向传播</strong>负责高效算梯度，二者缺一不可。</div></div></div>
 </section>
 
 <!-- ========== 分类任务的损失：从 logits 到交叉熵（衔接 MSE 页） ========== -->
-<section class="slide" data-layout="code">
+<section class="slide dense" data-layout="code">
   <div class="slide-meta"><span>第 2 讲 · 训练机制</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">12</span></span></div>
   <h2 class="slide-title">分类任务：从 logits 到<span class="em">交叉熵</span></h2>
   <div class="code-body">
-    <div class="formula-block">logits z = (z<sub>1</sub>, …, z<sub>K</sub>)<span style="color:var(--muted);font-size:16px">　网络最后一层为每个类别输出一个未归一化的分数</span></div>
-    <div class="formula-block">p<sub>k</sub> = e<sup>z<sub>k</sub></sup> / &Sigma;<sub>j</sub> e<sup>z<sub>j</sub></sup><span style="color:var(--muted);font-size:16px">　softmax 把 logits 转成总和为 1 的概率分布</span></div>
-    <div class="formula-block">L = &minus;log p<sub>y</sub><span style="color:var(--muted);font-size:16px">　交叉熵：正确类别概率 p<sub>y</sub> 越低，惩罚越大；p<sub>y</sub>→1 时 L→0</span></div>
+    <div class="formula-block" style="font-size:19px;padding:14px 20px">logits z = (z<sub>1</sub>, …, z<sub>K</sub>)<span style="color:var(--muted);font-size:16px">　网络最后一层为每个类别输出一个未归一化的分数</span></div>
+    <div class="formula-block" style="font-size:19px;padding:14px 20px">p<sub>k</sub> = e<sup>z<sub>k</sub></sup> / &Sigma;<sub>j</sub> e<sup>z<sub>j</sub></sup><span style="color:var(--muted);font-size:16px">　softmax 把 logits 转成总和为 1 的概率分布</span></div>
+    <div class="formula-block" style="font-size:19px;padding:14px 20px">L = &minus;log p<sub>y</sub><span style="color:var(--muted);font-size:16px">　交叉熵：正确类别概率 p<sub>y</sub> 越低，惩罚越大；p<sub>y</sub>→1 时 L→0</span></div>
     <div class="code-block"><span class="cm"># PyTorch 的 CrossEntropyLoss 内部已含 softmax，直接接收 logits</span>
 logits = model(images)                          <span class="cm"># 每个样本 K 个类别分数</span>
 loss = cross_entropy(logits, labels)            <span class="cm"># = −log softmax(logits)[正确类]</span></div>
-    <div class="keypoint"><div><strong>回归常用 MSE，分类通常用交叉熵</strong>：交叉熵直接优化「正确类别的概率」，且当该概率接近 0 时梯度依然强烈——它是图像分类的标准损失，MSE 则更多用于回归。</div></div>
-  </div>
+    <div class="keypoint"><div><strong>回归常用 MSE，分类通常用交叉熵</strong>：交叉熵直接优化「正确类别的概率」，且当该概率接近 0 时梯度依然强烈——它是图像分类的标准损失，MSE 则更多用于回归。</div></div></div>
 </section>
 
 <!-- ========== 课堂检查：一次训练迭代 ========== -->
@@ -676,8 +674,7 @@ logits = cnn(images)                        <span class="cm"># CNN 基线输出 
 loss = cross_entropy(logits, labels)        <span class="cm"># softmax + 交叉熵（见「训练机制」一节）</span>
 loss.backward()                             <span class="cm"># 反向传播：链式法则算出每层 ∂L/∂w</span>
 optimizer.step()                            <span class="cm"># 优化器沿负梯度方向更新权重</span></div>
-    <div class="keypoint"><div>口径沿用第 1 讲：数据<strong>按生产批次划分</strong>训练/验证；指标<strong>缺陷召回率优先</strong>，兼顾误报率与 PR 曲线——漏检一个缺陷件的代价远高于一次误报。</div></div>
-  </div>
+    <div class="keypoint"><div>口径沿用第 1 讲：数据<strong>按生产批次划分</strong>训练/验证；指标<strong>缺陷召回率优先</strong>，兼顾误报率与 PR 曲线——漏检一个缺陷件的代价远高于一次误报。</div></div></div>
 </section>
 
 <!-- ========== 贯穿案例（二）：小数据集上的过拟合与错误分析 ========== -->
@@ -1664,9 +1661,10 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 <!-- ========== NEW 国产开源大模型（更新至 2026.08） ========== -->
 <section class="slide dense model-evolution-slide" data-layout="table">
   <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">69</span></span></div>
+  <style>.model-evolution-slide table td, .model-evolution-slide table th { padding: 6px 10px; }</style>
   <h2 class="slide-title">国产开源大模型快速迭代（2024–2026）</h2>
   <div class="table-wrap">
-    <table style="font-size:13.5px">
+    <table style="font-size:12.8px">
       <thead>
         <tr><th>代表模型</th><th class="num">发布</th><th>参数与架构</th><th>特点（基准结论为官方宣称）</th></tr>
       </thead>
@@ -1679,8 +1677,8 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
         <tr class="recent"><td><strong>Kimi K2.5 · Qwen3.5</strong></td><td class="num">2026.01–02</td><td>1T/32B · 397B/17B MoE</td><td>原生处理文字、图像和视频</td></tr>
         <tr class="recent"><td><strong>MiniMax M2.7 · GLM-5</strong></td><td class="num">2026.02–03</td><td>—（官方未完整披露）</td><td>重点转向复杂软件工程、办公任务和长时间智能体执行</td></tr>
         <tr class="recent"><td><strong>GLM-5.2 · Kimi K3</strong></td><td class="num">2026.06–07</td><td>744B · 2.8T MoE</td><td>1M 上下文进入长任务；K3 加入原生视觉</td></tr>
-        <tr class="recent"><td><strong>GLM-5.3</strong></td><td class="num">2026.08.14</td><td>沿用 GLM-5.2 基座，纯后训练</td><td>官方宣称：编码能力开源权重第一（内部 Code Bench 较 5.2 +50%）；网络安全能力随后训练涌现</td></tr>
-        <tr class="recent"><td><strong>Qwen3.8-Flash-Next</strong></td><td class="num">2026.08.26</td><td>125B MoE（激活 6B）+ 51B N-gram 嵌入；GDN + QSA 混合注意力</td><td>面向长上下文降本（原生 256K，YaRN 至 1M）；官方宣称训练成本为前代 1/9；Qwen4 架构预览</td></tr>
+        <tr class="recent"><td><strong>GLM-5.3</strong></td><td class="num">2026.08.14</td><td>沿用 GLM-5.2 基座，纯后训练</td><td>官方宣称编码开源权重第一（内部 Code Bench 较 5.2 +50%）；安全能力随后训练涌现</td></tr>
+        <tr class="recent"><td><strong>Qwen3.8-Flash-Next</strong></td><td class="num">2026.08.26</td><td>125B MoE（激活 6B）+ 51B N-gram 嵌入；GDN + QSA 混合注意力</td><td>长上下文降本（原生 256K，YaRN 至 1M）；训练成本官方宣称前代 1/9</td></tr>
       </tbody>
     </table>
   </div>
@@ -1692,8 +1690,8 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 <section class="slide dense" data-layout="bullets">
   <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">70</span></span></div>
   <h2 class="slide-title">扩散模型：前向加噪、反向去噪</h2>
-  <div class="slide-body" style="gap:10px">
-    <svg viewBox="0 24 1000 196" width="1000" height="196" style="max-width:100%;height:auto" role="img" aria-label="扩散模型前向加噪链与反向去噪链">
+  <div class="slide-body" style="display:flex;flex-direction:column;justify-content:space-evenly;gap:14px">
+    <svg viewBox="0 18 1000 212" width="1000" height="212" style="max-width:100%;height:auto" role="img" aria-label="扩散模型前向加噪链与反向去噪链">
       <g font-family="sans-serif">
         <defs><marker id="arrd" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#22222a"/></marker>
         <marker id="arrd2" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#2456d6"/></marker></defs>
@@ -1851,11 +1849,11 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 </section>
 
 <!-- ========== 课堂练习：扩散模型伪代码填空 ========== -->
-<section class="slide" data-layout="code">
+<section class="slide dense" data-layout="code">
   <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">75</span></span></div>
   <div class="kicker">Exercise · 课堂 3 分钟</div>
   <h2 class="slide-title">练习 ③：把扩散训练的一步补全</h2>
-  <div class="code-body">
+  <div class="code-body" style="gap:12px">
     <div class="formula-block" style="font-size:16px">符号对照（与前面「扩散模型：前向加噪、反向去噪」页一致）：<strong>ε</strong> = 真实加入的高斯噪声；<strong>ε<sub>θ</sub>(x<sub>t</sub>, t)</strong> = 网络对该噪声的预测；<strong>ᾱ<sub>t</sub></strong> = 第 t 步保留原图信号的比例（t 越大越小）</div>
     <div class="code-block"><span class="cm"># 扩散模型训练一步（DDPM）：请填空 ① ② ③</span>
 x0  = sample(dataset)          <span class="cm"># 取一张真实图像</span>
@@ -1867,8 +1865,7 @@ loss.backward(); optimizer.step()</div>
     <ul class="bullets">
       <li><strong>诊断题</strong>：某模型在 t 很大（输入几乎全是噪声）时损失明显偏高，t 小时正常——这是 bug 吗？</li>
     </ul>
-    <div class="keypoint"><div>先补全 ①②③ 并思考诊断题，再翻页核对<strong>参考答案</strong>。</div></div>
-  </div>
+    <div class="keypoint"><div>先补全 ①②③ 并思考诊断题，再翻页核对<strong>参考答案</strong>。</div></div></div>
 </section>
 
 <!-- ========== 练习 ③ 参考答案 ========== -->
@@ -1887,8 +1884,7 @@ loss.backward(); optimizer.step()</div>
     <ul class="bullets">
       <li><strong>填空</strong>：① √<span class="sqrt">ᾱ<sub>t</sub></span>　② √<span class="sqrt">(1−ᾱ<sub>t</sub>)</span>　③ ε<sub>θ</sub>(x<sub>t</sub>, t)——网络要预测的不是图像，而是<strong>加进去的噪声 ε 本身</strong></li>
       <li><strong>诊断题</strong>：多半不是 bug——t 大时输入几乎不含图像信息，网络只能靠条件「脑补」内容，噪声天然更难猜；若 <strong>t 很小时误差也大</strong>，才说明去噪细节没学好，应检查学习率、模型容量或条件注入</li>
-    </ul>
-  </div>
+    </ul></div>
 </section>
 
 <!-- ========== NEW 视频生成与多模态统一（2024–2025） ========== -->
@@ -2388,7 +2384,7 @@ loss.backward(); optimizer.step()</div>
   <h2 class="slide-title">参考文献（上）：历史脉络与卷积网络</h2>
   <div class="slide-body">
     <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:8px">一、历史脉络与奠基</div>
-    <ol class="ref-list cols-2" style="font-size:14.5px;line-height:1.62">
+    <ol class="ref-list cols-2" style="font-size:13.4px;line-height:1.5">
       <li><span class="ref-title">A Logical Calculus of the Ideas Immanent in Nervous Activity</span>. <span class="ref-venue">McCulloch &amp; Pitts. Bulletin of Mathematical Biophysics, 1943.</span></li>
       <li><span class="ref-title">The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain</span>. <span class="ref-venue">Rosenblatt. Psychological Review, 1958.</span></li>
       <li><span class="ref-title">Neocognitron: A Self-Organizing Neural Network Model for a Mechanism of Pattern Recognition Unaffected by Shift in Position</span>. <span class="ref-venue">Fukushima. Biological Cybernetics, 1980.</span></li>
@@ -2400,7 +2396,7 @@ loss.backward(); optimizer.step()</div>
       <li><span class="ref-title">ImageNet Classification with Deep Convolutional Neural Networks (AlexNet)</span>. <span class="ref-venue">Krizhevsky, Sutskever &amp; Hinton. NeurIPS 2012.</span></li>
     </ol>
     <div style="font-size:18px;font-weight:700;color:var(--accent);margin:14px 0 8px">二、卷积网络与深度革命</div>
-    <ol class="ref-list cols-2" start="10" style="font-size:14.5px;line-height:1.62">
+    <ol class="ref-list cols-2" start="10" style="font-size:13.4px;line-height:1.5">
       <li><span class="ref-title">Understanding the Difficulty of Training Deep Feedforward Neural Networks (Xavier 初始化)</span>. <span class="ref-venue">Glorot &amp; Bengio. AISTATS 2010.</span></li>
       <li><span class="ref-title">Very Deep Convolutional Networks for Large-Scale Image Recognition (VGG)</span>. <span class="ref-venue">Simonyan &amp; Zisserman. ICLR 2015.</span></li>
       <li><span class="ref-title">Going Deeper with Convolutions (GoogLeNet)</span>. <span class="ref-venue">Szegedy et al. CVPR 2015.</span></li>
@@ -2419,7 +2415,7 @@ loss.backward(); optimizer.step()</div>
   <h2 class="slide-title">参考文献（下）：视觉应用与大模型时代</h2>
   <div class="slide-body">
     <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:8px">三、视觉应用与超越视觉</div>
-    <ol class="ref-list cols-2" start="17" style="font-size:13.8px;line-height:1.50">
+    <ol class="ref-list cols-2" start="17" style="font-size:12.8px;line-height:1.38">
       <li><span class="ref-title">Mitosis Detection in Breast Cancer Histology Images with Deep Neural Networks</span>. <span class="ref-venue">Cireşan, Giusti, Gambardella &amp; Schmidhuber. MICCAI 2013.</span></li>
       <li><span class="ref-title">Rich Feature Hierarchies for Accurate Object Detection and Semantic Segmentation (R-CNN)</span>. <span class="ref-venue">Girshick, Donahue, Darrell &amp; Malik. CVPR 2014.</span></li>
       <li><span class="ref-title">Deep Learning Face Representation by Joint Identification-Verification (DeepID2)</span>. <span class="ref-venue">Sun, Chen, Wang &amp; Tang. NeurIPS 2014.</span></li>
@@ -2430,7 +2426,7 @@ loss.backward(); optimizer.step()</div>
       <li><span class="ref-title">Unpaired Image-to-Image Translation Using Cycle-Consistent Adversarial Networks (CycleGAN)</span>. <span class="ref-venue">Zhu, Park, Isola &amp; Efros. ICCV 2017.</span></li>
     </ol>
     <div style="font-size:18px;font-weight:700;color:var(--accent);margin:14px 0 8px">四、大模型时代</div>
-    <ol class="ref-list cols-2" start="25" style="font-size:13.8px;line-height:1.50">
+    <ol class="ref-list cols-2" start="25" style="font-size:12.8px;line-height:1.38">
       <li><span class="ref-title">Attention Is All You Need (Transformer)</span>. <span class="ref-venue">Vaswani et al. NeurIPS 2017.</span></li>
       <li><span class="ref-title">Language Models Are Few-Shot Learners (GPT-3)</span>. <span class="ref-venue">Brown et al. NeurIPS 2020.</span></li>
       <li><span class="ref-title">Denoising Diffusion Probabilistic Models (DDPM)</span>. <span class="ref-venue">Ho, Jain &amp; Abbeel. NeurIPS 2020.</span></li>
@@ -2454,12 +2450,12 @@ loss.backward(); optimizer.step()</div>
   <h2 class="slide-title">参考文献（续）：视觉 Transformer 与最新进展</h2>
   <div class="slide-body">
     <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:8px">五、视觉 Transformer（2021）</div>
-    <ol class="ref-list cols-2" start="37" style="font-size:14.5px;line-height:1.62">
+    <ol class="ref-list cols-2" start="37" style="font-size:13.4px;line-height:1.5">
       <li><span class="ref-title">An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale (ViT)</span>. <span class="ref-venue">Dosovitskiy et al. ICLR 2021.</span></li>
       <li><span class="ref-title">Swin Transformer: Hierarchical Vision Transformer Using Shifted Windows</span>. <span class="ref-venue">Liu, Lin, Cao, Hu, Wei, Zhang, Lin &amp; Guo. ICCV 2021.</span></li>
     </ol>
     <div style="font-size:18px;font-weight:700;color:var(--accent);margin:14px 0 8px">六、最新进展（2024–2026）</div>
-    <ol class="ref-list cols-2" start="39" style="font-size:13.2px;line-height:1.45">
+    <ol class="ref-list cols-2" start="39" style="font-size:13px;line-height:1.4">
       <li><span class="ref-title">SAM 2: Segment Anything in Images and Videos</span>. <span class="ref-venue">Ravi et al. arXiv:2408.00714, 2024.</span></li>
       <li><span class="ref-title">Depth Anything V2</span>. <span class="ref-venue">Yang, Kang, Huang, Zhao, Xu, Feng &amp; Zhao. NeurIPS 2024.</span></li>
       <li><span class="ref-title">Video Generation Models as World Simulators (Sora)</span>. <span class="ref-venue">Brooks et al. OpenAI Technical Report, 2024.</span></li>

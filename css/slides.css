@@ -1535,3 +1535,10 @@ body.overview .ov-num { display: block; }
 
 /* 首页卡片键盘可达性 */
 .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* 参考文献页：多栏列表在自然高度下排布；flex:1 固定高度会把超出的栏挤到右侧（横向溢出） */
+.slide.refs .ref-list { flex: none; overflow-wrap: anywhere; }
+.ref-list li { break-inside: avoid; }
+
+/* 代码块不参与 flex 收缩：内容多长就多高，避免 overflow:hidden 裁掉最后一行 */
+.code-body > .code-block { flex: none; }

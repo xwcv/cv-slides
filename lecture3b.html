@@ -242,20 +242,19 @@
   <div class="src-note" style="right:170px">图源：自监督学习课程讲义（示意）</div>
 </section>
 
-<section class="slide" data-layout="code">
+<section class="slide dense" data-layout="code">
   <div class="slide-meta"><span>第 3 讲（下） · 判别式自监督</span><span class="meta-page">16</span></div>
   <h2 class="slide-title">两类判别式目标：InfoNCE（对比）与 EMA 自蒸馏（DINO）</h2>
-  <div class="code-body">
-    <div class="formula-block">score(f(x), f(x<sup>+</sup>)) &nbsp;&Gt;&nbsp; score(f(x), f(x<sup>−</sup>))</div>
+  <div class="code-body" style="gap:8px">
+    <div class="formula-block" style="font-size:17px;padding:10px 18px">score(f(x), f(x<sup>+</sup>)) &nbsp;&Gt;&nbsp; score(f(x), f(x<sup>−</sup>))</div>
     <div class="code-block"><span class="cm"># 人话：同一图像的两个增广视图在特征空间靠近，不同图像远离；score 常用向量内积</span></div>
-    <div class="formula-block">&#8467;<sub>InfoNCE</sub> = &minus;log [ exp(sim(z<sub>i</sub>, z<sub>j</sub>)/&tau;) / &Sigma;<sub>k=1..N</sub> exp(sim(z<sub>i</sub>, z<sub>k</sub>)/&tau;) ]</div>
+    <div class="formula-block" style="font-size:17px;padding:10px 18px">&#8467;<sub>InfoNCE</sub> = &minus;log [ exp(sim(z<sub>i</sub>, z<sub>j</sub>)/&tau;) / &Sigma;<sub>k=1..N</sub> exp(sim(z<sub>i</sub>, z<sub>k</sub>)/&tau;) ]</div>
     <div class="code-block"><span class="cm"># 人话：把“正样本最近”写成 N 分类问题——在温度 τ 缩放的相似度中挑出正样本；τ 越小难分负样本权重越大</span>
 <span class="cm"># InfoNCE 是含正、负样本的对比目标（SimCLR / MoCo / CLIP）</span></div>
-    <div class="formula-block">&theta;<sub>teacher</sub> &larr; &lambda;&theta;<sub>teacher</sub> + (1&minus;&lambda;)&theta;<sub>student</sub>，&nbsp;&nabla; 只更新 &theta;<sub>student</sub>（stop-gradient）</div>
+    <div class="formula-block" style="font-size:17px;padding:10px 18px">&theta;<sub>teacher</sub> &larr; &lambda;&theta;<sub>teacher</sub> + (1&minus;&lambda;)&theta;<sub>student</sub>，&nbsp;&nabla; 只更新 &theta;<sub>student</sub>（stop-gradient）</div>
     <div class="code-block"><span class="cm"># 人话（DINO，自蒸馏目标，不是 InfoNCE）：无显式负样本；教师不反向传播，靠 EMA 缓慢跟随学生；</span>
 <span class="cm"># 配合中心化 + 锐化防坍塌</span></div>
-    <div class="keypoint warm"><div>注意：两类目标并列在此，只为比较<strong>“如何防止坍塌”</strong>——InfoNCE 属于<strong>对比学习</strong>，显式使用正负样本；DINO 属于<strong>非对比自蒸馏</strong>，不使用 InfoNCE，也没有显式负样本，二者不要混为一谈。</div></div>
-  </div>
+    <div class="keypoint warm"><div>注意：两类目标并列在此，只为比较<strong>“如何防止坍塌”</strong>——InfoNCE 属于<strong>对比学习</strong>，显式使用正负样本；DINO 属于<strong>非对比自蒸馏</strong>，不使用 InfoNCE，也没有显式负样本，二者不要混为一谈。</div></div></div>
 </section>
 
 <section class="slide" data-layout="two-col">
@@ -549,8 +548,7 @@
     <div class="code-block"><span class="cm"># M：被遮蔽的 patch 集合；x_i 为原始像素，x&#770;_i 为解码器重建</span>
 <span class="cm"># 人话：只在被遮住的块上计算像素均方误差，可见块不参与损失——</span>
 <span class="cm"># 编码器因此必须真正“理解”可见内容，才能补全缺失部分</span></div>
-    <div class="keypoint"><div>与 InfoNCE 对照着记：对比学习在<strong>表征空间</strong>拉近正样本、推远负样本；掩码建模在<strong>像素（或特征）空间</strong>回归被遮住的内容。</div></div>
-  </div>
+    <div class="keypoint"><div>与 InfoNCE 对照着记：对比学习在<strong>表征空间</strong>拉近正样本、推远负样本；掩码建模在<strong>像素（或特征）空间</strong>回归被遮住的内容。</div></div></div>
 </section>
 
 <section class="slide" data-layout="code">
@@ -562,8 +560,7 @@
 <span class="cm"># Image GPT (2020)：图像像素按光栅顺序排成序列，</span>
 <span class="cm">#   逐像素自回归预测（也可用 BERT 式掩码目标）</span>
 <span class="cm"># 与掩码建模互补的另一条生成式路线</span></div>
-    <div class="keypoint"><div>直观理解：自回归就是<strong>“根据前文预测下一个”</strong>；图像像素排成序列后，也能逐像素采用同样的预测方式。</div></div>
-  </div>
+    <div class="keypoint"><div>直观理解：自回归就是<strong>“根据前文预测下一个”</strong>；图像像素排成序列后，也能逐像素采用同样的预测方式。</div></div></div>
 </section>
 
 <section class="slide" data-layout="gallery">
