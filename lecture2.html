@@ -1773,9 +1773,61 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
   <div class="caption">文本编码器理解提示词，UNet 在潜空间逐步去噪（约 50 步），解码器还原成图像。Rombach et al., CVPR 2022；Midjourney 一年内实现千万用户与亿美元营收，随后 Sora、可灵、即梦等视频生成模型相继爆发。</div>
 </section>
 
+<!-- ========== Stable Diffusion 技术细节（LDM） ========== -->
+<section class="slide" data-layout="split">
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">73</span></span></div>
+  <h2 class="slide-title">Stable Diffusion 的技术拆解：潜空间 + 文本条件</h2>
+  <div class="split-body">
+    <div class="split-text">
+      <ul class="bullets compact">
+        <li><strong>潜空间压缩</strong>：VAE 编码器把 512×512×3 的图像压成 64×64×4 的潜表示（数据量约降为 1/48），扩散在这个小空间进行，训练和采样成本大降；最后由 VAE 解码器还原成像素</li>
+        <li><strong>文本怎么进去</strong>：CLIP 文本编码器把提示词变成一串 token 向量；U-Net 每一层通过 <strong>cross-attention</strong> 读取文本——Q 来自图像特征，K、V 来自文本</li>
+        <li><strong>去噪网络</strong>：带残差连接和注意力的 U-Net，反复执行 ε<sub>θ</sub>(z<sub>t</sub>, t, 文本) 预测噪声</li>
+        <li><strong>采样与引导</strong>：DDIM / DPM-Solver 等求解器把采样压到 20–50 步；classifier-free guidance 用同一网络各算一次有/无文本条件的预测，再按 guidance scale 外推加强提示约束</li>
+        <li><strong>为什么引爆生态</strong>：权重开源、消费级 GPU 可跑，微调（LoRA）与控制（ControlNet）插件随之而来</li>
+      </ul>
+    </div>
+    <div class="split-media">
+      <svg viewBox="0 0 560 330" style="max-width:100%;height:auto" role="img" aria-label="Latent Diffusion：图像经 VAE 编码进潜空间，U-Net 在文本条件下迭代去噪，再经 VAE 解码还原">
+        <g font-family="sans-serif">
+          <defs><marker id="arrs" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#22222a"/></marker></defs>
+          <rect x="18" y="40" width="88" height="66" rx="8" fill="#f6f4ee" stroke="#9a9aa4" stroke-width="1.5"/>
+          <text x="62" y="68" font-size="12.5" text-anchor="middle" fill="#4a4a55">输入图像</text>
+          <text x="62" y="86" font-size="11.5" text-anchor="middle" fill="#6b6b76">512×512×3</text>
+          <line x1="106" y1="73" x2="136" y2="73" stroke="#22222a" stroke-width="2.2" marker-end="url(#arrs)"/>
+          <rect x="142" y="40" width="96" height="66" rx="8" fill="#fff" stroke="#22222a" stroke-width="2"/>
+          <text x="190" y="68" font-size="12.5" text-anchor="middle" fill="#22222a" font-weight="700">VAE 编码器</text>
+          <text x="190" y="86" font-size="11.5" text-anchor="middle" fill="#6b6b76">压缩 ≈1/48</text>
+          <line x1="238" y1="73" x2="268" y2="73" stroke="#22222a" stroke-width="2.2" marker-end="url(#arrs)"/>
+          <rect x="274" y="30" width="180" height="110" rx="12" fill="#edf2ff" stroke="#2456d6" stroke-width="2.4"/>
+          <text x="364" y="54" font-size="13.5" text-anchor="middle" fill="#2456d6" font-weight="700">潜空间 64×64×4</text>
+          <rect x="296" y="66" width="136" height="44" rx="8" fill="#fff" stroke="#2456d6" stroke-width="1.8"/>
+          <text x="364" y="84" font-size="12.5" text-anchor="middle" fill="#2456d6">U-Net 去噪 ×20–50 步</text>
+          <text x="364" y="101" font-size="11" text-anchor="middle" fill="#6b6b76">cross-attention 读文本</text>
+          <text x="364" y="130" font-size="11.5" text-anchor="middle" fill="#6b6b76">在压缩空间里迭代，而非像素空间</text>
+          <rect x="274" y="176" width="180" height="52" rx="10" fill="#fbece4" stroke="#c2521e" stroke-width="2"/>
+          <text x="364" y="197" font-size="12.5" text-anchor="middle" fill="#c2521e" font-weight="700">CLIP 文本编码器</text>
+          <text x="364" y="215" font-size="11.5" text-anchor="middle" fill="#8a4a28">提示词 → token 向量（K, V）</text>
+          <line x1="364" y1="176" x2="364" y2="146" stroke="#c2521e" stroke-width="2.2" marker-end="url(#arrs)"/>
+          <line x1="454" y1="73" x2="484" y2="73" stroke="#22222a" stroke-width="2.2" marker-end="url(#arrs)"/>
+          <rect x="490" y="24" width="58" height="98" rx="8" fill="#fff" stroke="#22222a" stroke-width="2"/>
+          <text x="519" y="52" font-size="12" text-anchor="middle" fill="#22222a" font-weight="700">VAE</text>
+          <text x="519" y="68" font-size="12" text-anchor="middle" fill="#22222a" font-weight="700">解码器</text>
+          <text x="519" y="92" font-size="11" text-anchor="middle" fill="#6b6b76">还原像素</text>
+          <text x="519" y="110" font-size="11" text-anchor="middle" fill="#6b6b76">→ 图像</text>
+          <text x="280" y="280" font-size="13" text-anchor="middle" fill="#4a4a55">训练与生成的主体计算都发生在潜空间：这是 Stable Diffusion 能在消费级 GPU 上运行的关键</text>
+          <text x="280" y="304" font-size="12.5" text-anchor="middle" fill="#6b6b76">SD 1.x（2022）：VAE + CLIP + 约 860M 参数 U-Net；LAION 大规模图文对训练</text>
+        </g>
+      </svg>
+      <div class="caption">Latent Diffusion 的数据通路：像素 → 潜空间（去噪在这里发生）→ 像素</div>
+    </div>
+  </div>
+  <div class="src-note" style="right:170px">Rombach et al., Latent Diffusion, CVPR 2022 · Radford et al., CLIP, ICML 2021</div>
+</section>
+
 <!-- ========== 扩散模型控制与定制 ========== -->
 <section class="slide diffusion-control-slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">73</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">74</span></span></div>
   <h2 class="slide-title">从“随机生成”到可控、可定制</h2>
   <div class="split-body">
     <div class="split-text">
@@ -1797,7 +1849,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 
 <!-- ========== 课堂练习：扩散模型伪代码填空 ========== -->
 <section class="slide" data-layout="code">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">74</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">75</span></span></div>
   <div class="kicker">Exercise · 课堂 3 分钟</div>
   <h2 class="slide-title">练习 ③：把扩散训练的一步补全</h2>
   <div class="code-body">
@@ -1818,7 +1870,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 练习 ③ 参考答案 ========== -->
 <section class="slide" data-layout="code">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">75</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">76</span></span></div>
   <div class="kicker">Exercise · 参考答案</div>
   <h2 class="slide-title">练习 ③ 参考答案：扩散训练的一步</h2>
   <div class="code-body">
@@ -1838,7 +1890,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== NEW 视频生成与多模态统一（2024–2025） ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">76</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">77</span></span></div>
   <div class="kicker">2024–2025 · Generation</div>
   <h2 class="slide-title">视频生成与多模态统一</h2>
   <div class="slide-body">
@@ -1855,7 +1907,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 50 智能体：工作原理 ========== -->
 <section class="slide agent-architecture-slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">77</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">78</span></span></div>
   <div class="kicker">Agentic AI · Coding Agents</div>
   <h2 class="slide-title">代码智能体 = 模型 + 工具 + 可验证的执行循环</h2>
   <div class="split-body">
@@ -1888,7 +1940,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 代码智能体产品比较 ========== -->
 <section class="slide dense coding-agent-compare-slide" data-layout="table">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">78</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">79</span></span></div>
   <div class="kicker">2025–2026 · Coding Agents</div>
   <h2 class="slide-title">Claude Code、Codex、OpenCode：相似的循环，不同的运行方式</h2>
   <div class="table-wrap">
@@ -1928,7 +1980,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 代码智能体使用方法 ========== -->
 <section class="slide agent-practice-slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">79</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">80</span></span></div>
   <div class="kicker">How to use · 可直接照做</div>
   <h2 class="slide-title">把任务写成可以验收的工程问题</h2>
   <div class="agent-practice-grid">
@@ -1965,7 +2017,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== Agentic AI 四个核心机制 ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">80</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">81</span></span></div>
   <div class="kicker">Agentic AI · 核心机制</div>
   <h2 class="slide-title">拆开看：代码智能体的四个核心机制</h2>
   <div class="card-grid" data-cols="2">
@@ -1980,7 +2032,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== Agentic AI 评测 ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">81</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">82</span></span></div>
   <div class="kicker">Agentic AI · 如何评测</div>
   <h2 class="slide-title">benchmark 分数之外：怎样评测一个 coding agent？</h2>
   <div class="slide-body">
@@ -1997,7 +2049,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 贯穿示例：一个任务看懂 VLM / VLA / 世界模型 / WAM ========== -->
 <section class="slide" data-layout="image-full">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">82</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">83</span></span></div>
   <div class="kicker">Running Example · 具身智能四概念</div>
   <h2 class="slide-title">一个任务看懂四个概念：「把杯子放进抽屉」</h2>
   <div class="full-media">
@@ -2074,7 +2126,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 51 VLM / VLA ========== -->
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">83</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">84</span></span></div>
   <h2 class="slide-title">走向具身：VLM → VLA</h2>
   <div class="split-body">
     <div class="split-text">
@@ -2095,7 +2147,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== VLA 代表工作 ========== -->
 <section class="slide dense vla-landscape-slide" data-layout="table">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">84</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">85</span></span></div>
   <div class="kicker">2022–2025 · Vision-Language-Action</div>
   <h2 class="slide-title">VLA 的能力来自数据、预训练和动作表示</h2>
   <div class="table-wrap">
@@ -2118,7 +2170,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== VLA 动作输出设计 ========== -->
 <section class="slide vla-action-slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">85</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">86</span></span></div>
   <h2 class="slide-title">VLA 怎样把理解变成连续动作？</h2>
   <div class="action-head-grid">
     <div class="action-head-item">
@@ -2152,7 +2204,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== VLA 连续控制的实际困难 ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">86</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">87</span></span></div>
   <div class="kicker">VLA · 连续控制的难处</div>
   <h2 class="slide-title">从「会预测动作」到「能控制机器人」，难在哪？</h2>
   <div class="card-grid" data-cols="2">
@@ -2167,7 +2219,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 52 Senna（上）：数据与 VLM ========== -->
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">87</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">88</span></span></div>
   <div class="kicker">Research Case · HUST-VL</div>
   <h2 class="slide-title">Senna（上）：VLM 怎样理解驾驶场景？</h2>
   <div class="split-body">
@@ -2190,7 +2242,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 52b Senna（下）：规划与三阶段训练 ========== -->
 <section class="slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">88</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">89</span></span></div>
   <div class="kicker">Research Case · HUST-VL</div>
   <h2 class="slide-title">Senna（下）：规划知识与三阶段训练</h2>
   <div class="split-body">
@@ -2217,7 +2269,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== WAM 核心概念 ========== -->
 <section class="slide wam-concept-slide" data-layout="split">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">89</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">90</span></span></div>
   <div class="kicker">2025–2026 · World Action Models</div>
   <h2 class="slide-title">WAM 既预测动作，也预测动作之后的世界</h2>
   <div class="split-body">
@@ -2240,7 +2292,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== WAM 代表工作 ========== -->
 <section class="slide dense wam-landscape-slide" data-layout="table">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">90</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">91</span></span></div>
   <h2 class="slide-title">本课归纳：按「动作与世界预测的关系」看 WAM 的两类做法</h2>
   <div class="wam-types">
     <div><strong>级联式</strong>：先生成未来画面或视觉计划，再由逆动力学模型恢复动作；模块清楚，但误差会在两阶段传递。</div>
@@ -2265,7 +2317,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 能力边界与外部工具 ========== -->
 <section class="slide" data-layout="two-col">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">91</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">92</span></span></div>
   <h2 class="slide-title">大模型会生成答案，不等于答案已经被验证</h2>
   <div class="cols">
     <div class="col">
@@ -2293,7 +2345,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 本章小结 05 ========== -->
 <section class="slide" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">92</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">93</span></span></div>
   <div class="kicker">Chapter Summary</div>
   <h2 class="slide-title">本章小结：大模型时代</h2>
   <div class="card-grid" data-cols="2">
@@ -2306,7 +2358,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 全讲总结 ========== -->
 <section class="slide dense" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 总结</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">93</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 总结</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">94</span></span></div>
   <div class="kicker">Lecture Summary</div>
   <h2 class="slide-title">关掉课件，你能解释模型为什么有效吗？</h2>
   <div class="slide-body">
@@ -2328,7 +2380,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 参考文献（上） ========== -->
 <section class="slide refs dense" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">94</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">95</span></span></div>
   <div class="kicker">References</div>
   <h2 class="slide-title">参考文献（上）：历史脉络与卷积网络</h2>
   <div class="slide-body">
@@ -2359,7 +2411,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 参考文献（下） ========== -->
 <section class="slide refs dense" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">95</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">96</span></span></div>
   <div class="kicker">References</div>
   <h2 class="slide-title">参考文献（下）：视觉应用与大模型时代</h2>
   <div class="slide-body">
@@ -2394,7 +2446,7 @@ loss.backward(); optimizer.step()</div>
 
 <!-- ========== 参考文献（续） ========== -->
 <section class="slide refs dense" data-layout="bullets">
-  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">96</span></span></div>
+  <div class="slide-meta"><span>第 2 讲 · 参考文献</span><span class="meta-right"><span class="track-badge tb-read">课后阅读</span> <span class="meta-page">97</span></span></div>
   <div class="kicker">References</div>
   <h2 class="slide-title">参考文献（续）：视觉 Transformer 与最新进展</h2>
   <div class="slide-body">
