@@ -1223,7 +1223,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 </section>
 
 <!-- ========== 课堂练习：注意力直觉 + 手算 ========== -->
-<section class="slide" data-layout="split">
+<section class="slide dense" data-layout="split">
   <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">51</span></span></div>
   <div class="kicker">Exercise · 练习 ② · Attention by Hand</div>
   <h2 class="slide-title">“它追着球跑”中的“它”应该读取谁的信息？</h2>
@@ -1232,9 +1232,9 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
       <ul class="bullets">
         <li>“它”发出<strong>查询 Q</strong>：句子里谁最可能是我的指代对象？</li>
         <li>每个词提供<strong>索引 K</strong> 和<strong>内容 V</strong>；匹配越紧，权重越大</li>
-        <li>信息按权重<strong>加权汇入</strong>“它”的新表示；换成图像时，每个 patch 同样能查询远处 patch</li>
+        <li>信息按权重<strong>加权汇入</strong>“它”的新表示；换成图像时，patch 也能查询远处 patch</li>
       </ul>
-      <div class="formula-block" style="font-size:18px;line-height:1.7">练习：q<sub>它</sub> = (1, 0)；k<sub>小狗</sub> = (1, 0)，v<sub>小狗</sub> = (2, 0)；k<sub>球</sub> = (0, 1)，v<sub>球</sub> = (0, 2)<br>手算（简化：只对这两个词做 softmax）：① 两个注意力权重各是多少？② 输出向量是什么？</div>
+      <div class="formula-block" style="font-size:17px;line-height:1.75;padding:16px 20px;text-align:left">练习（简化：只对这两个词做 softmax）：<br>q<sub>它</sub> = (1, 0)；k<sub>小狗</sub> = (1, 0)，v<sub>小狗</sub> = (2, 0)；k<sub>球</sub> = (0, 1)，v<sub>球</sub> = (0, 2)<br>手算：① 两个注意力权重各是多少？② 输出向量是什么？</div>
       <ul class="bullets compact">
         <li>第一步 q·k 打分 → 第二步 softmax 归一 → 第三步对 V 加权求和</li>
       </ul>
