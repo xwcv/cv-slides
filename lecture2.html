@@ -1695,11 +1695,11 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 </section>
 
 <!-- ========== 扩散模型机制（自绘 SVG + 公式） ========== -->
-<section class="slide" data-layout="bullets">
+<section class="slide dense" data-layout="bullets">
   <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-core">课堂主讲</span> <span class="meta-page">70</span></span></div>
   <h2 class="slide-title">扩散模型：前向加噪、反向去噪</h2>
-  <div class="slide-body" style="gap:12px">
-    <svg viewBox="0 0 1000 246" width="1000" height="246" style="max-width:100%;height:auto" role="img" aria-label="扩散模型前向加噪链与反向去噪链">
+  <div class="slide-body" style="gap:10px">
+    <svg viewBox="0 24 1000 196" width="1000" height="196" style="max-width:100%;height:auto" role="img" aria-label="扩散模型前向加噪链与反向去噪链">
       <g font-family="sans-serif">
         <defs><marker id="arrd" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#22222a"/></marker>
         <marker id="arrd2" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#2456d6"/></marker></defs>
@@ -1742,9 +1742,9 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
         <text x="985" y="196" font-size="12.5" text-anchor="end" fill="#2456d6">每步：ε_θ 预测噪声 → 减去 → 图像变清晰一点</text>
       </g>
     </svg>
-    <div class="formula-block" style="font-size:21px">x<sub>t</sub> = √ᾱ<sub>t</sub> · x₀ + √(1−ᾱ<sub>t</sub>) · ε，　ε ~ N(0, I)<span style="color:var(--muted);font-size:15px">　ᾱ<sub>t</sub>：第 t 步还保留多少原图信号（t 越大 ᾱ<sub>t</sub> 越小，是噪声系数的累乘）；ε：这一步真实加入的高斯噪声。任意一步都可由 x₀ 一步构造，不必逐步模拟</span></div>
-    <div class="formula-block" style="font-size:21px">L = E<sub>x₀, ε, t</sub> ‖ ε − ε<sub>θ</sub>(x<sub>t</sub>, t) ‖²<span style="color:var(--muted);font-size:15px">　ε<sub>θ</sub>：参数为 θ 的神经网络对「加进去的噪声」的预测——训练目标就是给一张加了噪的图，让网络猜出加的到底是什么噪声</span></div>
-    <div class="keypoint"><div><strong>训练</strong>：随机挑时刻 t → 按上式一步加噪 → 网络 ε<sub>θ</sub> 学习预测噪声；<strong>生成</strong>：从纯噪声 x<sub>T</sub> 出发，每步用 ε<sub>θ</sub> 估计并减去噪声，几十步后得到清晰图像。潜空间扩散（LDM）把这一切搬到压缩后的潜空间，降低成本。</div></div>
+    <div class="formula-block" style="font-size:19px;padding:14px 20px">x<sub>t</sub> = √ᾱ<sub>t</sub> · x₀ + √(1−ᾱ<sub>t</sub>) · ε，　ε ~ N(0, I)<span style="color:var(--muted);font-size:14px">　ᾱ<sub>t</sub> = 第 t 步保留原图信号的比例（t 越大越小）；ε = 真实加入的噪声。任意 t 可由 x₀ 一步构造</span></div>
+    <div class="formula-block" style="font-size:19px;padding:14px 20px">L = E<sub>x₀, ε, t</sub> ‖ ε − ε<sub>θ</sub>(x<sub>t</sub>, t) ‖²<span style="color:var(--muted);font-size:14px">　ε<sub>θ</sub> = 网络（参数 θ）对噪声的预测——训练就是：给加噪图，猜加的是什么噪声</span></div>
+    <div class="keypoint"><div><strong>训练</strong>：随机挑 t → 按上式一步加噪 → ε<sub>θ</sub> 学习预测噪声；<strong>生成</strong>：从纯噪声 x<sub>T</sub> 出发逐步减噪，几十步得到清晰图像。潜空间扩散（LDM）把这一切搬到压缩潜空间，降低成本。</div></div>
   </div>
   <div class="src-note" style="right:170px">依据：Ho et al., DDPM, NeurIPS 2020；Rombach et al., Latent Diffusion, CVPR 2022</div>
 </section>
