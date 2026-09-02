@@ -710,6 +710,38 @@ figcaption, .caption {
 .diffusion-control-media .caption { font-size: 13px; line-height: 1.45; }
 .diffusion-control-slide .src-note { right: 150px; bottom: 13px; max-width: 78%; font-size: 9.8px; }
 
+.sd-latent-slide .split-body { grid-template-columns: 1.04fr .96fr; gap: 32px; }
+.sd-latent-slide ul.bullets.compact { font-size: 16px; line-height: 1.46; }
+.sd-latent-slide ul.bullets.compact > li { margin-bottom: 7px; }
+.sd-latent-slide .split-media svg { max-height: 420px; }
+.sd-latent-slide .split-media .caption { font-size: 13px; }
+.sd-latent-slide .src-note { right: 150px; bottom: 13px; max-width: 78%; font-size: 9.8px; }
+
+/* 课后编程实验（lecture2 末页）：编号步骤 + 提交要求双栏 */
+.hw-slide .slide-title { font-size: 33px; margin-bottom: 22px; }
+.hw-slide .cols { gap: 40px; }
+.hw-steps { list-style: none; counter-reset: hw; }
+.hw-steps > li {
+  counter-increment: hw;
+  position: relative;
+  padding-left: 42px;
+  margin-bottom: 11px;
+  font-size: 16.5px; line-height: 1.45;
+}
+.hw-steps > li::before {
+  content: counter(hw);
+  position: absolute; left: 0; top: -1px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 13.5px; font-weight: 750;
+  display: flex; align-items: center; justify-content: center;
+}
+.hw-steps > li strong { color: var(--accent); font-weight: 700; }
+.hw-slide ul.bullets { font-size: 16px; line-height: 1.5; }
+.hw-slide ul.bullets > li { margin-bottom: 11px; }
+.hw-slide .hw-mail { font-family: var(--font-en); color: var(--accent); font-weight: 650; }
+.hw-slide .keypoint { font-size: 16px; }
+
 .vla-landscape-slide table th:nth-child(1) { width: 205px; }
 .vla-landscape-slide table th:nth-child(2) { width: 86px; }
 .vla-landscape-slide table th:nth-child(3) { width: 340px; }

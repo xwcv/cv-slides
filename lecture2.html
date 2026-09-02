@@ -1775,7 +1775,7 @@ optimizer.step()                            <span class="cm"># 优化器沿负�
 </section>
 
 <!-- ========== Stable Diffusion 技术细节（LDM） ========== -->
-<section class="slide" data-layout="split">
+<section class="slide sd-latent-slide" data-layout="split">
   <div class="slide-meta"><span>第 2 讲 · 大模型时代</span><span class="meta-right"><span class="track-badge tb-opt">课堂选讲</span> <span class="meta-page">73</span></span></div>
   <h2 class="slide-title">Stable Diffusion 的技术拆解：潜空间 + 文本条件</h2>
   <div class="split-body">
@@ -2488,6 +2488,35 @@ loss.backward(); optimizer.step()</div>
   <div class="statement-sub" style="max-width:52em">第二讲按模型结构和能力演进展开；第三讲不再追时间线，而是追问这些模型内部的表征从哪里来、保留了什么，以及没有足够标签时怎样学习。</div>
   <div class="statement-sub">问题与讨论 · xwcv.github.io</div>
   <span class="track-badge tb-core">课堂主讲</span>
+</section>
+
+<!-- ========== 课后编程实验 ========== -->
+<section class="slide hw-slide" data-layout="two-col">
+  <div class="slide-meta"><span>第 2 讲 · 课后实验</span><span class="meta-right"><span class="track-badge tb-core">课后实验</span> <span class="meta-page">99</span></span></div>
+  <div class="kicker">Programming Assignment</div>
+  <h2 class="slide-title">课后编程实验：从零训练迷你扩散模型（MNIST DDPM）</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="col-title">实验任务</div>
+      <ol class="hw-steps">
+        <li><strong>前向加噪</strong>：实现噪声调度（线性或余弦）与 q(x<sub>t</sub>|x<sub>0</sub>) 的一步加噪采样</li>
+        <li><strong>去噪网络</strong>：搭建小型 U-Net（参数量 ≤ 5M），以 MSE 预测噪声 ε<sub>θ</sub> 并训练</li>
+        <li><strong>反向采样</strong>：实现 ancestral sampling，从纯噪声逐步去噪，输出 8×8 样本网格</li>
+        <li><strong>对比分析</strong>：采样步数 1000 / 200 / 50 对生成质量与耗时的影响</li>
+        <li><strong>选做加分</strong>：DDIM 加速采样，或类别条件生成（按指定数字采样）</li>
+      </ol>
+    </div>
+    <div class="col">
+      <div class="col-title">提交与展示</div>
+      <ul class="bullets">
+        <li><strong>代码</strong>：可运行的 PyTorch 工程（zip 或 GitHub 链接），附简要运行说明</li>
+        <li><strong>实验报告</strong>：2–3 页 PDF —— 方法简述、损失曲线、样本网格、步数对比分析、遇到的问题与解决</li>
+        <li><strong>提交方式</strong>：发送至 <span class="hw-mail">xinggangw@agent.qq.com</span>，截止 9 月 10 日（周四）23:59</li>
+        <li><strong>课堂分享</strong>：遴选 5 位同学上讲台展示实验成果（每人约 5 分钟）</li>
+      </ul>
+    </div>
+  </div>
+  <div class="keypoint"><div><strong>算力友好</strong>：MNIST 规模，笔记本 CPU 约 1–2 小时即可完成训练，有 GPU 更快；9 月 3 日（周四）布置，一周后提交，请独立完成并保证结果可复现。</div></div>
 </section>
 
   </div><!-- /#stage -->
